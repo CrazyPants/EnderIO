@@ -1,21 +1,21 @@
 package com.enderio.conduits.client.gui;
 
 import com.enderio.base.api.EnderIO;
-import com.enderio.conduits.api.ConduitDataAccessor;
+import com.enderio.base.api.misc.RedstoneControl;
+import com.enderio.base.client.gui.widget.DyeColorPickerWidget;
+import com.enderio.base.client.gui.widget.RedstoneControlPickerWidget;
+import com.enderio.base.common.lang.EIOLang;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitData;
+import com.enderio.conduits.api.ConduitDataAccessor;
 import com.enderio.conduits.api.ConduitDataType;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.SlotType;
 import com.enderio.conduits.api.screen.ConduitScreenExtension;
-import com.enderio.base.client.gui.widget.DyeColorPickerWidget;
-import com.enderio.base.client.gui.widget.RedstoneControlPickerWidget;
 import com.enderio.conduits.client.gui.conduit.ConduitScreenExtensions;
+import com.enderio.conduits.common.conduit.ConduitBundle;
 import com.enderio.conduits.common.conduit.connection.ConnectionState;
 import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
-import com.enderio.base.api.misc.RedstoneControl;
-import com.enderio.base.common.lang.EIOLang;
-import com.enderio.conduits.common.conduit.ConduitBundle;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.menu.ConduitMenu;
@@ -23,6 +23,9 @@ import com.enderio.conduits.common.network.C2SSetConduitConnectionState;
 import com.enderio.conduits.common.network.C2SSetConduitExtendedData;
 import com.enderio.core.client.gui.screen.EnderContainerScreen;
 import com.enderio.core.client.gui.widgets.ToggleIconButton;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -32,10 +35,6 @@ import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 
 public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
 
@@ -51,10 +50,11 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
     }
-    
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        //close and don't render if someone removed the conduit we are looking at or similar
+        // close and don't render if someone removed the conduit we are looking at or
+        // similar
         if (!menu.stillValid(minecraft.player)) {
             minecraft.player.closeContainer();
         } else {
@@ -74,9 +74,9 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
             guiGraphics.blit(TEXTURE, 102, 7, 255, 0, 1, 97);
         }
 
-        for (SlotType type: SlotType.values()) {
+        for (SlotType type : SlotType.values()) {
             if (type.isAvailableFor(data)) {
-                guiGraphics.blit(TEXTURE, type.getX()-1, type.getY()-1, 206, 0, 18, 18);
+                guiGraphics.blit(TEXTURE, type.getX() - 1, type.getY() - 1, 206, 0, 18, 18);
             }
         }
 
@@ -87,7 +87,7 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
     protected void renderLabels(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
         ConduitMenuData data = getMenuData();
 
-        guiGraphics.drawString(this.font, ConduitLang.CONDUIT_INSERT,  22 + 16 + 2,  7 + 4, 4210752, false);
+        guiGraphics.drawString(this.font, ConduitLang.CONDUIT_INSERT, 22 + 16 + 2, 7 + 4, 4210752, false);
 
         if (data.showBothEnable()) {
             guiGraphics.drawString(this.font, ConduitLang.CONDUIT_EXTRACT, 112 + 16 + 2, 7 + 4, 4210752, false);
@@ -103,45 +103,35 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         Vector2i pos = new Vector2i(22, 7).add(getGuiLeft(), getGuiTop());
 
         addRenderableWidget(
-            ToggleIconButton.createCheckbox(pos.x(), pos.y(),
-                () -> getOnDynamic(dyn -> dyn.isInsert(), false),
-                bool -> actOnDynamic(dyn -> dyn.withEnabled(false, bool))));
+                ToggleIconButton.createCheckbox(pos.x(), pos.y(), () -> getOnDynamic(dyn -> dyn.isInsert(), false),
+                        bool -> actOnDynamic(dyn -> dyn.withEnabled(false, bool))));
 
         if (data.showBothEnable()) {
-            addRenderableWidget(
-                ToggleIconButton.createCheckbox(pos.x() + 90, pos.y(),
+            addRenderableWidget(ToggleIconButton.createCheckbox(pos.x() + 90, pos.y(),
                     () -> getOnDynamic(dyn -> dyn.isExtract(), false),
                     bool -> actOnDynamic(dyn -> dyn.withEnabled(true, bool))));
         }
 
         if (data.showColorInsert()) {
-            addRenderableWidget(
-                new DyeColorPickerWidget(pos.x(), pos.y() + 20,
+            addRenderableWidget(new DyeColorPickerWidget(pos.x(), pos.y() + 20,
                     () -> getOnDynamic(dyn -> dyn.insertChannel(), DyeColor.GREEN),
-                    color -> actOnDynamic(dyn -> dyn.withColor(false, color)),
-                EIOLang.CONDUIT_CHANNEL));
+                    color -> actOnDynamic(dyn -> dyn.withColor(false, color)), EIOLang.CONDUIT_CHANNEL));
         }
 
         if (data.showColorExtract()) {
-            addRenderableWidget(
-                new DyeColorPickerWidget(pos.x() + 90, pos.y() + 20,
+            addRenderableWidget(new DyeColorPickerWidget(pos.x() + 90, pos.y() + 20,
                     () -> getOnDynamic(dyn -> dyn.extractChannel(), DyeColor.GREEN),
-                    color -> actOnDynamic(dyn -> dyn.withColor(true, color)),
-                    EIOLang.CONDUIT_CHANNEL));
+                    color -> actOnDynamic(dyn -> dyn.withColor(true, color)), EIOLang.CONDUIT_CHANNEL));
         }
 
         if (data.showRedstoneExtract()) {
-            addRenderableWidget(
-                new RedstoneControlPickerWidget(pos.x() + 90, pos.y() + 40,
+            addRenderableWidget(new RedstoneControlPickerWidget(pos.x() + 90, pos.y() + 40,
                     () -> getOnDynamic(dyn -> dyn.control(), RedstoneControl.ACTIVE_WITH_SIGNAL),
-                    mode -> actOnDynamic(dyn -> dyn.withRedstoneMode(mode)),
-                    EIOLang.REDSTONE_MODE));
+                    mode -> actOnDynamic(dyn -> dyn.withRedstoneMode(mode)), EIOLang.REDSTONE_MODE));
 
-            addRenderableWidget(
-                new DyeColorPickerWidget(pos.x() + 90 + 20, pos.y() + 40,
+            addRenderableWidget(new DyeColorPickerWidget(pos.x() + 90 + 20, pos.y() + 40,
                     () -> getOnDynamic(dyn -> dyn.redstoneChannel(), DyeColor.GREEN),
-                    color -> actOnDynamic(dyn -> dyn.withRedstoneChannel(color)),
-                    EIOLang.REDSTONE_CHANNEL));
+                    color -> actOnDynamic(dyn -> dyn.withRedstoneChannel(color)), EIOLang.REDSTONE_CHANNEL));
         }
 
         addConduitScreenExtensionWidgets();
@@ -153,10 +143,9 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
 
         if (conduitScreenExtension != null) {
             conduitScreenExtension
-                .createWidgets(this, conduitDataAccessor,
-                    this::sendExtendedConduitUpdate, menu::getDirection,
-                    new Vector2i(22, 7).add(getGuiLeft(), getGuiTop()))
-                .forEach(this::addRenderableWidget);
+                    .createWidgets(this, conduitDataAccessor, this::sendExtendedConduitUpdate, menu::getDirection,
+                            new Vector2i(22, 7).add(getGuiLeft(), getGuiTop()))
+                    .forEach(this::addRenderableWidget);
         }
     }
 
@@ -170,8 +159,8 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
 
         for (int i = 0; i < validConnections.size(); i++) {
             Holder<Conduit<?>> connection = validConnections.get(i);
-            addRenderableWidget(new ConduitSelectionButton(getGuiLeft() + 206, getGuiTop() + 4 + 24*i, connection,
-                this::getConduit, this::setConduitType));
+            addRenderableWidget(new ConduitSelectionButton(getGuiLeft() + 206, getGuiTop() + 4 + 24 * i, connection,
+                    this::getConduit, this::setConduitType));
         }
     }
 
@@ -179,22 +168,17 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         Holder<Conduit<?>> conduit = menu.getConduit();
         ConduitGraphObject node = getBundle().getNodeFor(conduit);
 
-        PacketDistributor.sendToServer(new C2SSetConduitExtendedData(
-            menu.getBlockEntity().getBlockPos(),
-            menu.getConduit(),
-            node.conduitDataContainer()));
+        PacketDistributor.sendToServer(new C2SSetConduitExtendedData(menu.getBlockEntity().getBlockPos(),
+                menu.getConduit(), node.conduitDataContainer()));
     }
 
     private void actOnDynamic(Function<DynamicConnectionState, DynamicConnectionState> map) {
         if (getConnectionState() instanceof DynamicConnectionState dyn) {
-            PacketDistributor.sendToServer(new C2SSetConduitConnectionState(
-                getMenu().getBlockEntity().getBlockPos(),
-                getMenu().getDirection(),
-                getMenu().getConduit(),
-                map.apply(dyn)
-            ));
+            PacketDistributor.sendToServer(new C2SSetConduitConnectionState(getMenu().getBlockEntity().getBlockPos(),
+                    getMenu().getDirection(), getMenu().getConduit(), map.apply(dyn)));
         }
     }
+
     private <T> T getOnDynamic(Function<DynamicConnectionState, T> map, T defaultValue) {
         return getConnectionState() instanceof DynamicConnectionState dyn ? map.apply(dyn) : defaultValue;
     }

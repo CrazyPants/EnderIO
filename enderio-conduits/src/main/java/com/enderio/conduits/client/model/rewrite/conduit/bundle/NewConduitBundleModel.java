@@ -1,5 +1,7 @@
 package com.enderio.conduits.client.model.rewrite.conduit.bundle;
 
+import static com.enderio.conduits.client.ConduitClientSetup.*;
+
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.model.ConduitCoreModelModifier;
@@ -17,6 +19,7 @@ import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.core.data.model.ModelHelper;
 import com.mojang.math.Axis;
 import com.mojang.math.Transformation;
+import java.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -43,10 +46,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-
-import java.util.*;
-
-import static com.enderio.conduits.client.ConduitClientSetup.*;
 
 public class NewConduitBundleModel implements IDynamicBakedModel {
 
@@ -125,13 +124,13 @@ public class NewConduitBundleModel implements IDynamicBakedModel {
 
                         var connectionState = bundleState.getConnectionState(direction, conduit);
                         if (connectionState != null) {
-                            IQuadTransformer color = rotationTranslation
-                                    .andThen(new ColorQuadTransformer(connectionState.inputChannel(), connectionState.outputChannel()));
+                            IQuadTransformer color = rotationTranslation.andThen(new ColorQuadTransformer(
+                                    connectionState.inputChannel(), connectionState.outputChannel()));
 
                             BakedModel model = switch (connectionState.mode()) {
-                                case IN -> modelOf(CONDUIT_IO_IN);
-                                case OUT -> modelOf(CONDUIT_IO_OUT);
-                                case BOTH -> modelOf(CONDUIT_IO_IN_OUT);
+                            case IN -> modelOf(CONDUIT_IO_IN);
+                            case OUT -> modelOf(CONDUIT_IO_OUT);
+                            case BOTH -> modelOf(CONDUIT_IO_IN_OUT);
                             };
 
                             if (model != null) {

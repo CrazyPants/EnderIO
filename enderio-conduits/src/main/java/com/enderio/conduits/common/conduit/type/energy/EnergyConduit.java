@@ -4,7 +4,6 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitNode;
 import com.enderio.conduits.api.ConduitType;
-import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.connection.ConduitConnection;
 import com.enderio.conduits.api.connection.ConduitConnectionMode;
 import com.enderio.conduits.common.init.ConduitLang;
@@ -13,6 +12,7 @@ import com.enderio.core.common.util.TooltipUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -29,29 +29,22 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Consumer;
+public record EnergyConduit(ResourceLocation texture, Component description, int transferRatePerTick)
+        implements Conduit<EnergyConduit> {
 
-public record EnergyConduit(
-    ResourceLocation texture,
-    Component description,
-    int transferRatePerTick
-) implements Conduit<EnergyConduit> {
-
-    public static final MapCodec<EnergyConduit> CODEC = RecordCodecBuilder.mapCodec(
-        builder -> builder
-            .group(
-                ResourceLocation.CODEC.fieldOf("texture").forGetter(Conduit::texture),
-                ComponentSerialization.CODEC.fieldOf("description").forGetter(Conduit::description),
-                Codec.INT.fieldOf("transfer_rate").forGetter(EnergyConduit::transferRatePerTick)
-            ).apply(builder, EnergyConduit::of)
-    );
+    public static final MapCodec<EnergyConduit> CODEC = RecordCodecBuilder.mapCodec(builder -> builder
+            .group(ResourceLocation.CODEC.fieldOf("texture").forGetter(Conduit::texture),
+                    ComponentSerialization.CODEC.fieldOf("description").forGetter(Conduit::description),
+                    Codec.INT.fieldOf("transfer_rate").forGetter(EnergyConduit::transferRatePerTick))
+            .apply(builder, EnergyConduit::of));
 
     public static EnergyConduit of(ResourceLocation texture, Component description, int transferRate) {
         return new EnergyConduit(texture, description, transferRate);
     }
 
     private static final EnergyConduitTicker TICKER = new EnergyConduitTicker();
-    private static final ConduitMenuData MENU_DATA = new ConduitMenuData.Simple(false, false, false, false, false, true);
+    private static final ConduitMenuData MENU_DATA = new ConduitMenuData.Simple(false, false, false, false, false,
+            true);
 
     // Not configurable - energy is instantaneous
     @Override
@@ -90,7 +83,7 @@ public record EnergyConduit(
 
     @Override
     public <TCap, TContext> @Nullable TCap proxyCapability(BlockCapability<TCap, TContext> capability, ConduitNode node,
-        Level level, BlockPos pos, @Nullable TContext context) {
+            Level level, BlockPos pos, @Nullable TContext context) {
 
         if (Capabilities.EnergyStorage.BLOCK == capability && (context == null || context instanceof Direction)) {
             if (context != null) {
@@ -100,8 +93,8 @@ public record EnergyConduit(
                 }
             }
 
-            //noinspection unchecked
-            return (TCap)new EnergyConduitStorage(transferRatePerTick(), node);
+            // noinspection unchecked
+            return (TCap) new EnergyConduitStorage(transferRatePerTick(), node);
         }
 
         return null;
@@ -114,7 +107,8 @@ public record EnergyConduit(
 
     @Override
     public ConduitConnection getDefaultConnection(Level level, BlockPos pos, Direction side) {
-        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos.relative(side), side.getOpposite());
+        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos.relative(side),
+                side.getOpposite());
         if (capability != null) {
             ConduitConnectionMode mode;
 
@@ -123,8 +117,10 @@ public record EnergyConduit(
             } else if (capability.canReceive()) {
                 mode = ConduitConnectionMode.IN;
             } else {
-                // This ensures that if there's an energy capability that might be pushing but won't allow pulling is present, we can still interact
-                // For example Thermal's Dynamos report false until they have energy in them and flux networks always refuse.
+                // This ensures that if there's an energy capability that might be pushing but
+                // won't allow pulling is present, we can still interact
+                // For example Thermal's Dynamos report false until they have energy in them and
+                // flux networks always refuse.
                 mode = ConduitConnectionMode.OUT;
             }
 
@@ -136,7 +132,8 @@ public record EnergyConduit(
     }
 
     @Override
-    public void addToTooltip(Item.TooltipContext pContext, Consumer<Component> pTooltipAdder, TooltipFlag pTooltipFlag) {
+    public void addToTooltip(Item.TooltipContext pContext, Consumer<Component> pTooltipAdder,
+            TooltipFlag pTooltipFlag) {
         String transferLimitFormatted = String.format("%,d", transferRatePerTick());
         pTooltipAdder.accept(TooltipUtil.styledWithArgs(ConduitLang.ENERGY_RATE_TOOLTIP, transferLimitFormatted));
     }

@@ -1,9 +1,11 @@
 package com.enderio.conduits.common.conduit.graph;
 
+import com.enderio.conduits.api.ConduitData;
 import com.enderio.conduits.api.ConduitDataAccessor;
 import com.enderio.conduits.api.ConduitDataType;
-import com.enderio.conduits.api.ConduitData;
 import com.mojang.serialization.Codec;
+import java.util.Objects;
+import java.util.Optional;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -13,19 +15,17 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.Optional;
-
 /**
  * A safe way to store conduit data.
  */
 public class ConduitDataContainer implements ConduitDataAccessor {
 
     public static Codec<ConduitDataContainer> CODEC = ExtraCodecs.optionalEmptyMap(ConduitData.CODEC)
-        .xmap(ConduitDataContainer::new, i -> Optional.ofNullable(i.data));
+            .xmap(ConduitDataContainer::new, i -> Optional.ofNullable(i.data));
 
-    public static StreamCodec<RegistryFriendlyByteBuf, ConduitDataContainer> STREAM_CODEC = ByteBufCodecs.optional(ConduitData.STREAM_CODEC)
-        .map(ConduitDataContainer::new, i -> Optional.ofNullable(i.data));
+    public static StreamCodec<RegistryFriendlyByteBuf, ConduitDataContainer> STREAM_CODEC = ByteBufCodecs
+            .optional(ConduitData.STREAM_CODEC)
+            .map(ConduitDataContainer::new, i -> Optional.ofNullable(i.data));
 
     @Nullable
     private ConduitData<?> data;
@@ -50,7 +50,7 @@ public class ConduitDataContainer implements ConduitDataAccessor {
     @SuppressWarnings("unchecked")
     public <T extends ConduitData<T>> T getData(ConduitDataType<T> type) {
         if (data != null && type == data.type()) {
-            return (T)data;
+            return (T) data;
         }
 
         return null;
@@ -59,11 +59,11 @@ public class ConduitDataContainer implements ConduitDataAccessor {
     @SuppressWarnings("unchecked")
     public <T extends ConduitData<T>> T getOrCreateData(ConduitDataType<T> type) {
         if (data != null && type == data.type()) {
-            return (T)data;
+            return (T) data;
         }
 
         data = type.factory().get();
-        return (T)data;
+        return (T) data;
     }
 
     public void handleClientChanges(ConduitDataContainer clientDataContainer) {
@@ -81,7 +81,8 @@ public class ConduitDataContainer implements ConduitDataAccessor {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends ConduitData<T>> T applyClientChanges(ConduitDataType<T> type, ConduitDataContainer clientDataContainer) {
+    private <T extends ConduitData<T>> T applyClientChanges(ConduitDataType<T> type,
+            ConduitDataContainer clientDataContainer) {
         T myData = getOrCreateData(type);
         T clientData = clientDataContainer.getData(type);
 

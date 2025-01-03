@@ -2,9 +2,10 @@ package com.enderio.conduits.common.conduit.bundle;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
+import com.enderio.conduits.api.connection.ConduitConnectionType;
 import com.enderio.conduits.common.Area;
 import com.enderio.conduits.common.conduit.OffsetHelper;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
+import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -17,8 +18,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
 
 public class NewConduitShape {
     private final Map<Holder<Conduit<?>>, VoxelShape> conduitShapes = new HashMap<>();
@@ -74,7 +73,8 @@ public class NewConduitShape {
 
     private void updateTotalShape() {
         this.totalShape = Shapes.empty();
-        this.conduitShapes.values().forEach(s -> this.totalShape = Shapes.joinUnoptimized(this.totalShape, s, BooleanOp.OR));
+        this.conduitShapes.values()
+                .forEach(s -> this.totalShape = Shapes.joinUnoptimized(this.totalShape, s, BooleanOp.OR));
         totalShape.optimize();
     }
 
@@ -97,10 +97,10 @@ public class NewConduitShape {
             var connectedTypes = conduitBundle.getConnectedConduits(direction);
             if (connectedTypes.contains(conduit)) {
                 Vec3i offset = OffsetHelper.translationFor(direction.getAxis(),
-                    OffsetHelper.offsetConduit(connectedTypes.indexOf(conduit), connectedTypes.size()));
+                        OffsetHelper.offsetConduit(connectedTypes.indexOf(conduit), connectedTypes.size()));
                 offsets.computeIfAbsent(conduit, ignored -> new ArrayList<>()).add(offset);
-                VoxelShape connectionShape = rotateVoxelShape(CONNECTION, direction).move(offset.getX() * 3f / 16f, offset.getY() * 3f / 16f,
-                    offset.getZ() * 3f / 16f);
+                VoxelShape connectionShape = rotateVoxelShape(CONNECTION, direction).move(offset.getX() * 3f / 16f,
+                        offset.getY() * 3f / 16f, offset.getZ() * 3f / 16f);
                 directionShape = Shapes.joinUnoptimized(directionShape, connectionShape, BooleanOp.OR);
                 conduitShape = Shapes.joinUnoptimized(conduitShape, connectionShape, BooleanOp.OR);
             }
@@ -108,8 +108,10 @@ public class NewConduitShape {
         }
 
         var allConduits = conduitBundle.getConduits();
-        @Nullable Area box = null;
-        @Nullable Holder<Conduit<?>> notRendered = null;
+        @Nullable
+        Area box = null;
+        @Nullable
+        Holder<Conduit<?>> notRendered = null;
         int i = allConduits.indexOf(conduit);
         if (i == -1) {
             conduitShapes.put(conduit, Shapes.block());
@@ -117,9 +119,10 @@ public class NewConduitShape {
         }
 
         var type = allConduits.get(i);
-        @Nullable List<Vec3i> offsetsForConduit = offsets.get(type);
+        @Nullable
+        List<Vec3i> offsetsForConduit = offsets.get(type);
         if (offsetsForConduit != null) {
-            //all are pointing to the same xyz reference meaning that we can draw the core
+            // all are pointing to the same xyz reference meaning that we can draw the core
             if (offsetsForConduit.stream().distinct().count() != 1) {
                 box = new Area(offsetsForConduit.toArray(new Vec3i[0]));
             }
@@ -128,26 +131,30 @@ public class NewConduitShape {
         }
 
         if (offsetsForConduit != null && (box == null || !box.contains(offsetsForConduit.get(0)))) {
-            conduitShape = Shapes.joinUnoptimized(conduitShape,
-                CORE.move(offsetsForConduit.get(0).getX() * 3f / 16f, offsetsForConduit.get(0).getY() * 3f / 16f, offsetsForConduit.get(0).getZ() * 3f / 16f),
-                BooleanOp.OR);
+            conduitShape = Shapes.joinUnoptimized(
+                    conduitShape, CORE.move(offsetsForConduit.get(0).getX() * 3f / 16f,
+                            offsetsForConduit.get(0).getY() * 3f / 16f, offsetsForConduit.get(0).getZ() * 3f / 16f),
+                    BooleanOp.OR);
         }
 
         if (box != null) {
             if (notRendered != null) {
                 Vec3i offset = OffsetHelper.translationFor(axis, OffsetHelper.offsetConduit(i, allConduits.size()));
                 if (!box.contains(offset)) {
-                    conduitShape = Shapes.joinUnoptimized(conduitShape, CORE.move(offset.getX() * 3f / 16f, offset.getY() * 3f / 16f, offset.getZ() * 3f / 16f),
-                        BooleanOp.OR);
+                    conduitShape = Shapes.joinUnoptimized(conduitShape,
+                            CORE.move(offset.getX() * 3f / 16f, offset.getY() * 3f / 16f, offset.getZ() * 3f / 16f),
+                            BooleanOp.OR);
                 }
             }
 
-            conduitShape = Shapes.joinUnoptimized(conduitShape, CORE.move(box.getMin().getX() * 3f / 16f, box.getMin().getY() * 3f / 16f, box.getMin().getZ() * 3f / 16f),
-                BooleanOp.OR);
+            conduitShape = Shapes.joinUnoptimized(conduitShape, CORE.move(box.getMin().getX() * 3f / 16f,
+                    box.getMin().getY() * 3f / 16f, box.getMin().getZ() * 3f / 16f), BooleanOp.OR);
         } else {
             if (notRendered != null) {
                 Vec3i offset = OffsetHelper.translationFor(axis, OffsetHelper.offsetConduit(i, allConduits.size()));
-                conduitShape = Shapes.joinUnoptimized(conduitShape, CORE.move(offset.getX() * 3f / 16f, offset.getY() * 3f / 16f, offset.getZ() * 3f / 16f), BooleanOp.OR);
+                conduitShape = Shapes.joinUnoptimized(conduitShape,
+                        CORE.move(offset.getX() * 3f / 16f, offset.getY() * 3f / 16f, offset.getZ() * 3f / 16f),
+                        BooleanOp.OR);
             }
         }
 
@@ -165,18 +172,19 @@ public class NewConduitShape {
         VoxelShape[] buffer = new VoxelShape[] { toRotate, Shapes.empty() };
         if (direction.get2DDataValue() == -1) {
             if (direction == Direction.DOWN) {
-                buffer[0].forAllBoxes(
-                    (minX, minY, minZ, maxX, maxY, maxZ) -> buffer[1] = Shapes.or(buffer[1], Shapes.box(minX, 1 - maxZ, minY, maxX, 1 - minZ, maxY)));
+                buffer[0].forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> buffer[1] = Shapes.or(buffer[1],
+                        Shapes.box(minX, 1 - maxZ, minY, maxX, 1 - minZ, maxY)));
             } else {
-                buffer[0].forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> buffer[1] = Shapes.or(buffer[1], Shapes.box(minX, minZ, minY, maxX, maxZ, maxY)));
+                buffer[0].forAllBoxes((minX, minY, minZ, maxX, maxY,
+                        maxZ) -> buffer[1] = Shapes.or(buffer[1], Shapes.box(minX, minZ, minY, maxX, maxZ, maxY)));
             }
 
             return buffer[1];
         }
 
         for (int i = 0; i < (direction.get2DDataValue()) % 4; i++) {
-            buffer[0].forAllBoxes(
-                (minX, minY, minZ, maxX, maxY, maxZ) -> buffer[1] = Shapes.or(buffer[1], Shapes.box(1 - maxZ, minY, minX, 1 - minZ, maxY, maxX)));
+            buffer[0].forAllBoxes((minX, minY, minZ, maxX, maxY,
+                    maxZ) -> buffer[1] = Shapes.or(buffer[1], Shapes.box(1 - maxZ, minY, minX, 1 - minZ, maxY, maxX)));
             buffer[0] = buffer[1];
             buffer[1] = Shapes.empty();
         }

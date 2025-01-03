@@ -8,6 +8,7 @@ import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.common.conduit.RightClickAction;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
 import com.enderio.conduits.common.init.ConduitComponents;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -47,8 +48,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.fml.loading.FMLLoader;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public class NewConduitBundleBlock extends Block implements EntityBlock {
 
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -65,8 +64,9 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
-        BlockEntityType<T> blockEntityType) {
-        //return createTickerHelper(blockEntityType, typeSupplier.get(), EIOBlockEntity::tick);
+            BlockEntityType<T> blockEntityType) {
+        // return createTickerHelper(blockEntityType, typeSupplier.get(),
+        // EIOBlockEntity::tick);
         return (level1, pos, state1, blockEntity) -> {
             if (blockEntity instanceof NewConduitBundleBlockEntity conduitBundleBlockEntity) {
                 if (level.isClientSide) {
@@ -85,7 +85,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos,
+            CollisionContext context) {
         return getBundleShape(level, pos, false);
     }
 
@@ -101,7 +102,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             }
         }
 
-        // If there's no block entity, no shape - this will stop a bounding box flash when the bundle is first placed
+        // If there's no block entity, no shape - this will stop a bounding box flash
+        // when the bundle is first placed
         return Shapes.empty();
     }
 
@@ -116,7 +118,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock,
+            BlockPos neighborPos, boolean movedByPiston) {
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduit) {
             conduit.updateConnections(level, pos, neighborPos, true);
         }
@@ -129,7 +132,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(WATERLOGGED,
-            context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
+                context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
     }
 
     @Override
@@ -139,14 +142,14 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
 
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
-        BlockPos currentPos, BlockPos neighborPos) {
+            BlockPos currentPos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
         if (level.getBlockEntity(currentPos) instanceof NewConduitBundleBlockEntity conduit) {
             // TODO..
-            //conduit.updateShape();
+            // conduit.updateShape();
         }
 
         return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
@@ -162,7 +165,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     // region Place & Destroy Logic
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
+            ItemStack stack) {
         if (!(placer instanceof Player player)) {
             return;
         }
@@ -172,7 +176,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             if (conduit != null) {
                 conduitBundle.addConduit(conduit, player);
             } else {
-                // We might be placed using a facade item. If we are, apply the facade to the new bundle now.
+                // We might be placed using a facade item. If we are, apply the facade to the
+                // new bundle now.
                 var facadeProvider = stack.getCapability(ConduitCapabilities.CONDUIT_FACADE_PROVIDER);
                 if (facadeProvider != null && facadeProvider.isValid()) {
                     conduitBundle.setFacadeProvider(stack);
@@ -182,23 +187,26 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
-        // TODO: Destroying the last conduit in the block has a laggy disconnect for the neighbours...
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest,
+            FluidState fluid) {
+        // TODO: Destroying the last conduit in the block has a laggy disconnect for the
+        // neighbours...
 
         HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);
 
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
             // Client side does nothing special to the bundle.
-            /*if (level.isClientSide) {
-                // Only do it on the server - otherwise we get a strange flicker as the connections are removed.
-                // TODO: is this the right strategy, or should we do bundle remove logic on the client too...
-                return false;
-            }*/
+            /*
+             * if (level.isClientSide) { // Only do it on the server - otherwise we get a
+             * strange flicker as the connections are removed. // TODO: is this the right
+             * strategy, or should we do bundle remove logic on the client too... return
+             * false; }
+             */
 
             if (conduitBundle.hasFacade() && FacadeHelper.areFacadesVisible()) {
                 SoundType soundtype = state.getSoundType(level, pos, player);
                 level.playSound(player, pos, soundtype.getBreakSound(), SoundSource.BLOCKS,
-                    (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                        (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 
                 if (!player.getAbilities().instabuild) {
                     conduitBundle.dropFacadeItem();
@@ -221,7 +229,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 }
             } else {
                 Holder<Conduit<?>> conduit = conduitBundle.getShape()
-                    .getConduit(((BlockHitResult) hit).getBlockPos(), hit);
+                        .getConduit(((BlockHitResult) hit).getBlockPos(), hit);
                 if (conduit == null) {
                     if (!conduitBundle.getConduits().isEmpty()) {
                         level.playSound(player, pos, SoundEvents.GENERIC_SMALL_FALL, SoundSource.BLOCKS, 1F, 1F);
@@ -233,7 +241,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
 
                 SoundType soundtype = state.getSoundType(level, pos, player);
                 level.playSound(player, pos, soundtype.getBreakSound(), SoundSource.BLOCKS,
-                    (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                        (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 
                 conduitBundle.removeConduit(conduit, player);
 
@@ -259,8 +267,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     // region Item Interactions
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-        BlockHitResult hitResult) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hitResult) {
 
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
             var result = addConduit(stack, level, pos, player, conduitBundle);
@@ -279,7 +287,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
-    private ItemInteractionResult addConduit(ItemStack stack, Level level, BlockPos pos, Player player, NewConduitBundleBlockEntity conduitBundle) {
+    private ItemInteractionResult addConduit(ItemStack stack, Level level, BlockPos pos, Player player,
+            NewConduitBundleBlockEntity conduitBundle) {
         // Get the conduit from the item
         Holder<Conduit<?>> conduit = stack.get(ConduitComponents.CONDUIT);
         if (conduit == null) {
@@ -299,7 +308,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);
                     player.getInventory()
-                        .placeItemBackInInventory(ConduitBlockItem.getStackFor(upgradeResult.replacedConduit(), 1));
+                            .placeItemBackInInventory(ConduitBlockItem.getStackFor(upgradeResult.replacedConduit(), 1));
                 }
             } else if (addResult instanceof RightClickAction.Insert addedResult) {
                 if (!player.getAbilities().instabuild) {
@@ -307,7 +316,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 }
             } else {
                 if (!FMLLoader.isProduction()) {
-                    throw new IllegalStateException("ConduitBundleAccessor#canAddConduit returned true, but addConduit returned BLOCKED");
+                    throw new IllegalStateException(
+                            "ConduitBundleAccessor#canAddConduit returned true, but addConduit returned BLOCKED");
                 }
 
                 return ItemInteractionResult.FAIL;
@@ -316,14 +326,15 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             BlockState blockState = level.getBlockState(pos);
             SoundType soundtype = blockState.getSoundType(level, pos, player);
             level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
-                (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                    (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
             level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, blockState));
         }
 
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }
 
-    private ItemInteractionResult addFacade(ItemStack stack, Level level, BlockPos pos, Player player, NewConduitBundleBlockEntity conduitBundle) {
+    private ItemInteractionResult addFacade(ItemStack stack, Level level, BlockPos pos, Player player,
+            NewConduitBundleBlockEntity conduitBundle) {
         var facadeProvider = stack.getCapability(ConduitCapabilities.CONDUIT_FACADE_PROVIDER);
         if (facadeProvider == null || !facadeProvider.isValid()) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -350,7 +361,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             BlockState blockState = level.getBlockState(pos);
             SoundType soundtype = blockState.getSoundType(level, pos, player);
             level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
-                (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                    (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
             level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, blockState));
         }
 
@@ -362,7 +373,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     // region Hardcoded Redstone Logic
 
     @Override
-    public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
+    public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos,
+            @Nullable Direction direction) {
         if (direction == null) {
             return false;
         }
@@ -400,7 +412,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
 
     @Override
     public BlockState getAppearance(BlockState state, BlockAndTintGetter level, BlockPos pos, Direction side,
-        @Nullable BlockState queryState, @Nullable BlockPos queryPos) {
+            @Nullable BlockState queryState, @Nullable BlockPos queryPos) {
 
         Optional<Block> facade = getFacadeBlock(level, pos);
         if (facade.isPresent()) {

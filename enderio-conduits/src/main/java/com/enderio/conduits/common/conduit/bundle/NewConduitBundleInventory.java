@@ -9,6 +9,9 @@ import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.ConduitInventory;
 import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import com.enderio.conduits.common.conduit.SlotData;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -20,13 +23,10 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-
 public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSerializable<CompoundTag> {
 
-    // TODO: Currently conduit inventories are fairly strict - we might be able to improve this in the future?
+    // TODO: Currently conduit inventories are fairly strict - we might be able to
+    // improve this in the future?
 
     public static int MAX_SLOTS_PER_CONDUIT = 3;
     public static int MAX_CONNECTIONS = Direction.values().length; // 6
@@ -68,7 +68,8 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
             return ItemStack.EMPTY;
         }
 
-        return getStackInSlot(conduitBundle.getConduits().get(slotData.conduitIndex()), slotData.direction(), slotData.slotType());
+        return getStackInSlot(conduitBundle.getConduits().get(slotData.conduitIndex()), slotData.direction(),
+                slotData.slotType());
     }
 
     public ItemStack getStackInSlot(Holder<Conduit<?>> conduit, Direction side, SlotType slotType) {
@@ -85,7 +86,8 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
         }
 
         var conduitSides = conduitSlots.computeIfAbsent(conduit, ignored -> new EnumMap<>(Direction.class));
-        var slots = conduitSides.computeIfAbsent(side, ignored -> NonNullList.withSize(MAX_SLOTS_PER_CONDUIT, ItemStack.EMPTY));
+        var slots = conduitSides.computeIfAbsent(side,
+                ignored -> NonNullList.withSize(MAX_SLOTS_PER_CONDUIT, ItemStack.EMPTY));
 
         return slots.get(slot);
     }
@@ -100,7 +102,8 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
         }
 
         var conduitSides = conduitSlots.computeIfAbsent(conduit, ignored -> new EnumMap<>(Direction.class));
-        var slots = conduitSides.computeIfAbsent(side, ignored -> NonNullList.withSize(MAX_SLOTS_PER_CONDUIT, ItemStack.EMPTY));
+        var slots = conduitSides.computeIfAbsent(side,
+                ignored -> NonNullList.withSize(MAX_SLOTS_PER_CONDUIT, ItemStack.EMPTY));
         slots.set(slot, stack);
         onChanged();
     }
@@ -120,7 +123,8 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
             return;
         }
 
-        setStackInSlot(conduitBundle.getConduits().get(slotData.conduitIndex()), slotData.direction(), slotData.slotType(), stack);
+        setStackInSlot(conduitBundle.getConduits().get(slotData.conduitIndex()), slotData.direction(),
+                slotData.slotType(), stack);
     }
 
     @Override
@@ -192,7 +196,8 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
         }
     }
 
-    private record InventoryReference(NewConduitBundleInventory inventory, Holder<Conduit<?>> conduit) implements ConduitInventory {
+    private record InventoryReference(NewConduitBundleInventory inventory, Holder<Conduit<?>> conduit)
+            implements ConduitInventory {
         @Override
         public ItemStack getStackInSlot(Direction side, SlotType slotType) {
             return inventory.getStackInSlot(conduit, side, slotType);

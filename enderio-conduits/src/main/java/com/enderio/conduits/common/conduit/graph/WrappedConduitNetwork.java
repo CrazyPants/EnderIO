@@ -5,9 +5,8 @@ import com.enderio.conduits.api.ConduitNetworkContext;
 import com.enderio.conduits.api.ConduitNetworkContextType;
 import com.enderio.conduits.api.ConduitNode;
 import dev.gigaherz.graph3.Graph;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Collection;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Wrap the graph for public API consumption.
@@ -16,10 +15,8 @@ public record WrappedConduitNetwork(Graph<ConduitGraphContext> graph) implements
 
     @Override
     public Collection<ConduitNode> getNodes() {
-        //noinspection unchecked
-        return graph.getObjects().stream()
-            .map(object -> (ConduitNode) object)
-            .toList();
+        // noinspection unchecked
+        return graph.getObjects().stream().map(object -> (ConduitNode) object).toList();
     }
 
     @Override

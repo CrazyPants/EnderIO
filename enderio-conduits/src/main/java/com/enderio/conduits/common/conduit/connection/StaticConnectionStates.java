@@ -2,12 +2,11 @@ package com.enderio.conduits.common.conduit.connection;
 
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
+import java.util.function.IntFunction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
-
-import java.util.function.IntFunction;
 
 /**
  * This class is for all static ConnectionStates without being connected to a block. For this use {@link DynamicConnectionState} <br>
@@ -19,14 +18,15 @@ import java.util.function.IntFunction;
  */
 @Deprecated(forRemoval = true, since = "7.2")
 public enum StaticConnectionStates implements ConnectionState, StringRepresentable {
-    CONNECTED(0, "connected"),
-    CONNECTED_ACTIVE(1, "connected_active"),
-    DISCONNECTED(2, "disconnected"),
+    CONNECTED(0, "connected"), CONNECTED_ACTIVE(1, "connected_active"), DISCONNECTED(2, "disconnected"),
     DISABLED(3, "disabled");
 
-    public static final Codec<StaticConnectionStates> CODEC = StringRepresentable.fromEnum(StaticConnectionStates::values);
-    public static final IntFunction<StaticConnectionStates> BY_ID = ByIdMap.continuous(key -> key.id, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
-    public static final StreamCodec<ByteBuf, StaticConnectionStates> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, v -> v.id);
+    public static final Codec<StaticConnectionStates> CODEC = StringRepresentable
+            .fromEnum(StaticConnectionStates::values);
+    public static final IntFunction<StaticConnectionStates> BY_ID = ByIdMap.continuous(key -> key.id, values(),
+            ByIdMap.OutOfBoundsStrategy.ZERO);
+    public static final StreamCodec<ByteBuf, StaticConnectionStates> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID,
+            v -> v.id);
 
     private final int id;
     private final String name;

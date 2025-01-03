@@ -8,10 +8,10 @@ import com.enderio.conduits.api.ConduitData;
 import com.enderio.conduits.api.ConduitDataType;
 import com.enderio.conduits.api.ConduitNetwork;
 import com.enderio.conduits.api.ConduitNode;
-import com.enderio.conduits.api.upgrade.ConduitUpgrade;
-import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
 import com.enderio.conduits.api.bundle.ConduitInventory;
 import com.enderio.conduits.api.connection.ConduitConnection;
+import com.enderio.conduits.api.upgrade.ConduitUpgrade;
+import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.graph3.Graph;
@@ -92,9 +92,9 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
         if (connection != null) {
             connections.put(side, connection);
             ioStates.put(side,
-                IOState.of(connection.canInput() ? connection.inputChannel() : null,
-                    connection.canOutput() ? connection.outputChannel() : null,
-                    connection.redstoneControl(), connection.redstoneChannel()));
+                    IOState.of(connection.canInput() ? connection.inputChannel() : null,
+                            connection.canOutput() ? connection.outputChannel() : null, connection.redstoneControl(),
+                            connection.redstoneChannel()));
         } else {
             connections.remove(side);
             ioStates.remove(side);

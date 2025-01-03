@@ -34,7 +34,7 @@ public interface ConduitBundleAccessor extends ConduitBundleReader {
     // region Connections
 
     // TODO: Should connections be accessible by API?
-    //       Answer: probably not lol.
+    // Answer: probably not lol.
 
     /**
      * Attempt to connect this conduit something in the given direction.

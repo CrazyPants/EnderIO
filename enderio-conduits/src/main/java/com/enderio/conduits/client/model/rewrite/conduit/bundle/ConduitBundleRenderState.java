@@ -1,21 +1,20 @@
 package com.enderio.conduits.client.model.rewrite.conduit.bundle;
 
 import com.enderio.conduits.api.Conduit;
+import com.enderio.conduits.api.bundle.ConduitBundleReader;
+import com.enderio.conduits.api.connection.ConduitConnection;
+import com.enderio.conduits.api.connection.ConduitConnectionType;
 import com.enderio.conduits.common.conduit.OffsetHelper;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
-import com.enderio.conduits.api.bundle.ConduitBundleReader;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
-import com.enderio.conduits.api.connection.ConduitConnection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ConduitBundleRenderState {
     public static final ModelProperty<ConduitBundleRenderState> PROPERTY = new ModelProperty<>();
@@ -25,7 +24,8 @@ public class ConduitBundleRenderState {
     private List<Holder<Conduit<?>>> conduits;
 
     // TODO: Due to the API design, we need to capture the nodes at the moment.
-    //       it could be changed to accept ConduitDataAccessor instead, then we can clone the data storage.
+    // it could be changed to accept ConduitDataAccessor instead, then we can clone
+    // the data storage.
     private Map<Holder<Conduit<?>>, ConduitGraphObject> conduitNodes;
 
     private Map<Direction, List<Holder<Conduit<?>>>> conduitsByDirection;
@@ -41,7 +41,9 @@ public class ConduitBundleRenderState {
 
         renderState.mainAxis = OffsetHelper.findMainAxis(bundle);
         renderState.conduits = List.copyOf(bundle.getConduits());
-        renderState.conduitNodes = bundle.getConduits().stream().collect(HashMap::new, (m, c) -> m.put(c, bundle.getConduitNode(c).deepCopy()), Map::putAll);
+        renderState.conduitNodes = bundle.getConduits()
+                .stream()
+                .collect(HashMap::new, (m, c) -> m.put(c, bundle.getConduitNode(c).deepCopy()), Map::putAll);
         renderState.conduitsByDirection = new HashMap<>();
         for (var side : Direction.values()) {
             renderState.conduitsByDirection.put(side, bundle.getConnectedConduits(side));

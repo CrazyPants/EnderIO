@@ -1,10 +1,9 @@
 package com.enderio.conduits.api;
 
+import java.util.ServiceLoader;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-
-import java.util.ServiceLoader;
 
 public interface ConduitApi {
 

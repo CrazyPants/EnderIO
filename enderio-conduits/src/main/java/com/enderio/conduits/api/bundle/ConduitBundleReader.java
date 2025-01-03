@@ -2,16 +2,15 @@ package com.enderio.conduits.api.bundle;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.ConduitConnection;
+import com.enderio.conduits.api.connection.ConduitConnectionType;
 import com.enderio.conduits.api.facade.FacadeType;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
+import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.List;
 
 /**
  * Immutable access to a conduit bundle.

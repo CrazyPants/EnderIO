@@ -145,7 +145,8 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
     }
 
     default ConduitConnection getDefaultConnection(Level level, BlockPos pos, Direction side) {
-        return new ConduitConnection(ConduitConnectionMode.OUT, DyeColor.GREEN, DyeColor.GREEN, RedstoneControl.NEVER_ACTIVE, DyeColor.RED);
+        return new ConduitConnection(ConduitConnectionMode.OUT, DyeColor.GREEN, DyeColor.GREEN,
+                RedstoneControl.NEVER_ACTIVE, DyeColor.RED);
     }
 
     @Override

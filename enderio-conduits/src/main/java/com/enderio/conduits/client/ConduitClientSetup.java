@@ -7,7 +7,6 @@ import com.enderio.conduits.api.screen.RegisterConduitScreenExtensionsEvent;
 import com.enderio.conduits.client.gui.conduit.ConduitScreenExtensions;
 import com.enderio.conduits.client.gui.conduit.FluidConduitScreenExtension;
 import com.enderio.conduits.client.gui.conduit.ItemConduitScreenExtension;
-import com.enderio.conduits.client.model.ConduitGeometry;
 import com.enderio.conduits.client.model.ConduitItemModelLoader;
 import com.enderio.conduits.client.model.FacadeItemGeometry;
 import com.enderio.conduits.client.model.conduit.modifier.ConduitCoreModelModifiers;
