@@ -2,6 +2,8 @@ package com.enderio.conduits.api;
 
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
+import com.enderio.conduits.api.connection.ConduitConnection;
+import com.enderio.conduits.api.connection.ConduitConnectionMode;
 import com.enderio.conduits.api.ticker.ConduitTicker;
 import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import com.mojang.serialization.Codec;
@@ -17,6 +19,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
@@ -141,11 +144,8 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
         return null;
     }
 
-    default ConduitConnectionData getDefaultConnection(Level level, BlockPos pos, Direction direction) {
-        return new ConduitConnectionData(false, true, RedstoneControl.NEVER_ACTIVE);
-    }
-
-    record ConduitConnectionData(boolean isInsert, boolean isExtract, RedstoneControl control) {
+    default ConduitConnection getDefaultConnection(Level level, BlockPos pos, Direction side) {
+        return new ConduitConnection(ConduitConnectionMode.OUT, DyeColor.GREEN, DyeColor.GREEN, RedstoneControl.NEVER_ACTIVE, DyeColor.RED);
     }
 
     @Override

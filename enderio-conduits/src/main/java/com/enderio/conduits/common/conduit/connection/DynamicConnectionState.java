@@ -21,6 +21,7 @@ import net.neoforged.fml.LogicalSide;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated(forRemoval = true, since = "7.2")
 public record DynamicConnectionState(
     boolean isInsert,
     DyeColor insertChannel,
@@ -70,8 +71,10 @@ public record DynamicConnectionState(
     );
 
     public static DynamicConnectionState defaultConnection(Level level, BlockPos pos, Direction direction, Holder<Conduit<?>> type) {
-        Conduit.ConduitConnectionData defaultConnection = type.value().getDefaultConnection(level, pos, direction);
-        return new DynamicConnectionState(defaultConnection.isInsert(), DyeColor.GREEN, defaultConnection.isExtract(), DyeColor.GREEN, defaultConnection.control(), DyeColor.RED, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY);
+        //Conduit.ConduitConnectionData defaultConnection = type.value().getDefaultConnection(level, pos, direction);
+        //return new DynamicConnectionState(defaultConnection.isInsert(), DyeColor.GREEN, defaultConnection.isExtract(), DyeColor.GREEN, defaultConnection.control(), DyeColor.RED, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY);
+        // STUB
+        return new DynamicConnectionState(false, DyeColor.GREEN, true, DyeColor.GREEN, RedstoneControl.NEVER_ACTIVE, DyeColor.RED, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY);
     }
 
     @Override

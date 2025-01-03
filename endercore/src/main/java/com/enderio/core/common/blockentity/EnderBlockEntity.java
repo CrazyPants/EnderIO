@@ -93,10 +93,11 @@ public class EnderBlockEntity extends BlockEntity {
         }
     }
 
-    @Override
-    public void setChanged() {
-        this.isChangedDeferred = true;
-    }
+    // TODO: I think we might be able to kill this optimisation now?
+//    @Override
+//    public void setChanged() {
+//        this.isChangedDeferred = true;
+//    }
 
     // endregion
 

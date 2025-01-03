@@ -13,10 +13,10 @@ import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.common.conduit.ConduitBundle;
-import com.enderio.conduits.common.conduit.ConduitDataContainer;
-import com.enderio.conduits.common.conduit.ConduitGraphContext;
-import com.enderio.conduits.common.conduit.ConduitGraphObject;
-import com.enderio.conduits.common.conduit.ConduitGraphUtility;
+import com.enderio.conduits.common.conduit.graph.ConduitDataContainer;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphContext;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphUtility;
 import com.enderio.conduits.common.conduit.ConduitSavedData;
 import com.enderio.conduits.common.conduit.ConduitShape;
 import com.enderio.conduits.common.conduit.RightClickAction;
@@ -236,12 +236,18 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
     }
 
     public void everyTick() {
-        if (level != null && !level.isClientSide) {
+        if (level == null) {
+            return;
+        }
+
+        if (!level.isClientSide) {
             serverTick();
             checkConnection = checkConnection.next();
             if (checkConnection.isInitialized()) {
                 updateConnections(level, worldPosition, null, false);
             }
+        } else {
+            clientTick();
         }
     }
 
@@ -564,9 +570,9 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
         ConduitGraphObject node = savedData.takeUnloadedNodeIdentifier(conduit, this.worldPosition);
         if (node == null && bundle.getNodeForTypeExact(conduit) == null) {
             ConduitDataContainer dataContainer = null;
-            if (typeIndex < lazyNodeNBT.size()) {
-                dataContainer = ConduitDataContainer.parse(level.registryAccess(), lazyNodeNBT.getCompound(typeIndex));
-            }
+//            if (typeIndex < lazyNodeNBT.size()) {
+//                dataContainer = ConduitDataContainer.parse(level.registryAccess(), lazyNodeNBT.getCompound(typeIndex));
+//            }
 
             node = new ConduitGraphObject(worldPosition, dataContainer);
             ConduitGraphUtility.integrate(conduit, node, List.of());

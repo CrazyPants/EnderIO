@@ -1,4 +1,4 @@
-package com.enderio.conduits.common.conduit;
+package com.enderio.conduits.common.conduit.graph;
 
 import com.enderio.base.api.UseOnly;
 import com.enderio.base.api.filter.ResourceFilter;
@@ -10,6 +10,8 @@ import com.enderio.conduits.api.ConduitNetwork;
 import com.enderio.conduits.api.ConduitNode;
 import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
+import com.enderio.conduits.api.bundle.ConduitInventory;
+import com.enderio.conduits.api.connection.ConduitConnection;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.graph3.Graph;
@@ -20,6 +22,9 @@ import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.fml.LogicalSide;
@@ -47,6 +52,10 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
     private final ConduitDataContainer conduitDataContainer;
     private final Map<Direction, DynamicConnectionState> connectionStates = new EnumMap<>(Direction.class);
 
+    private final Map<Direction, ConduitConnection> connections = new EnumMap<>(Direction.class);
+
+    private @Nullable ConduitInventory inventory;
+
     public ConduitGraphObject(BlockPos pos) {
         this.pos = pos;
         this.conduitDataContainer = new ConduitDataContainer();
@@ -73,6 +82,23 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
     @Override
     public ConduitNetwork getParentGraph() {
         return wrappedGraph;
+    }
+
+    public void setInventory(@Nullable ConduitInventory inventory) {
+        this.inventory = inventory;
+    }
+
+    public void setConnection(Direction side, @Nullable ConduitConnection connection) {
+        if (connection != null) {
+            connections.put(side, connection);
+            ioStates.put(side,
+                IOState.of(connection.canInput() ? connection.inputChannel() : null,
+                    connection.canOutput() ? connection.outputChannel() : null,
+                    connection.redstoneControl(), connection.redstoneChannel()));
+        } else {
+            connections.remove(side);
+            ioStates.remove(side);
+        }
     }
 
     public void pushState(Direction direction, DynamicConnectionState connectionState) {
@@ -143,6 +169,14 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
     @UseOnly(LogicalSide.CLIENT)
     public ConduitGraphObject deepCopy() {
         return new ConduitGraphObject(pos, conduitDataContainer.deepCopy());
+    }
+
+    public Tag save(HolderLookup.Provider lookupProvider) {
+        return CODEC.encodeStart(lookupProvider.createSerializationContext(NbtOps.INSTANCE), this).getOrThrow();
+    }
+
+    public static ConduitGraphObject parse(HolderLookup.Provider lookupProvider, Tag tag) {
+        return CODEC.decode(lookupProvider.createSerializationContext(NbtOps.INSTANCE), tag).getOrThrow().getFirst();
     }
 
     // Separate method to avoid breaking the graph

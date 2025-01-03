@@ -5,6 +5,8 @@ import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitNode;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.base.api.misc.RedstoneControl;
+import com.enderio.conduits.api.connection.ConduitConnection;
+import com.enderio.conduits.api.connection.ConduitConnectionMode;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.util.TooltipUtil;
@@ -17,6 +19,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -110,19 +113,26 @@ public record EnergyConduit(
     }
 
     @Override
-    public ConduitConnectionData getDefaultConnection(Level level, BlockPos pos, Direction direction) {
-        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos.relative(direction), direction.getOpposite());
+    public ConduitConnection getDefaultConnection(Level level, BlockPos pos, Direction side) {
+        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos.relative(side), side.getOpposite());
         if (capability != null) {
-            if (!capability.canReceive() && !capability.canExtract()) {
+            ConduitConnectionMode mode;
+
+            if (capability.canReceive() && capability.canExtract()) {
+                mode = ConduitConnectionMode.BOTH;
+            } else if (capability.canReceive()) {
+                mode = ConduitConnectionMode.IN;
+            } else {
                 // This ensures that if there's an energy capability that might be pushing but won't allow pulling is present, we can still interact
                 // For example Thermal's Dynamos report false until they have energy in them and flux networks always refuse.
-                return new ConduitConnectionData(false, true, RedstoneControl.ALWAYS_ACTIVE);
+                mode = ConduitConnectionMode.OUT;
             }
 
-            return new ConduitConnectionData(capability.canReceive(), capability.canExtract(), RedstoneControl.ALWAYS_ACTIVE);
+            // TODO: Old EnderIO was red, to not break EIO 7 we'll stick to green.
+            return new ConduitConnection(mode, DyeColor.GREEN, DyeColor.GREEN);
         }
 
-        return Conduit.super.getDefaultConnection(level, pos, direction);
+        return Conduit.super.getDefaultConnection(level, pos, side);
     }
 
     @Override

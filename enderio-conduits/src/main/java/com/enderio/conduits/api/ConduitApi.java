@@ -17,4 +17,6 @@ public interface ConduitApi {
     ItemStack getStackForType(Holder<Conduit<?>> conduit, int count);
 
     Ingredient getIngredientForType(Holder<Conduit<?>> conduit);
+
+    int getConduitSortIndex(Holder<Conduit<?>> conduit);
 }

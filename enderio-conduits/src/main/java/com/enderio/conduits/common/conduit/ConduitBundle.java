@@ -7,6 +7,7 @@ import com.enderio.conduits.api.facade.FacadeType;
 import com.enderio.conduits.common.conduit.connection.ConnectionState;
 import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
 import com.enderio.conduits.common.conduit.connection.StaticConnectionStates;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.core.common.network.NetworkDataSlot;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -82,6 +83,7 @@ public final class ConduitBundle {
         this.pos = pos;
     }
 
+    // TODO: If we enable conversion from new to old, this will become public.
     private ConduitBundle(BlockPos pos, List<Holder<Conduit<?>>> conduits,
             Map<Direction, ConduitConnection> connections, ItemStack facadeItem,
             Map<Holder<Conduit<?>>, ConduitGraphObject> conduitNodes) {
@@ -428,7 +430,7 @@ public final class ConduitBundle {
     }
 
     // TODO: Clean this up
-    private static final class ConduitConnection {
+    public static final class ConduitConnection {
 
         public static Codec<ConduitConnection> CODEC = ConnectionState.CODEC.listOf(0, MAX_CONDUITS)
                 .xmap(ConduitConnection::new, i -> Arrays.stream(i.connectionStates).toList());
@@ -443,7 +445,7 @@ public final class ConduitBundle {
             return states;
         });
 
-        ConduitConnection() {
+        public ConduitConnection() {
         }
 
         private ConduitConnection(List<ConnectionState> connectionStates) {

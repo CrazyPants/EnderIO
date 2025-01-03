@@ -16,7 +16,7 @@ import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.base.common.lang.EIOLang;
 import com.enderio.conduits.common.conduit.ConduitBundle;
-import com.enderio.conduits.common.conduit.ConduitGraphObject;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.menu.ConduitMenu;
 import com.enderio.conduits.common.network.C2SSetConduitConnectionState;

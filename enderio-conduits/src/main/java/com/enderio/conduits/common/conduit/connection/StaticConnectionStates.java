@@ -17,6 +17,7 @@ import java.util.function.IntFunction;
  * {@linkplain StaticConnectionStates#DISCONNECTED DISCONNECTED} is for no Connection
  * {@linkplain StaticConnectionStates#DISABLED DISABLED} is for no connection and activly disabled, so they don't connect, when a conduit is placed next to it (this state is set using the wrench or when IO is both disabled the state returns to this)
  */
+@Deprecated(forRemoval = true, since = "7.2")
 public enum StaticConnectionStates implements ConnectionState, StringRepresentable {
     CONNECTED(0, "connected"),
     CONNECTED_ACTIVE(1, "connected_active"),

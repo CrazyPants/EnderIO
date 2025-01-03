@@ -13,6 +13,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class MachineTravelTargets {
     public static final DeferredRegister<TravelTargetType<?>> TRAVEL_TARGET_TYPES = DeferredRegister
             .create(EnderIORegistries.TRAVEL_TARGET_TYPES, EnderIO.NAMESPACE);
+
     public static final DeferredRegister<TravelTargetSerializer<?>> TRAVEL_TARGET_SERIALIZERS = DeferredRegister
             .create(EnderIORegistries.TRAVEL_TARGET_SERIALIZERS, EnderIO.NAMESPACE);
 

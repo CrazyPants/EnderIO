@@ -1,6 +1,5 @@
 package com.enderio.conduits.api;
 
-import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

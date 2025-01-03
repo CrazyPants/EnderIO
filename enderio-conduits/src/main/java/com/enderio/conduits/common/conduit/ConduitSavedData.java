@@ -5,6 +5,10 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import com.enderio.conduits.api.ticker.ConduitTicker;
 import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphContext;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphUtility;
+import com.enderio.conduits.common.conduit.graph.WrappedConduitNetwork;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitData;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.init.Conduits;
@@ -33,18 +37,20 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-@EventBusSubscriber(modid = EnderIOConduits.MODULE_MOD_ID)
+@EventBusSubscriber(modid = EnderIOConduits.MODULE_MOD_ID, value = Dist.DEDICATED_SERVER)
 public class ConduitSavedData extends SavedData {
 
     private final Map<Holder<Conduit<?>>, List<Graph<ConduitGraphContext>>> networks = new HashMap<>();
 
-    // Used to find the NodeIdentifier(s) of a conduit when it is loaded
+    // Used to find the ConduitGraphObject(s) of a conduit when it is loaded
     private final Map<Holder<Conduit<?>>, Map<ChunkPos, Map<BlockPos, ConduitGraphObject>>> deserializedNodes = new HashMap<>();
 
     private static final Logger LOGGER = LogUtils.getLogger();

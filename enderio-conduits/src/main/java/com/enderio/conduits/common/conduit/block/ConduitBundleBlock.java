@@ -8,7 +8,7 @@ import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.common.conduit.ConduitBundle;
-import com.enderio.conduits.common.conduit.ConduitGraphObject;
+import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.conduit.ConduitSavedData;
 import com.enderio.conduits.common.conduit.RightClickAction;
 import com.enderio.conduits.common.conduit.connection.ConnectionState;
@@ -493,6 +493,10 @@ public class ConduitBundleBlock extends Block implements EntityBlock, SimpleWate
 
             Holder<Conduit<?>> conduit = blockEntity.getShape().getConduit(pos, target);
             if (conduit == null) {
+                if (blockEntity.getBundle().getConduits().isEmpty()) {
+                    return ItemStack.EMPTY;
+                }
+
                 conduit = blockEntity.getBundle().getConduits().getFirst();
             }
 

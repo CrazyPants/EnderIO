@@ -12,6 +12,7 @@ import com.enderio.conduits.client.model.ConduitItemModelLoader;
 import com.enderio.conduits.client.model.FacadeItemGeometry;
 import com.enderio.conduits.client.model.conduit.modifier.ConduitCoreModelModifiers;
 import com.enderio.conduits.client.model.conduit.modifier.FluidConduitCoreModelModifier;
+import com.enderio.conduits.client.model.rewrite.conduit.bundle.ConduitBundleGeometry;
 import com.enderio.conduits.common.init.ConduitTypes;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class ConduitClientSetup {
 
     @SubscribeEvent
     public static void modelLoader(ModelEvent.RegisterGeometryLoaders event) {
-        event.register(EnderIO.loc("conduit"), new ConduitGeometry.Loader());
+        event.register(EnderIO.loc("conduit"), new ConduitBundleGeometry.Loader());
         event.register(EnderIO.loc("conduit_item"), new ConduitItemModelLoader());
         event.register(EnderIO.loc("facades_item"), new FacadeItemGeometry.Loader());
     }

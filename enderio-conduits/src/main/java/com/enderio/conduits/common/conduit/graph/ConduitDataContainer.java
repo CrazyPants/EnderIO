@@ -1,4 +1,4 @@
-package com.enderio.conduits.common.conduit;
+package com.enderio.conduits.common.conduit.graph;
 
 import com.enderio.conduits.api.ConduitDataAccessor;
 import com.enderio.conduits.api.ConduitDataType;
