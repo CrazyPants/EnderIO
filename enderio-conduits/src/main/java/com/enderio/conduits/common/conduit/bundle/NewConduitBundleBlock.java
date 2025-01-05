@@ -4,11 +4,18 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
+import com.enderio.conduits.common.conduit.ConduitA11yManager;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.common.conduit.RightClickAction;
+import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
+import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.init.ConduitComponents;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -19,15 +26,19 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -42,10 +53,13 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 import org.jetbrains.annotations.Nullable;
 
 public class NewConduitBundleBlock extends Block implements EntityBlock {
@@ -79,9 +93,72 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         };
     }
 
+    // region Block Shape
+
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduit) {
+            if (conduit.hasFacade() && FacadeHelper.areFacadesVisible()) {
+                return Shapes.block();
+            }
+
+            // Ensure if a bundle is bugged with 0 conduits that it can be broken.
+            if (!conduit.getConduits().isEmpty()) {
+                // Only show the conduit that is being aimed at if this is a player.
+                if (context instanceof EntityCollisionContext entityCollisionContext) {
+                    if (entityCollisionContext.getEntity() instanceof Player player) {
+
+                        // TODO: Config for this accessibility feature
+//                        if (true) {
+//                            var heldConduit = ConduitA11yManager.getHeldConduit();
+//
+//                            // Option 1: always full
+//                            // Return a full shape if the player is holding a conduit so they don't have to aim
+////                            if (heldConduit != null) {
+////                                return Shapes.block();
+////                                return conduit.getShape().getEncompassingShape();
+////                            }
+//
+//                            // Option 2: Full when present
+//                            if (conduit.hasConduitStrict(heldConduit)) {
+//                                return Shapes.block();
+//                            }
+//                        }
+
+                        HitResult hit = visualPick(player);
+                        if (hit.getType() == HitResult.Type.BLOCK) {
+                            return conduit.getShape().getShapeFromHit(pos, hit);
+                        }
+                    }
+                }
+
+                return conduit.getShape().getTotalShape();
+            }
+        }
+
+        // If there's no block entity, no shape - this will stop a bounding box flash
+        // when the bundle is first placed
+        return Shapes.empty();
+    }
+
+    private HitResult visualPick(Player player) {
+        double hitDistance = player.blockInteractionRange() + 5;
+        Vec3 from = player.getEyePosition(1);
+
+        Vec3 viewVec = player.getViewVector(1);
+        Vec3 to = from.add(viewVec.scale(hitDistance));
+        return player.level().clip(new ClipContext(from, to, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, player));
+    }
+
+    @Override
+    protected VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        // Needs separate handling so that the stock getShape can filter by VISUAL for player hit detection.
         return getBundleShape(level, pos, true);
+    }
+
+    @Override
+    protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return super.getInteractionShape(state, level, pos);
     }
 
     @Override
@@ -105,6 +182,47 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         // If there's no block entity, no shape - this will stop a bounding box flash
         // when the bundle is first placed
         return Shapes.empty();
+    }
+
+    // endregion
+
+    // TODO: Review, I'm sure this could be neater
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos,
+            Player player) {
+        if (level instanceof Level realLevel
+                && state.getOptionalValue(BlockStateProperties.WATERLOGGED).orElse(false)) {
+            var hitResult = Item.getPlayerPOVHitResult(realLevel, player, ClipContext.Fluid.NONE);
+            if (hitResult.getType() == HitResult.Type.MISS) {
+                return Items.AIR.getDefaultInstance();
+            }
+
+            if (hitResult.getBlockPos().equals(pos)) {
+                target = hitResult;
+            } else {
+                return level.getBlockState(hitResult.getBlockPos())
+                        .getCloneItemStack(hitResult, level, hitResult.getBlockPos(), player);
+            }
+        }
+
+        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity blockEntity) {
+            if (blockEntity.hasFacade() && FacadeHelper.areFacadesVisible()) {
+                return blockEntity.getFacadeBlock().asItem().getDefaultInstance();
+            }
+
+            Holder<Conduit<?>> conduit = blockEntity.getShape().getConduit(pos, target);
+            if (conduit == null) {
+                if (blockEntity.getConduits().isEmpty()) {
+                    return ItemStack.EMPTY;
+                }
+
+                conduit = blockEntity.getConduits().getFirst();
+            }
+
+            return ConduitBlockItem.getStackFor(conduit, 1);
+        }
+
+        return super.getCloneItemStack(state, target, level, pos, player);
     }
 
     @Override
@@ -148,8 +266,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         }
 
         if (level.getBlockEntity(currentPos) instanceof NewConduitBundleBlockEntity conduit) {
-            // TODO..
-            // conduit.updateShape();
+             conduit.updateShape();
         }
 
         return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
@@ -177,7 +294,6 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 conduitBundle.addConduit(conduit, player);
             } else {
                 // We might be placed using a facade item. If we are, apply the facade to the
-                // new bundle now.
                 var facadeProvider = stack.getCapability(ConduitCapabilities.CONDUIT_FACADE_PROVIDER);
                 if (facadeProvider != null && facadeProvider.isValid()) {
                     conduitBundle.setFacadeProvider(stack);
@@ -192,7 +308,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         // TODO: Destroying the last conduit in the block has a laggy disconnect for the
         // neighbours...
 
-        HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);
+//        HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);
+        HitResult hit = visualPick(player);
 
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
             // Client side does nothing special to the bundle.
@@ -228,8 +345,29 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                     return false;
                 }
             } else {
-                Holder<Conduit<?>> conduit = conduitBundle.getShape()
-                        .getConduit(((BlockHitResult) hit).getBlockPos(), hit);
+                // TODO: accessibility feature flag
+                Holder<Conduit<?>> conduit = null;
+//                if (true) {
+//                    // If the player is holding a conduit and this flag is enabled, they purposely want to break the held conduit.
+//                    conduit = ConduitA11yManager.getHeldConduit();
+//
+//                    // If we don't have the held conduit, exit now.
+//                    if (conduit != null && !conduitBundle.hasConduitStrict(conduit)) {
+//                        level.playSound(player, pos, SoundEvents.GENERIC_SMALL_FALL, SoundSource.BLOCKS, 1F, 1F);
+//                        return false;
+//                    }
+//
+//                    // TODO: If we adopt the strategy of only showing a bigger box when we're holding a conduit, we need to
+//                    // fire a packet to the server because we can't read whether the player is using the accessibility option on the server.
+//
+//                    // TODO: It could also be possible to leave this in? Idk if this would accidentally fire if the client state is up to date...
+//                }
+
+                if (conduit == null) {
+                    conduit = conduitBundle.getShape()
+                            .getConduit(((BlockHitResult) hit).getBlockPos(), hit);
+                }
+
                 if (conduit == null) {
                     if (!conduitBundle.getConduits().isEmpty()) {
                         level.playSound(player, pos, SoundEvents.GENERIC_SMALL_FALL, SoundSource.BLOCKS, 1F, 1F);
@@ -458,9 +596,4 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     }
 
     // endregion
-
-    @Override
-    protected void spawnDestroyParticles(Level level, Player player, BlockPos pos, BlockState state) {
-        // Disabled for custom handling.
-    }
 }

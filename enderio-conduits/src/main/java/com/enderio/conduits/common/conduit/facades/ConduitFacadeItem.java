@@ -2,16 +2,49 @@ package com.enderio.conduits.common.conduit.facades;
 
 import com.enderio.base.common.lang.EIOLang;
 import com.enderio.conduits.api.ConduitCapabilities;
+import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.init.ConduitLang;
 import java.util.List;
+import java.util.Map;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
-public class ConduitFacadeItem extends Item {
+public class ConduitFacadeItem extends BlockItem {
     public ConduitFacadeItem(Properties properties) {
-        super(properties);
+        super(ConduitBlocks.CONDUIT.get(), properties);
+    }
+
+    @Override
+    protected boolean canPlace(BlockPlaceContext context, BlockState state) {
+        // Must have a valid facade
+        var facade = context.getItemInHand().getCapability(ConduitCapabilities.CONDUIT_FACADE_PROVIDER);
+        if (facade == null || !facade.isValid()) {
+            return false;
+        }
+
+        return super.canPlace(context, state);
+    }
+
+    @Override
+    public void registerBlocks(Map<Block, Item> blockToItemMap, Item item) {
+        // Do not register
+    }
+
+    @Override
+    public String getDescriptionId() {
+        return this.getOrCreateDescriptionId();
     }
 
     @Override

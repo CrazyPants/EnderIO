@@ -66,11 +66,8 @@ public class ConduitBlockItem extends BlockItem {
         @Nullable
         Player player = context.getPlayer();
         BlockPos blockpos = context.getClickedPos();
-        ItemStack itemstack = context.getItemInHand();
 
-        Holder<Conduit<?>> conduit = itemstack.get(ConduitComponents.CONDUIT);
-
-        // Pass through to existing block.
+        // Allow placing from the edge of an adjacent block
         BlockState blockState = level.getBlockState(blockpos);
         if (!blockState.canBeReplaced()) {
             // noinspection DataFlowIssue

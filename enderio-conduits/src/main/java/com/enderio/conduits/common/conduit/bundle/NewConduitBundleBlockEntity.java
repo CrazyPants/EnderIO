@@ -227,6 +227,10 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         }
 
         ConduitGraphObject node = blockEntity.conduitNodes.get(conduit);
+        if (node == null) {
+            return null;
+        }
+
         return conduit.value().proxyCapability(capability, node, blockEntity.level, blockEntity.getBlockPos(), context);
     }
 
@@ -415,15 +419,15 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
             }
         }
 
+        // Node remove event
+        var node = getConduitNode(conduit);
+        conduit.value().onRemoved(node, level, getBlockPos());
+
         // Remove neighbour connections
         removeNeighborConnections(conduit);
 
         // Remove from the inventory's storage.
         inventory.removeConduit(conduit);
-
-        // Node remove event
-        var node = conduitNodes.remove(conduit);
-        conduit.value().onRemoved(node, level, getBlockPos());
 
         // Remove from the graph.
         if (node.getGraph() != null) {
@@ -433,6 +437,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         // Remove from the bundle
         conduits.remove(conduit);
         conduitConnections.remove(conduit);
+        conduitNodes.remove(conduit);
 
         bundleChanged();
     }
@@ -970,6 +975,9 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         for (var entry : bundle.conduitNodes.entrySet()) {
             setNode(entry.getKey(), entry.getValue());
         }
+
+        // Copy facade provider
+        facadeProvider = bundle.facadeItem.copy();
 
         // Copy legacy connections into the new bundle
         conduitConnections = new HashMap<>();

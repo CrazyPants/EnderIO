@@ -12,6 +12,7 @@ import com.enderio.conduits.client.model.FacadeItemGeometry;
 import com.enderio.conduits.client.model.conduit.modifier.ConduitCoreModelModifiers;
 import com.enderio.conduits.client.model.conduit.modifier.FluidConduitCoreModelModifier;
 import com.enderio.conduits.client.model.rewrite.conduit.bundle.ConduitBundleGeometry;
+import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.init.ConduitTypes;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
 @EventBusSubscriber(modid = EnderIOConduits.MODULE_MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class ConduitClientSetup {
@@ -84,6 +86,11 @@ public class ConduitClientSetup {
         for (ModelResourceLocation modelLocation : MODEL_LOCATIONS) {
             MODELS.put(modelLocation, event.getModels().get(modelLocation));
         }
+    }
+
+    @SubscribeEvent
+    public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+        event.registerBlock(ConduitBundleExtension.INSTANCE, ConduitBlocks.CONDUIT);
     }
 
     private static ModelResourceLocation loc(String modelName) {

@@ -12,9 +12,7 @@ import com.enderio.conduits.client.model.ConduitTextureEmissiveQuadTransformer;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.client.model.conduit.modifier.ConduitCoreModelModifiers;
 import com.enderio.conduits.common.Area;
-import com.enderio.conduits.common.conduit.ConduitBundle;
 import com.enderio.conduits.common.conduit.OffsetHelper;
-import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.core.data.model.ModelHelper;
 import com.mojang.math.Axis;
@@ -50,6 +48,7 @@ import org.joml.Vector3f;
 public class NewConduitBundleModel implements IDynamicBakedModel {
 
     public static final ModelProperty<ModelData> FACADE_MODEL_DATA = new ModelProperty<>();
+    public static final ModelProperty<ChunkRenderTypeSet> FACADE_RENDERTYPE = new ModelProperty<>();
 
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand,
@@ -310,7 +309,7 @@ public class NewConduitBundleModel implements IDynamicBakedModel {
             return Minecraft.getInstance()
                     .getBlockRenderer()
                     .getBlockModel(bundleState.facade())
-                    .getParticleIcon(data.get(ConduitBundleBlockEntity.FACADE_MODEL_DATA));
+                    .getParticleIcon(data.get(FACADE_MODEL_DATA));
         }
         return sprite(bundleState.getTexture(bundleState.conduits().getFirst()));
     }
@@ -323,7 +322,7 @@ public class NewConduitBundleModel implements IDynamicBakedModel {
     @Override
     public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand,
             @NotNull ModelData data) {
-        ChunkRenderTypeSet facadeRenderTypes = data.get(ConduitBundleBlockEntity.FACADE_RENDERTYPE);
+        ChunkRenderTypeSet facadeRenderTypes = data.get(FACADE_RENDERTYPE);
         ChunkRenderTypeSet renderTypes = ChunkRenderTypeSet.of(RenderType.cutout());
         if (facadeRenderTypes != null) {
             renderTypes = ChunkRenderTypeSet.union(renderTypes, facadeRenderTypes);
@@ -335,13 +334,14 @@ public class NewConduitBundleModel implements IDynamicBakedModel {
     public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData modelData) {
         ModelData data = IDynamicBakedModel.super.getModelData(level, pos, state, modelData);
         ModelData.Builder builder = data.derive();
-        ConduitBundle conduitBundle = data.get(ConduitBundleBlockEntity.BUNDLE_MODEL_PROPERTY);
-        if (conduitBundle != null && conduitBundle.hasFacade()) {
-            BlockState blockState = conduitBundle.facade().get().defaultBlockState();
+
+        ConduitBundleRenderState bundleState = data.get(ConduitBundleRenderState.PROPERTY);
+        if (bundleState != null && bundleState.hasFacade()) {
+            BlockState blockState = bundleState.facade();
             BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
             ModelData facadeData = blockModel.getModelData(level, pos, blockState, ModelData.EMPTY);
-            builder.with(ConduitBundleBlockEntity.FACADE_MODEL_DATA, facadeData);
-            builder.with(ConduitBundleBlockEntity.FACADE_RENDERTYPE, blockModel.getRenderTypes(blockState,
+            builder.with(FACADE_MODEL_DATA, facadeData);
+            builder.with(FACADE_RENDERTYPE, blockModel.getRenderTypes(blockState,
                     new SingleThreadedRandomSource(state.getSeed(pos)), facadeData));
         }
         return builder.build();
