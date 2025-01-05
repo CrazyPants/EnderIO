@@ -31,6 +31,7 @@ val graphlibVersion: String by project
 val graphlibVersionRange: String by project
 val cctMinecraftVersion: String by project
 val cctVersion: String by project
+val jadeFileId: String by project
 
 configurations {
     runtimeClasspath.get().extendsFrom(create("localRuntime"))
@@ -49,6 +50,9 @@ dependencies {
     //CC-Tweaked
     compileOnly("cc.tweaked:cc-tweaked-$cctMinecraftVersion-core-api:$cctVersion")
     compileOnly("cc.tweaked:cc-tweaked-$cctMinecraftVersion-forge-api:$cctVersion")
+
+    // Jade for addon
+    compileOnly("curse.maven:jade-324717:${jadeFileId}")
 
     // For painting recipe.
     // TODO: This isn't great.
