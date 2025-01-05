@@ -2,7 +2,6 @@ package com.enderio.conduits.api;
 
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
-import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.DyeColor;
@@ -13,9 +12,6 @@ import java.util.Optional;
 public interface ConduitNode extends ConduitDataAccessor {
     Optional<IOState> getIOState(Direction direction);
     BlockPos getPos();
-
-    @Nullable
-    ConduitUpgrade getUpgrade(Direction direction);
 
     @Nullable
     ResourceFilter getExtractFilter(Direction direction);

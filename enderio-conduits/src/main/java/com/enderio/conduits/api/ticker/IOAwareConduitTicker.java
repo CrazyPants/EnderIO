@@ -6,7 +6,6 @@ import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitNetwork;
 import com.enderio.conduits.api.ConduitNode;
-import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import net.minecraft.core.BlockPos;
@@ -109,11 +108,6 @@ public interface IOAwareConduitTicker<TConduit extends Conduit<TConduit>> extend
 
         public BlockPos move() {
             return pos().relative(direction);
-        }
-
-        @Nullable
-        public ConduitUpgrade upgrade() {
-            return node.getUpgrade(direction);
         }
 
         @Nullable

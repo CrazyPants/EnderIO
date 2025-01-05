@@ -9,7 +9,6 @@ import com.enderio.conduits.api.facade.FacadeType;
 import com.enderio.conduits.client.ConduitFacadeColor;
 import com.enderio.conduits.common.conduit.facades.ComponentBackedConduitFacadeProvider;
 import com.enderio.conduits.common.conduit.facades.ConduitFacadeItem;
-import com.enderio.conduits.common.conduit.upgrade.SpeedUpgradeItem;
 import com.enderio.conduits.common.redstone.DoubleRedstoneChannel;
 import com.enderio.conduits.common.redstone.RedstoneCountFilter;
 import com.enderio.conduits.common.redstone.RedstoneFilterItem;
@@ -51,38 +50,6 @@ public class ConduitItems {
                 .addCapability(ConduitCapabilities.CONDUIT_FACADE_PROVIDER,
                         ComponentBackedConduitFacadeProvider.PROVIDER);
     }
-
-    public static final RegiliteItem<SpeedUpgradeItem> EXTRACTION_SPEED_UPGRADE_1 = ITEM_REGISTRY
-            .registerItem("extraction_speed_upgrade_1",
-                    properties -> new SpeedUpgradeItem(
-                            properties.component(ConduitComponents.EXTRACTION_SPEED_UPGRADE_TIER, 1)))
-            .setTranslation("Tier 1 Extraction Speed Upgrade")
-            .setTab(EIOCreativeTabs.CONDUITS)
-            .addCapability(ConduitCapabilities.CONDUIT_UPGRADE, SpeedUpgradeItem.CAPABILITY_PROVIDER);
-
-    public static final RegiliteItem<SpeedUpgradeItem> EXTRACTION_SPEED_UPGRADE_2 = ITEM_REGISTRY
-            .registerItem("extraction_speed_upgrade_2",
-                    properties -> new SpeedUpgradeItem(
-                            properties.component(ConduitComponents.EXTRACTION_SPEED_UPGRADE_TIER, 2)))
-            .setTranslation("Tier 2 Extraction Speed Upgrade")
-            .setTab(EIOCreativeTabs.CONDUITS)
-            .addCapability(ConduitCapabilities.CONDUIT_UPGRADE, SpeedUpgradeItem.CAPABILITY_PROVIDER);
-
-    public static final RegiliteItem<SpeedUpgradeItem> EXTRACTION_SPEED_UPGRADE_3 = ITEM_REGISTRY
-            .registerItem("extraction_speed_upgrade_3",
-                    properties -> new SpeedUpgradeItem(
-                            properties.component(ConduitComponents.EXTRACTION_SPEED_UPGRADE_TIER, 3)))
-            .setTranslation("Tier 3 Extraction Speed Upgrade")
-            .setTab(EIOCreativeTabs.CONDUITS)
-            .addCapability(ConduitCapabilities.CONDUIT_UPGRADE, SpeedUpgradeItem.CAPABILITY_PROVIDER);
-
-    public static final RegiliteItem<SpeedUpgradeItem> EXTRACTION_SPEED_UPGRADE_4 = ITEM_REGISTRY
-            .registerItem("extraction_speed_upgrade_4",
-                    properties -> new SpeedUpgradeItem(
-                            properties.component(ConduitComponents.EXTRACTION_SPEED_UPGRADE_TIER, 4)))
-            .setTranslation("Tier 4 Extraction Speed Upgrade")
-            .setTab(EIOCreativeTabs.CONDUITS)
-            .addCapability(ConduitCapabilities.CONDUIT_UPGRADE, SpeedUpgradeItem.CAPABILITY_PROVIDER);
 
     public static final RegiliteItem<RedstoneFilterItem> NOT_FILTER = createRedstoneFilter("redstone_not_filter",
             ConduitComponents.REDSTONE_NOT_FILTER, Unit.INSTANCE, RedstoneFilterItem.NOT_FILTER_PROVIDER, null);

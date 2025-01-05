@@ -7,7 +7,6 @@ import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.api.SlotType;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.ConduitInventory;
-import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import com.enderio.conduits.common.conduit.SlotData;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -165,12 +164,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
 
             return conduit.value().canApplyFilter(slotData.slotType(), resourceFilter);
         case UPGRADE_EXTRACT:
-            ConduitUpgrade conduitUpgrade = stack.getCapability(ConduitCapabilities.CONDUIT_UPGRADE);
-            if (conduitUpgrade == null) {
-                return false;
-            }
-
-            return conduit.value().canApplyUpgrade(slotData.slotType(), conduitUpgrade);
+            // Upgrades have been removed
         default:
             return false;
         }

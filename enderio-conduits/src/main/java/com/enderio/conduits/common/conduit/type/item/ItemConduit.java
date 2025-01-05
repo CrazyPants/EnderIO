@@ -6,8 +6,6 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.SlotType;
-import com.enderio.conduits.api.upgrade.ConduitUpgrade;
-import com.enderio.conduits.common.components.ExtractionSpeedUpgrade;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.util.TooltipUtil;
@@ -58,11 +56,6 @@ public record ItemConduit(
     @Override
     public ConduitMenuData getMenuData() {
         return MENU_DATA;
-    }
-
-    @Override
-    public boolean canApplyUpgrade(SlotType slotType, ConduitUpgrade conduitUpgrade) {
-        return conduitUpgrade instanceof ExtractionSpeedUpgrade;
     }
 
     @Override

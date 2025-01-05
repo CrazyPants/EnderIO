@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "enderio:item/extraction_speed_upgrade_2"
-  }
-}

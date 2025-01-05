@@ -107,10 +107,6 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
         return false;
     }
 
-    default boolean canApplyUpgrade(SlotType slotType, ConduitUpgrade conduitUpgrade) {
-        return false;
-    }
-
     default boolean canApplyFilter(SlotType slotType, ResourceFilter resourceFilter) {
         return false;
     }

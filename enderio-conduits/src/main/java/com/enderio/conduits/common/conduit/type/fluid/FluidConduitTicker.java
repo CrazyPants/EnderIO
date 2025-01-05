@@ -5,7 +5,6 @@ import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.ConduitNetwork;
 import com.enderio.conduits.api.ConduitNode;
 import com.enderio.conduits.api.ticker.CapabilityAwareConduitTicker;
-import com.enderio.conduits.common.components.ExtractionSpeedUpgrade;
 import com.enderio.conduits.common.init.ConduitTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -19,19 +18,12 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.List;
-import java.util.Optional;
 
 public class FluidConduitTicker extends CapabilityAwareConduitTicker<FluidConduit, IFluidHandler> {
 
     private int getScaledFluidRate(FluidConduit conduit, CapabilityConnection extractingConnection) {
         // Adjust for tick rate. Always flow up so we are at minimum meeting the required rate.
         int rate = (int)Math.ceil(conduit.transferRatePerTick() * (20.0 / conduit.graphTickRate()));
-
-        // Apply speed upgrade
-        if (extractingConnection.upgrade() instanceof ExtractionSpeedUpgrade speedUpgrade) {
-            // TODO: Review scaling.
-            rate *= (int) Math.pow(2, speedUpgrade.tier());
-        }
         return rate;
     }
 

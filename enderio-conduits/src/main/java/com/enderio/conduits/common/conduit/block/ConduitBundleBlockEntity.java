@@ -9,7 +9,6 @@ import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitNode;
 import com.enderio.conduits.api.SlotType;
-import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.common.conduit.ConduitBundle;
@@ -821,12 +820,7 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
 
                 return conduit.value().canApplyFilter(slotData.slotType(), resourceFilter);
             case UPGRADE_EXTRACT:
-                ConduitUpgrade conduitUpgrade = stack.getCapability(ConduitCapabilities.CONDUIT_UPGRADE);
-                if (conduitUpgrade == null) {
-                    return false;
-                }
-
-                return conduit.value().canApplyUpgrade(slotData.slotType(), conduitUpgrade);
+                // Upgrades have been removed
             default:
                 return false;
             }

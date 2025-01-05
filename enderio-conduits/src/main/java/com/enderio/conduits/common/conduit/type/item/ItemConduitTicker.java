@@ -4,7 +4,6 @@ import com.enderio.base.api.filter.ItemStackFilter;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.ConduitNetwork;
 import com.enderio.conduits.api.ticker.CapabilityAwareConduitTicker;
-import com.enderio.conduits.common.components.ExtractionSpeedUpgrade;
 import com.enderio.conduits.common.init.ConduitTypes;
 import java.util.List;
 import net.minecraft.core.Direction;
@@ -27,9 +26,6 @@ public class ItemConduitTicker extends CapabilityAwareConduitTicker<ItemConduit,
             int extracted = 0;
 
             int speed = conduit.transferRatePerCycle();
-            if (extract.upgrade() instanceof ExtractionSpeedUpgrade speedUpgrade) {
-                speed *= (int) Math.pow(2, speedUpgrade.tier());
-            }
 
             nextItem: for (int i = 0; i < extractHandler.getSlots(); i++) {
                 ItemStack extractedItem = extractHandler.extractItem(i, speed - extracted, true);
