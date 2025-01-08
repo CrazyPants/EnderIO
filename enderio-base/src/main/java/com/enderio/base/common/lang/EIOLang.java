@@ -57,26 +57,8 @@ public class EIOLang {
     public static final Component TOO_MANY_LEVELS = addTranslation("info", EnderIO.loc("too_many_levels"),
             "You have more than 21862 levels, that's too much XP.");
 
-    public static final Component CONDUIT_CHANNEL = addTranslation("gui", EnderIO.loc("conduit_channel"),
-            "Conduit-Channel");
-    public static final Component REDSTONE_CHANNEL = addTranslation("gui", EnderIO.loc("redstone_channel"),
-            "Redstone-Channel");
     public static final Component REDSTONE_MODE = addTranslation("gui", EnderIO.loc("redstone.mode"),
-            "Redstone Mode");
-    public static final Component ROUND_ROBIN_ENABLED = addTranslation("gui", EnderIO.loc("round_robin.enabled"),
-            "Round Robin Enabled");
-    public static final Component ROUND_ROBIN_DISABLED = addTranslation("gui", EnderIO.loc("round_robin.disabled"),
-            "Round Robin Disabled");
-    public static final Component SELF_FEED_ENABLED = addTranslation("gui", EnderIO.loc("self_feed.enabled"),
-            "Self Feed Enabled");
-    public static final Component SELF_FEED_DISABLED = addTranslation("gui", EnderIO.loc("self_feed.disabled"),
-            "Self Feed Disabled");
-    public static final Component FLUID_CONDUIT_CHANGE_FLUID1 = addTranslation("gui",
-            EnderIO.loc("fluid_conduit.change_fluid1"), "Locked Fluid:");
-    public static final Component FLUID_CONDUIT_CHANGE_FLUID2 = addTranslation("gui",
-            EnderIO.loc("fluid_conduit.change_fluid2"), "Click to reset!");
-    public static final MutableComponent FLUID_CONDUIT_CHANGE_FLUID3 = addTranslation("gui",
-            EnderIO.loc("fluid_conduit.change_fluid3"), "Fluid: %s");
+        "Redstone Mode");
 
     public static final MutableComponent TANK_EMPTY_STRING = addTranslation("tooltip",
             EnderIO.loc("fluid_tank.tank_empty_tooltip"), "Empty tank");

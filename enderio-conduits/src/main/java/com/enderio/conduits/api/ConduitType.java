@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+// TODO: Change this from an interface to a record + builder?
+//       No point in having an interface imo.
 public interface ConduitType<T extends Conduit<T>> {
     Codec<ConduitType<?>> CODEC = Codec.lazyInitialized(EnderIOConduitsRegistries.CONDUIT_TYPE::byNameCodec);
     StreamCodec<RegistryFriendlyByteBuf, ConduitType<?>> STREAM_CODEC = StreamCodec.recursive(

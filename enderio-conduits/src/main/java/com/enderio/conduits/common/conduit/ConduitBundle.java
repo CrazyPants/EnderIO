@@ -2,7 +2,8 @@ package com.enderio.conduits.common.conduit;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
-import com.enderio.conduits.api.SlotType;
+import com.enderio.conduits.api.bundle.AddConduitResult;
+import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.facade.FacadeType;
 import com.enderio.conduits.common.conduit.connection.ConnectionState;
 import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
@@ -53,12 +54,7 @@ public final class ConduitBundle {
             Codec.unboundedMap(Conduit.CODEC, ConduitGraphObject.CODEC).fieldOf("nodes").forGetter(i -> i.conduitNodes))
             .apply(instance, ConduitBundle::new));
 
-    public static StreamCodec<RegistryFriendlyByteBuf, ConduitBundle> STREAM_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, i -> i.pos, Conduit.STREAM_CODEC.apply(ByteBufCodecs.list()), i -> i.conduits,
-            ByteBufCodecs.map(HashMap::new, Direction.STREAM_CODEC, ConduitConnection.STREAM_CODEC), i -> i.connections,
-            ItemStack.OPTIONAL_STREAM_CODEC, i -> i.facadeItem,
-            ByteBufCodecs.map(HashMap::new, Conduit.STREAM_CODEC, ConduitGraphObject.STREAM_CODEC), i -> i.conduitNodes,
-            ConduitBundle::new);
+    public static StreamCodec<RegistryFriendlyByteBuf, ConduitBundle> STREAM_CODEC = null;
 
     public static NetworkDataSlot.CodecType<ConduitBundle> DATA_SLOT_TYPE = new NetworkDataSlot.CodecType<>(CODEC,
             STREAM_CODEC);
@@ -109,13 +105,13 @@ public final class ConduitBundle {
     /**
      * @return an action containing the conduit that is now not in this bundle
      */
-    public RightClickAction addConduit(Level level, Holder<Conduit<?>> conduit, Player player) {
+    public AddConduitResult addConduit(Level level, Holder<Conduit<?>> conduit, Player player) {
         if (conduits.size() == MAX_CONDUITS) {
-            return new RightClickAction.Blocked();
+            return new AddConduitResult.Blocked();
         }
 
         if (conduits.contains(conduit)) {
-            return new RightClickAction.Blocked();
+            return new AddConduitResult.Blocked();
         }
 
         // New node
@@ -132,7 +128,7 @@ public final class ConduitBundle {
             ConduitGraphObject prevNode = conduitNodes.remove(first.get());
 
             if (prevNode != null) {
-                node = new ConduitGraphObject(pos, prevNode.conduitDataContainer()); // new node with old data
+                node = new ConduitGraphObject(pos, prevNode.getNodeData()); // new node with old data
                 conduit.value().onRemoved(prevNode, level, pos);
                 if (!level.isClientSide() && prevNode.getGraph() != null) {
                     prevNode.getGraph().remove(prevNode);
@@ -143,14 +139,14 @@ public final class ConduitBundle {
             conduit.value().onCreated(node, level, pos, player);
             onChanged();
 
-            return new RightClickAction.Upgrade(first.get());
+            return new AddConduitResult.Upgrade(first.get());
         }
 
         // some conduit says no (like higher energy conduit)
         if (conduits.stream()
                 .anyMatch(existingConduit -> !existingConduit.value().canBeInSameBundle(conduit)
                         || !conduit.value().canBeInSameBundle(existingConduit))) {
-            return new RightClickAction.Blocked();
+            return new AddConduitResult.Blocked();
         }
 
         // sort the list, so order is consistent
@@ -178,7 +174,7 @@ public final class ConduitBundle {
         }
 
         onChanged();
-        return new RightClickAction.Insert();
+        return new AddConduitResult.Insert();
     }
 
     public void onLoad(Level level, BlockPos pos) {
@@ -362,7 +358,7 @@ public final class ConduitBundle {
             if (index >= 0) {
                 var state = connection.getConnectionState(index);
                 if (state instanceof DynamicConnectionState dynamicState) {
-                    node.pushState(direction, dynamicState);
+//                    node.pushState(direction, dynamicState);
                 }
             }
         }
@@ -404,7 +400,6 @@ public final class ConduitBundle {
         // breaking the graph.
         for (var entry : conduitNodes.entrySet()) {
             hash = 31 * hash + entry.getKey().hashCode();
-            hash = 31 * hash + entry.getValue().hashContents();
         }
 
         return hash;
@@ -424,7 +419,7 @@ public final class ConduitBundle {
         }, pos);
         bundle.conduits.addAll(conduits);
         connections.forEach((dir, connection) -> bundle.connections.put(dir, connection.deepCopy()));
-        conduitNodes.forEach((conduit, node) -> bundle.setNodeFor(conduit, node.deepCopy()));
+//        conduitNodes.forEach((conduit, node) -> bundle.setNodeFor(conduit, node.deepCopy()));
         bundle.facadeItem = facadeItem.copy();
         return bundle;
     }
@@ -474,7 +469,7 @@ public final class ConduitBundle {
             if (end) {
                 var state = DynamicConnectionState.defaultConnection(level, pos, direction, type);
                 connectionStates[typeIndex] = state;
-                conduitGraphObject.pushState(direction, state);
+//                conduitGraphObject.pushState(direction, state);
             } else {
                 connectionStates[typeIndex] = StaticConnectionStates.CONNECTED;
             }

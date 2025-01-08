@@ -1,12 +1,14 @@
 package com.enderio.conduits.api.connection;
 
-import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import java.util.function.IntFunction;
+
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
+
+import javax.annotation.Nullable;
 
 public enum ConduitConnectionType implements StringRepresentable {
     /**
@@ -16,7 +18,6 @@ public enum ConduitConnectionType implements StringRepresentable {
 
     /**
      * This conduit is connected to a block for extract.
-     * A {@link ConduitConnectionMode} will describe the properties of the connection.
      */
     CONNECTED_BLOCK("connected_block"),
 
@@ -30,7 +31,7 @@ public enum ConduitConnectionType implements StringRepresentable {
      */
     DISABLED("disabled");
 
-    public static final Codec<ConduitConnectionType> CODEC = StringRepresentable
+    public static final StringRepresentable.EnumCodec<ConduitConnectionType> CODEC = StringRepresentable
             .fromEnum(ConduitConnectionType::values);
     public static final IntFunction<ConduitConnectionType> BY_ID = ByIdMap.continuous(Enum::ordinal, values(),
             ByIdMap.OutOfBoundsStrategy.ZERO);
@@ -67,5 +68,10 @@ public enum ConduitConnectionType implements StringRepresentable {
     @Override
     public String getSerializedName() {
         return name;
+    }
+
+    @Nullable
+    public static ConduitConnectionType byName(@Nullable String name) {
+        return CODEC.byName(name);
     }
 }

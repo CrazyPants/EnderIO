@@ -55,35 +55,35 @@ public abstract class EnderContainerScreen<T extends AbstractContainerMenu> exte
     }
 
     @Override
-    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (menu instanceof LegacyBaseBlockEntityMenu<?> baseBlockEntityMenu
                 && baseBlockEntityMenu.getBlockEntity() == null) {
             return;
         }
 
-        super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if (shouldRenderLabels) {
-            super.renderLabels(pGuiGraphics, pMouseX, pMouseY);
+            super.renderLabels(guiGraphics, mouseX, mouseY);
         }
 
         // Move back to screen space rather than aligned to the background coordinates
-        pGuiGraphics.pose().pushPose();
-        pGuiGraphics.pose().translate(-leftPos, -topPos, 0.0D);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(-leftPos, -topPos, 0.0D);
 
         int zOffset = 200;
         for (var layer : overlayRenderables.keySet()) {
             // Offset deeper for each layer.
-            pGuiGraphics.pose().pushPose();
+            guiGraphics.pose().pushPose();
             zOffset += 150;
-            pGuiGraphics.pose().translate(0.0D, 0.0D, zOffset);
+            guiGraphics.pose().translate(0.0D, 0.0D, zOffset);
 
             for (var overlay : overlayRenderables.get(layer)) {
                 if (!(overlay instanceof AbstractWidget widget) || widget.isActive()) {
-                    overlay.render(pGuiGraphics, pMouseX, pMouseY,
+                    overlay.render(guiGraphics, mouseX, mouseY,
                             Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
 
                     if (overlay instanceof BaseOverlay baseOverlay) {
@@ -92,19 +92,19 @@ public abstract class EnderContainerScreen<T extends AbstractContainerMenu> exte
                 }
             }
 
-            pGuiGraphics.pose().popPose();
+            guiGraphics.pose().popPose();
         }
 
-        pGuiGraphics.pose().popPose();
+        guiGraphics.pose().popPose();
 
-        pGuiGraphics.pose().translate(0, 0, zOffset);
+        guiGraphics.pose().translate(0, 0, zOffset);
 
-        pGuiGraphics.pose().pushPose();
-        pGuiGraphics.pose().translate(-leftPos, -topPos, 0.0D);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(-leftPos, -topPos, 0.0D);
 
-        renderTooltip(pGuiGraphics, pMouseX, pMouseY);
+        renderTooltip(guiGraphics, mouseX, mouseY);
 
-        pGuiGraphics.pose().popPose();
+        guiGraphics.pose().popPose();
     }
 
     @Override

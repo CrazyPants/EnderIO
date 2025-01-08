@@ -1,16 +1,20 @@
 package com.enderio.conduits.api.bundle;
 
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.connection.ConduitConnection;
 import com.enderio.conduits.api.connection.ConduitConnectionType;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.facade.FacadeType;
-import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
+
 import java.util.List;
+
+import com.enderio.conduits.api.network.node.ConduitNode;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Immutable access to a conduit bundle.
@@ -24,9 +28,19 @@ public interface ConduitBundleReader {
      */
     List<Holder<Conduit<?>>> getConduits();
 
-    // TEMP
+    /**
+     * @throws IllegalArgumentException if the conduit is not present.
+     * @param conduit the conduit to get a node for.
+     * @return the conduit node.
+     */
+    ConduitNode getConduitNode(Holder<Conduit<?>> conduit);
 
-    ConduitGraphObject getConduitNode(Holder<Conduit<?>> conduit);
+    /**
+     * @param conduit the conduit to get data for.
+     * @return the client data tag, or null if there is none or the conduit doesn't sync extra data.
+     */
+    @Nullable
+    CompoundTag getConduitClientDataTag(Holder<Conduit<?>> conduit);
 
     /**
      * @implNote compare conduits using {@link Conduit#canConnectTo(Holder)}
@@ -69,12 +83,11 @@ public interface ConduitBundleReader {
     ConduitConnectionType getConnectionType(Direction side, Holder<Conduit<?>> conduit);
 
     /**
-     * @throws IllegalStateException if {@link #getConnectionType} is not {@link ConduitConnectionType#CONNECTED_BLOCK}.
      * @param side
      * @param conduit
      * @return
      */
-    ConduitConnection getConnection(Direction side, Holder<Conduit<?>> conduit);
+    ConnectionConfig getConnectionConfig(Direction side, Holder<Conduit<?>> conduit);
 
     /**
      * An endpoint is a side which has a "connection plate" to another block, rather than to continued line of bundles.

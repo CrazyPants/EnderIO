@@ -27,6 +27,26 @@ public class ConduitFacadeItem extends BlockItem {
     }
 
     @Override
+    public InteractionResult place(BlockPlaceContext context) {
+        Level level = context.getLevel();
+        @Nullable
+        Player player = context.getPlayer();
+        BlockPos blockpos = context.getClickedPos();
+
+        // Allow placing from the edge of an adjacent block
+        BlockState blockState = level.getBlockState(blockpos);
+        if (!blockState.isAir()) {
+            // noinspection DataFlowIssue
+            return blockState
+                .useItemOn(context.getItemInHand(), level, player, context.getHand(),
+                    context.getHitResult().withPosition(blockpos))
+                .result();
+        }
+
+        return super.place(context);
+    }
+
+    @Override
     protected boolean canPlace(BlockPlaceContext context, BlockState state) {
         // Must have a valid facade
         var facade = context.getItemInHand().getCapability(ConduitCapabilities.CONDUIT_FACADE_PROVIDER);

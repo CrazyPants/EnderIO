@@ -1,6 +1,6 @@
 package com.enderio.conduits.common.conduit;
 
-import com.enderio.conduits.api.SlotType;
+import com.enderio.conduits.api.bundle.SlotType;
 import net.minecraft.core.Direction;
 
 public record SlotData(Direction direction, int conduitIndex, SlotType slotType) {

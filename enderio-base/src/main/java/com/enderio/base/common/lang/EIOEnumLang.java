@@ -8,6 +8,7 @@ import com.enderio.core.common.lang.EnumTranslationMap;
 import com.enderio.regilite.Regilite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 
 public class EIOEnumLang {
 
@@ -18,6 +19,26 @@ public class EIOEnumLang {
                     .addTranslation(RedstoneControl.ACTIVE_WITH_SIGNAL, "Active with Signal")
                     .addTranslation(RedstoneControl.ACTIVE_WITHOUT_SIGNAL, "Active without Signal")
                     .addTranslation(RedstoneControl.NEVER_ACTIVE, "Never Active")
+                    .build();
+
+    public static final EnumTranslationMap<DyeColor> DYE_COLOR = builder(DyeColor.class,
+            "redstone")
+                    .addTranslation(DyeColor.WHITE, "White")
+                    .addTranslation(DyeColor.ORANGE, "Orange")
+                    .addTranslation(DyeColor.MAGENTA, "Magenta")
+                    .addTranslation(DyeColor.LIGHT_BLUE, "Light Blue")
+                    .addTranslation(DyeColor.YELLOW, "Yellow")
+                    .addTranslation(DyeColor.LIME, "Lime")
+                    .addTranslation(DyeColor.PINK, "Pink")
+                    .addTranslation(DyeColor.GRAY, "Gray")
+                    .addTranslation(DyeColor.LIGHT_GRAY, "Light Gray")
+                    .addTranslation(DyeColor.CYAN, "Cyan")
+                    .addTranslation(DyeColor.PURPLE, "Purple")
+                    .addTranslation(DyeColor.BLUE, "Blue")
+                    .addTranslation(DyeColor.BROWN, "Brown")
+                    .addTranslation(DyeColor.GREEN, "Green")
+                    .addTranslation(DyeColor.RED, "Red")
+                    .addTranslation(DyeColor.BLACK, "Black")
                     .build();
 
     public static final EnumTranslationMap<GlassCollisionPredicate> GLASS_COLLISION = builder(

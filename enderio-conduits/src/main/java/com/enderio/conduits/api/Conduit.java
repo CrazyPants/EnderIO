@@ -2,16 +2,19 @@ package com.enderio.conduits.api;
 
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
-import com.enderio.conduits.api.connection.ConduitConnection;
-import com.enderio.conduits.api.connection.ConduitConnectionMode;
+import com.enderio.conduits.api.bundle.SlotType;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.network.node.ConduitNode;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.api.ticker.ConduitTicker;
-import com.enderio.conduits.api.upgrade.ConduitUpgrade;
 import com.mojang.serialization.Codec;
 import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -25,6 +28,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.BlockCapability;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
 public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<TConduit>, TooltipProvider {
@@ -113,8 +117,9 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
 
     /**
      * Gets the conduit texture to display, given the data.
+     * @param clientDataTag client data from {@link #getClientDataTag(ConduitNode)}.
      */
-    default ResourceLocation getTexture(ConduitNode node) {
+    default ResourceLocation getTexture(@Nullable CompoundTag clientDataTag) {
         return texture();
     }
 
@@ -140,10 +145,50 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
         return null;
     }
 
-    default ConduitConnection getDefaultConnection(Level level, BlockPos pos, Direction side) {
-        return new ConduitConnection(ConduitConnectionMode.OUT, DyeColor.GREEN, DyeColor.GREEN,
-                RedstoneControl.NEVER_ACTIVE, DyeColor.RED);
+    // region Conduit Data
+
+    /**
+     * @return the expected conduit connection config type.
+     */
+    ConnectionConfigType<?> connectionConfigType();
+
+    /**
+     * Convert old conduit connection data into the new connection config.
+     * This is executed during world load, so no level is available to query.
+     * @implNote Only needs to be implemented if the conduit existed in Ender IO 7.1 or earlier.
+     * @deprecated Only for conversion of <7.1 conduit data. Will be removed in Ender IO 8.
+     */
+    @Deprecated(since = "7.2")
+    ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
+        DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel);
+
+    /**
+     * Copy legacy data from the old conduit data accessor to the new node however you wish.
+     * @implNote The node is guaranteed to have a network at this point, so the context can be accessed.
+     * @param node the node.
+     * @param legacyDataAccessor the legacy data.
+     */
+    @Deprecated(since = "7.2")
+    default void copyLegacyData(ConduitNode node, ConduitDataAccessor legacyDataAccessor) {
     }
+
+    // endregion
+
+    // region Custom Sync
+
+    default boolean hasClientDataTag() {
+        return false;
+    }
+
+    /**
+     * Create a custom tag for syncing data from node data or network context to the client for extra behaviours.
+     * @return custom sync data.
+     */
+    default CompoundTag getClientDataTag(ConduitNode node) {
+        throw new NotImplementedException();
+    }
+
+    // endregion
 
     @Override
     default void addToTooltip(Item.TooltipContext pContext, Consumer<Component> pTooltipAdder,

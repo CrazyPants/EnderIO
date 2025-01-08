@@ -1,11 +1,13 @@
 package com.enderio.conduits.common.conduit.type.energy;
 
+import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitType;
-import com.enderio.conduits.api.connection.ConduitConnection;
-import com.enderio.conduits.api.connection.ConduitConnectionMode;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.util.TooltipUtil;
@@ -25,9 +27,10 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+// TODO: Redstone control isn't working properly - the cap needs to refuse input to the node if the connection being fed into is blocked by a redstone signal.
 
 public record EnergyConduit(ResourceLocation texture, Component description, int transferRatePerTick)
         implements Conduit<EnergyConduit> {
@@ -87,8 +90,17 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
 
         if (Capabilities.EnergyStorage.BLOCK == capability && (context == null || context instanceof Direction)) {
             if (context != null) {
-                var state = node.getIOState((Direction) context);
-                if (state.isPresent() && !state.get().isExtract()) {
+                // No connection, no cap.
+                if (!node.isConnectedTo((Direction) context)) {
+                    return null;
+                }
+
+                var config = node.getConnectionConfig((Direction) context);
+                if (!config.isConnected()) {
+                    return null;
+                }
+
+                if (config instanceof ResourceConnectionConfig ioConfig && !ioConfig.canInsert()) {
                     return null;
                 }
             }
@@ -106,29 +118,14 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
     }
 
     @Override
-    public ConduitConnection getDefaultConnection(Level level, BlockPos pos, Direction side) {
-        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos.relative(side),
-                side.getOpposite());
-        if (capability != null) {
-            ConduitConnectionMode mode;
+    public ConnectionConfigType<?> connectionConfigType() {
+        return ConduitTypes.ConnectionTypes.ENERGY.get();
+    }
 
-            if (capability.canReceive() && capability.canExtract()) {
-                mode = ConduitConnectionMode.BOTH;
-            } else if (capability.canReceive()) {
-                mode = ConduitConnectionMode.IN;
-            } else {
-                // This ensures that if there's an energy capability that might be pushing but
-                // won't allow pulling is present, we can still interact
-                // For example Thermal's Dynamos report false until they have energy in them and
-                // flux networks always refuse.
-                mode = ConduitConnectionMode.OUT;
-            }
-
-            // TODO: Old EnderIO was red, to not break EIO 7 we'll stick to green.
-            return new ConduitConnection(mode, DyeColor.GREEN, DyeColor.GREEN);
-        }
-
-        return Conduit.super.getDefaultConnection(level, pos, side);
+    @Override
+    public ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
+        RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+        return new EnergyConduitConnectionConfig(isInsert, isExtract, redstoneControl, redstoneChannel);
     }
 
     @Override

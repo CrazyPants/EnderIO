@@ -1,8 +1,8 @@
 package com.enderio.conduits.common.conduit.type.redstone;
 
 import com.enderio.conduits.api.ColoredRedstoneProvider;
-import com.enderio.conduits.api.ConduitNetwork;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.network.ConduitNetwork;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.IOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.init.ConduitTypes;
@@ -42,17 +42,20 @@ public class RedstoneConduitTicker implements IOAwareConduitTicker<RedstoneCondu
     public void tickGraph(ServerLevel level, RedstoneConduit conduit, ConduitNetwork graph,
             ColoredRedstoneProvider coloredRedstoneProvider) {
 
-        Collection<ConduitNode> nodeIdentifiers = graph.getNodes();
+        Collection<ConduitNode> nodes = graph.getNodes();
+
+        RedstoneConduitNetworkContext context = graph.getOrCreateContext(RedstoneConduitNetworkContext.TYPE);
+        boolean isActiveBeforeTick = context.isActive();
+        context.clear();
 
         activeColors.clear();
-        tickGraph(level, conduit, nodeIdentifiers.stream().filter(node -> isLoaded(level, node.getPos())).toList(),
+        tickGraph(level, conduit, nodes.stream().filter(ConduitNode::isLoaded).toList(),
                 graph, coloredRedstoneProvider);
 
-        for (var nodeIdentifier : nodeIdentifiers) {
-            RedstoneConduitData data = nodeIdentifier.getOrCreateData(ConduitTypes.Data.REDSTONE.get());
-            data.clearActive();
-            for (var entry : activeColors.entrySet()) {
-                data.setActiveColor(entry.getKey(), entry.getValue());
+        // If active changed, nodes need to be synced.
+        if (context.isActive() != isActiveBeforeTick) {
+            for (var node : nodes) {
+                node.markDirty();
             }
         }
     }
@@ -61,6 +64,8 @@ public class RedstoneConduitTicker implements IOAwareConduitTicker<RedstoneCondu
     public void tickColoredGraph(ServerLevel level, RedstoneConduit conduit, List<Connection> inserts,
             List<Connection> extracts, DyeColor color, ConduitNetwork graph,
             ColoredRedstoneProvider coloredRedstoneProvider) {
+
+        RedstoneConduitNetworkContext networkContext = graph.getOrCreateContext(RedstoneConduitNetworkContext.TYPE);
 
         for (Connection extract : extracts) {
             int signal;
@@ -71,7 +76,7 @@ public class RedstoneConduitTicker implements IOAwareConduitTicker<RedstoneCondu
             }
 
             if (signal > 0) {
-                activeColors.put(color, Math.max(activeColors.getOrDefault(color, 0), signal));
+                networkContext.setSignal(color, signal);
             }
         }
 

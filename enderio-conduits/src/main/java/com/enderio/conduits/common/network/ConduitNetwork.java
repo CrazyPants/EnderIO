@@ -1,6 +1,9 @@
 package com.enderio.conduits.common.network;
 
 import com.enderio.conduits.EnderIOConduits;
+import com.enderio.conduits.common.network.connections.C2SSetConduitChannelPacket;
+import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneChannelPacket;
+import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneControlPacket;
 import com.enderio.core.EnderCore;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -34,6 +37,15 @@ public class ConduitNetwork {
 
         registrar.playToServer(CountFilterPacket.TYPE, CountFilterPacket.STREAM_CODEC,
             ConduitServerPayloadHandler.getInstance()::handleCountFilter);
+
+        registrar.playToServer(C2SSetConduitChannelPacket.TYPE, C2SSetConduitChannelPacket.STREAM_CODEC,
+            ConduitServerPayloadHandler.getInstance()::handleSetConduitChannelPacket);
+
+        registrar.playToServer(C2SSetConduitRedstoneControlPacket.TYPE, C2SSetConduitRedstoneControlPacket.STREAM_CODEC,
+            ConduitServerPayloadHandler.getInstance()::handleSetConduitRedstoneControlPacket);
+
+        registrar.playToServer(C2SSetConduitRedstoneChannelPacket.TYPE, C2SSetConduitRedstoneChannelPacket.STREAM_CODEC,
+            ConduitServerPayloadHandler.getInstance()::handleSetConduitRedstoneChannelPacket);
     }
 
 }

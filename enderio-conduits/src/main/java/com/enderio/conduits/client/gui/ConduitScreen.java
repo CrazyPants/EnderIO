@@ -6,11 +6,11 @@ import com.enderio.base.client.gui.widget.DyeColorPickerWidget;
 import com.enderio.base.client.gui.widget.RedstoneControlPickerWidget;
 import com.enderio.base.common.lang.EIOLang;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitData;
-import com.enderio.conduits.api.ConduitDataAccessor;
-import com.enderio.conduits.api.ConduitDataType;
+import com.enderio.conduits.api.network.node.legacy.ConduitData;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
 import com.enderio.conduits.api.ConduitMenuData;
-import com.enderio.conduits.api.SlotType;
+import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.screen.ConduitScreenExtension;
 import com.enderio.conduits.client.gui.conduit.ConduitScreenExtensions;
 import com.enderio.conduits.common.conduit.ConduitBundle;
@@ -115,13 +115,13 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         if (data.showColorInsert()) {
             addRenderableWidget(new DyeColorPickerWidget(pos.x(), pos.y() + 20,
                     () -> getOnDynamic(dyn -> dyn.insertChannel(), DyeColor.GREEN),
-                    color -> actOnDynamic(dyn -> dyn.withColor(false, color)), EIOLang.CONDUIT_CHANNEL));
+                    color -> actOnDynamic(dyn -> dyn.withColor(false, color)), ConduitLang.CONDUIT_CHANNEL));
         }
 
         if (data.showColorExtract()) {
             addRenderableWidget(new DyeColorPickerWidget(pos.x() + 90, pos.y() + 20,
                     () -> getOnDynamic(dyn -> dyn.extractChannel(), DyeColor.GREEN),
-                    color -> actOnDynamic(dyn -> dyn.withColor(true, color)), EIOLang.CONDUIT_CHANNEL));
+                    color -> actOnDynamic(dyn -> dyn.withColor(true, color)), ConduitLang.CONDUIT_CHANNEL));
         }
 
         if (data.showRedstoneExtract()) {
@@ -131,7 +131,7 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
 
             addRenderableWidget(new DyeColorPickerWidget(pos.x() + 90 + 20, pos.y() + 40,
                     () -> getOnDynamic(dyn -> dyn.redstoneChannel(), DyeColor.GREEN),
-                    color -> actOnDynamic(dyn -> dyn.withRedstoneChannel(color)), EIOLang.REDSTONE_CHANNEL));
+                    color -> actOnDynamic(dyn -> dyn.withRedstoneChannel(color)), ConduitLang.REDSTONE_CHANNEL));
         }
 
         addConduitScreenExtensionWidgets();
@@ -168,8 +168,8 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         Holder<Conduit<?>> conduit = menu.getConduit();
         ConduitGraphObject node = getBundle().getNodeFor(conduit);
 
-        PacketDistributor.sendToServer(new C2SSetConduitExtendedData(menu.getBlockEntity().getBlockPos(),
-                menu.getConduit(), node.conduitDataContainer()));
+//        PacketDistributor.sendToServer(new C2SSetConduitExtendedData(menu.getBlockEntity().getBlockPos(),
+//                menu.getConduit(), node.conduitDataContainer()));
     }
 
     private void actOnDynamic(Function<DynamicConnectionState, DynamicConnectionState> map) {
@@ -215,7 +215,8 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
     private class ClientConduitDataAccessor implements ConduitDataAccessor {
 
         private ConduitDataAccessor getCurrentDataAccessor() {
-            return getBundle().getNodeFor(menu.getConduit());
+//            return getBundle().getNodeFor(menu.getConduit());
+            return null;
         }
 
         @Override

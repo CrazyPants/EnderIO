@@ -2,32 +2,40 @@ package com.enderio.conduits.common.conduit.type.fluid;
 
 import com.enderio.base.api.filter.FluidStackFilter;
 import com.enderio.base.api.filter.ResourceFilter;
+import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.menu.ConduitMenuExtension;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitType;
-import com.enderio.conduits.api.SlotType;
+import com.enderio.conduits.api.bundle.SlotType;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.util.TooltipUtil;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import java.util.Objects;
 import java.util.function.Consumer;
+
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
 
 public record FluidConduit(ResourceLocation texture, Component description, int transferRatePerTick,
         boolean isMultiFluid) implements Conduit<FluidConduit> {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final MapCodec<FluidConduit> CODEC = RecordCodecBuilder
             .mapCodec(
@@ -76,32 +84,82 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
 
     @Override
     public boolean canConnectTo(ConduitNode selfNode, ConduitNode otherNode) {
-        FluidConduitData selfData = selfNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
-        FluidConduitData otherData = otherNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
+        // Ensure the networks are not locked to different fluids before connecting.
+        var selfNetwork = selfNode.getNetwork();
+        var otherNetwork = otherNode.getNetwork();
 
-        return selfData.lockedFluid() == null || otherData.lockedFluid() == null
-                || selfData.lockedFluid() == otherData.lockedFluid();
-    }
-
-    @Override
-    public void onConnectTo(ConduitNode selfNode, ConduitNode otherNode) {
-        FluidConduitData selfData = selfNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
-        FluidConduitData otherData = otherNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
-
-        if (selfData.lockedFluid() != null) {
-            if (otherData.lockedFluid() != null && selfData.lockedFluid() != otherData.lockedFluid()) {
-                LOGGER.warn("incompatible fluid conduits merged");
-            }
-
-            otherData.setLockedFluid(selfData.lockedFluid());
-        } else if (otherData.lockedFluid() != null) {
-            selfData.setLockedFluid(otherData.lockedFluid());
+        // If one network does not yet exist, then we're good to connect.
+        if (selfNetwork == null || otherNetwork == null) {
+            return true;
         }
+
+        var selfContext = selfNetwork.getContext(FluidConduitNetworkContext.TYPE);
+        var otherContext = otherNetwork.getContext(FluidConduitNetworkContext.TYPE);
+
+        // If either is null, it isn't locked.
+        if (selfContext == null || otherContext == null) {
+            return true;
+        }
+
+        return selfContext.lockedFluid() == otherContext.lockedFluid();
     }
 
     @Override
     public boolean canApplyFilter(SlotType slotType, ResourceFilter resourceFilter) {
         return resourceFilter instanceof FluidStackFilter;
+    }
+
+    @Override
+    public ConnectionConfigType<?> connectionConfigType() {
+//        return SimpleRedstoneControlledConnectionConfig.TYPE;
+        return null;
+    }
+
+    @Override
+    public ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
+        RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+//        return new SimpleRedstoneControlledConnectionConfig(ConduitConnectionMode.of(isInsert, isExtract), inputChannel, outputChannel,
+//            redstoneControl, redstoneChannel);
+        return null;
+    }
+
+    @Override
+    public void copyLegacyData(ConduitNode node, ConduitDataAccessor legacyDataAccessor) {
+        var legacyData = legacyDataAccessor.getData(ConduitTypes.Data.FLUID.get());
+        if (legacyData == null) {
+            return;
+        }
+
+        var context = Objects.requireNonNull(node.getNetwork()).getOrCreateContext(FluidConduitNetworkContext.TYPE);
+
+        if (!context.lockedFluid().isSame(Fluids.EMPTY)) {
+            return;
+        }
+
+        // Copy locked fluid from old data.
+        context.setLockedFluid(legacyData.lockedFluid());
+    }
+
+    @Override
+    public boolean hasClientDataTag() {
+        return true;
+    }
+
+    @Override
+    public CompoundTag getClientDataTag(ConduitNode node) {
+        var tag = new CompoundTag();
+
+        if (node.getNetwork() == null) {
+            return tag;
+        }
+
+        var context = node.getNetwork().getContext(FluidConduitNetworkContext.TYPE);
+        if (context == null) {
+            return tag;
+        }
+
+        tag.putString("LockedFluid", BuiltInRegistries.FLUID.getKey(context.lockedFluid()).toString());
+        return tag;
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.enderio.base.common.init.EIOItems;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitApi;
 import com.enderio.conduits.api.ConduitCapabilities;
-import com.enderio.conduits.api.ConduitDataType;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import com.enderio.modconduits.ConduitModule;

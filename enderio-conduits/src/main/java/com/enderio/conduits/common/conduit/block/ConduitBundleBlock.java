@@ -9,7 +9,7 @@ import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.common.conduit.ConduitBundle;
 import com.enderio.conduits.common.conduit.ConduitSavedData;
-import com.enderio.conduits.common.conduit.RightClickAction;
+import com.enderio.conduits.api.bundle.AddConduitResult;
 import com.enderio.conduits.common.conduit.connection.ConnectionState;
 import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
 import com.enderio.conduits.common.conduit.connection.StaticConnectionStates;
@@ -17,10 +17,9 @@ import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitData;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
 import com.enderio.conduits.common.init.ConduitComponents;
-import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.init.Conduits;
 import com.enderio.conduits.common.redstone.RedstoneInsertFilter;
-import java.util.Objects;
+
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -224,18 +223,18 @@ public class ConduitBundleBlock extends Block implements EntityBlock, SimpleWate
             return Optional.empty();
         }
 
-        RightClickAction action = blockEntity.addType(conduit, player);
+        AddConduitResult action = blockEntity.addType(conduit, player);
 
         ItemInteractionResult result;
 
-        if (action instanceof RightClickAction.Upgrade upgradeAction) {
+        if (action instanceof AddConduitResult.Upgrade upgradeAction) {
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);
                 player.getInventory()
                         .placeItemBackInInventory(ConduitBlockItem.getStackFor(upgradeAction.replacedConduit(), 1));
             }
             result = ItemInteractionResult.sidedSuccess(isClientSide);
-        } else if (action instanceof RightClickAction.Insert) {
+        } else if (action instanceof AddConduitResult.Insert) {
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);
             }
@@ -287,7 +286,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock, SimpleWate
             ConnectionState connectionState = bundle.getConnectionState(direction, conduit);
 
             if (connectionState instanceof DynamicConnectionState dyn) {
-                bundle.getNodeFor(conduit).clearState(direction);
+//                bundle.getNodeFor(conduit).clearState(direction);
                 blockEntity.dropConnectionItems(dyn);
                 bundle.setConnectionState(direction, conduit, StaticConnectionStates.DISABLED);
                 blockEntity.updateShape();
@@ -632,12 +631,13 @@ public class ConduitBundleBlock extends Block implements EntityBlock, SimpleWate
                 return 0;
             }
 
-            if (!conduitBundle.getNodeFor(redstoneConduit).hasData(ConduitTypes.Data.REDSTONE.get())) {
-                return 0;
-            }
+//            if (!conduitBundle.getNodeFor(redstoneConduit).hasData(ConduitTypes.Data.REDSTONE.get())) {
+//                return 0;
+//            }
 
-            RedstoneConduitData data = conduitBundle.getNodeFor(redstoneConduit).getData(ConduitTypes.Data.REDSTONE.get());
-            return getSignalOutput(dyn, Objects.requireNonNull(data));
+//            RedstoneConduitData data = conduitBundle.getNodeFor(redstoneConduit).getData(ConduitTypes.Data.REDSTONE.get());
+//            return getSignalOutput(dyn, Objects.requireNonNull(data));
+            return 0;
         }
 
         return 0;

@@ -1,9 +1,9 @@
 package com.enderio.conduits.common.conduit.graph;
 
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitNetworkContext;
-import com.enderio.conduits.api.ConduitNetworkContextAccessor;
-import com.enderio.conduits.api.ConduitNetworkContextType;
+import com.enderio.conduits.api.network.ConduitNetworkContext;
+import com.enderio.conduits.api.network.ConduitNetworkContextAccessor;
+import com.enderio.conduits.api.network.ConduitNetworkContextType;
 import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import dev.gigaherz.graph3.Mergeable;
 import java.util.Objects;

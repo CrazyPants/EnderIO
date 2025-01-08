@@ -1,6 +1,7 @@
 package com.enderio.base.client.gui.widget;
 
 import com.enderio.base.client.gui.icon.EIOEnumIcons;
+import com.enderio.base.common.lang.EIOEnumLang;
 import com.enderio.core.client.gui.widgets.BaseEnumPickerWidget;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +40,7 @@ public class DyeColorPickerWidget extends BaseEnumPickerWidget<DyeColor> {
     @Override
     @Nullable
     public Component getValueTooltip(DyeColor value) {
-        return null;
+        return EIOEnumLang.DYE_COLOR.get(value);
     }
 
     @Override

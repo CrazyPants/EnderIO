@@ -1,8 +1,8 @@
 package com.enderio.conduits.common.conduit.graph;
 
-import com.enderio.conduits.api.ConduitData;
-import com.enderio.conduits.api.ConduitDataAccessor;
-import com.enderio.conduits.api.ConduitDataType;
+import com.enderio.conduits.api.network.node.legacy.ConduitData;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
 import com.mojang.serialization.Codec;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,8 +42,17 @@ public class ConduitDataContainer implements ConduitDataAccessor {
         this.data = data.orElse(null);
     }
 
+    public boolean hasData() {
+        return data != null;
+    }
+
     public boolean hasData(ConduitDataType<?> type) {
         return data != null && data.type() == type;
+    }
+
+    @Nullable
+    public ConduitData<?> getData() {
+        return data;
     }
 
     @Nullable

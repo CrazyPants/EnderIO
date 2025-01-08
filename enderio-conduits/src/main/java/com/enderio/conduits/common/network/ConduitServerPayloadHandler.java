@@ -1,14 +1,23 @@
 package com.enderio.conduits.common.network;
 
 import com.enderio.base.common.init.EIOCapabilities;
+import com.enderio.conduits.api.bundle.ConduitBundleAccessor;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.ChannelResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.menu.ConduitMenu;
+import com.enderio.conduits.common.network.connections.C2SConduitConnectionPacket;
+import com.enderio.conduits.common.network.connections.C2SSetConduitChannelPacket;
+import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneChannelPacket;
+import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneControlPacket;
 import com.enderio.conduits.common.redstone.DoubleRedstoneChannel;
 import com.enderio.conduits.common.redstone.RedstoneCountFilter;
 import com.enderio.conduits.common.redstone.RedstoneTimerFilter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.apache.logging.log4j.util.TriConsumer;
 
 public class ConduitServerPayloadHandler {
     private static final ConduitServerPayloadHandler INSTANCE = new ConduitServerPayloadHandler();
@@ -71,6 +80,49 @@ public class ConduitServerPayloadHandler {
             var channels = mainHandItem.getCapability(EIOCapabilities.Filter.ITEM);
             if (channels instanceof RedstoneCountFilter count) {
                 count.setState(packet);
+            }
+        });
+    }
+
+    public void handleSetConduitChannelPacket(C2SSetConduitChannelPacket packet, IPayloadContext context) {
+        handleConduitConfigPacket(packet, context, (p, conduitBundle, currentConfig) -> {
+            if (currentConfig instanceof ChannelResourceConnectionConfig channelledConnectionConfig) {
+                if (packet.channelSide() == C2SSetConduitChannelPacket.Side.INPUT) {
+                    conduitBundle.setConnectionConfig(p.side(), p.conduit(),
+                        channelledConnectionConfig.withInputChannel(p.channelColor()));
+                } else {
+                    conduitBundle.setConnectionConfig(p.side(), p.conduit(),
+                        channelledConnectionConfig.withOutputChannel(p.channelColor()));
+                }
+            }
+        });
+    }
+
+    public void handleSetConduitRedstoneControlPacket(C2SSetConduitRedstoneControlPacket packet, IPayloadContext context) {
+        handleConduitConfigPacket(packet, context, (p, conduitBundle, currentConfig) -> {
+            if (currentConfig instanceof RedstoneControlledConnection redstoneControlledConnection) {
+                conduitBundle.setConnectionConfig(p.side(), p.conduit(),
+                    redstoneControlledConnection.withRedstoneControl(p.redstoneControl()));
+            }
+        });
+    }
+
+    public void handleSetConduitRedstoneChannelPacket(C2SSetConduitRedstoneChannelPacket packet, IPayloadContext context) {
+        handleConduitConfigPacket(packet, context, (p, conduitBundle, currentConfig) -> {
+            if (currentConfig instanceof RedstoneControlledConnection redstoneControlledConnection) {
+                conduitBundle.setConnectionConfig(p.side(), p.conduit(),
+                    redstoneControlledConnection.withRedstoneChannel(p.redstoneChannel()));
+            }
+        });
+    }
+
+    private <T extends C2SConduitConnectionPacket> void handleConduitConfigPacket(T packet, IPayloadContext context, TriConsumer<T, ConduitBundleAccessor, ConnectionConfig> packetConsumer) {
+        context.enqueueWork(() -> {
+            var level = context.player().level();
+            BlockEntity be = level.getBlockEntity(packet.pos());
+            if (be instanceof ConduitBundleAccessor conduitBundle) {
+                var currentConfig = conduitBundle.getConnectionConfig(packet.side(), packet.conduit());
+                packetConsumer.accept(packet, conduitBundle, currentConfig);
             }
         });
     }

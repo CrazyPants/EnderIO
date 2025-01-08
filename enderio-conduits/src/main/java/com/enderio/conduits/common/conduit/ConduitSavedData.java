@@ -9,7 +9,7 @@ import com.enderio.conduits.common.conduit.graph.ConduitGraphContext;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphUtility;
 import com.enderio.conduits.common.conduit.graph.WrappedConduitNetwork;
-import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitData;
+import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.init.Conduits;
 import com.mojang.datafixers.util.Pair;
@@ -37,14 +37,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-@EventBusSubscriber(modid = EnderIOConduits.MODULE_MOD_ID, value = Dist.DEDICATED_SERVER)
+@EventBusSubscriber(modid = EnderIOConduits.MODULE_MOD_ID)
 public class ConduitSavedData extends SavedData {
 
     private final Map<Holder<Conduit<?>>, List<Graph<ConduitGraphContext>>> networks = new HashMap<>();
@@ -278,6 +277,7 @@ public class ConduitSavedData extends SavedData {
             LOGGER.warn("Conduit data is missing!");
             return null;
         }
+
         Map<BlockPos, ConduitGraphObject> chunkMap = typeMap.get(chunkPos);
         if (chunkMap == null) {
             LOGGER.warn("Conduit data is missing!");
@@ -343,6 +343,7 @@ public class ConduitSavedData extends SavedData {
             int conduitId, ConduitTicker<T> ticker, Graph<ConduitGraphContext> graph) {
         int conduitTickRate = conduit.value().graphTickRate();
 
+        // TODO: Offsets for networks so they don't all tick on the same tick.
         if (serverLevel.getGameTime() % conduitTickRate == conduitId % conduitTickRate) {
             // noinspection unchecked
             ticker.tickGraph(serverLevel, (T) conduit.value(), new WrappedConduitNetwork(graph),
@@ -368,8 +369,12 @@ public class ConduitSavedData extends SavedData {
         }
 
         var node = blockEntity.getBundle().getNodeFor(redstoneConduit.get());
-        RedstoneConduitData data = node.getData(ConduitTypes.Data.REDSTONE.get());
-        return data != null && data.isActive(color);
+        if (node.getNetwork() == null) {
+            return false;
+        }
+
+        var context = node.getNetwork().getContext(RedstoneConduitNetworkContext.TYPE);
+        return context != null && context.isActive(color);
     }
 
     public static void addPotentialGraph(Holder<Conduit<?>> conduit, Graph<ConduitGraphContext> graph,

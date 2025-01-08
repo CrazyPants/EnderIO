@@ -4,28 +4,29 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
-import com.enderio.conduits.common.conduit.ConduitA11yManager;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
-import com.enderio.conduits.common.conduit.RightClickAction;
-import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
+import com.enderio.conduits.api.bundle.AddConduitResult;
+import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
-import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.init.ConduitComponents;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -38,7 +39,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -59,7 +59,6 @@ import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
 import org.jetbrains.annotations.Nullable;
 
 public class NewConduitBundleBlock extends Block implements EntityBlock {
@@ -308,18 +307,9 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         // TODO: Destroying the last conduit in the block has a laggy disconnect for the
         // neighbours...
 
-//        HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);
         HitResult hit = visualPick(player);
 
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
-            // Client side does nothing special to the bundle.
-            /*
-             * if (level.isClientSide) { // Only do it on the server - otherwise we get a
-             * strange flicker as the connections are removed. // TODO: is this the right
-             * strategy, or should we do bundle remove logic on the client too... return
-             * false; }
-             */
-
             if (conduitBundle.hasFacade() && FacadeHelper.areFacadesVisible()) {
                 SoundType soundtype = state.getSoundType(level, pos, player);
                 level.playSound(player, pos, soundtype.getBreakSound(), SoundSource.BLOCKS,
@@ -402,6 +392,34 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
 
     // endregion
 
+    // region Open Menu
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+
+        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+            // TODO: The connection shouldn't include the plate.. if we hit the plate open the first conduit?
+            var conduitConnection = conduitBundle.getShape().getConnectionFromHit(pos, hitResult);
+
+            if (conduitConnection != null && conduitBundle.isEndpoint(conduitConnection.getFirst())) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.openMenu(conduitBundle.getMenuProvider(conduitConnection.getFirst(), conduitConnection.getSecond()),
+                        buf -> {
+                            buf.writeBlockPos(pos);
+                            buf.writeEnum(conduitConnection.getFirst());
+                            Conduit.STREAM_CODEC.encode(buf, conduitConnection.getSecond());
+                        });
+                }
+
+                return InteractionResult.sidedSuccess(level.isClientSide());
+            }
+        }
+
+        return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    // endregion
+
     // region Item Interactions
 
     @Override
@@ -440,15 +458,15 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         // Do not consult the bundle on the client.
         if (!level.isClientSide()) {
             // Attempt to add to the bundle
-            RightClickAction addResult = conduitBundle.addConduit(conduit, player);
+            AddConduitResult addResult = conduitBundle.addConduit(conduit, player);
 
-            if (addResult instanceof RightClickAction.Upgrade upgradeResult) {
+            if (addResult instanceof AddConduitResult.Upgrade upgradeResult) {
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);
                     player.getInventory()
                             .placeItemBackInInventory(ConduitBlockItem.getStackFor(upgradeResult.replacedConduit(), 1));
                 }
-            } else if (addResult instanceof RightClickAction.Insert addedResult) {
+            } else if (addResult instanceof AddConduitResult.Insert addedResult) {
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);
                 }

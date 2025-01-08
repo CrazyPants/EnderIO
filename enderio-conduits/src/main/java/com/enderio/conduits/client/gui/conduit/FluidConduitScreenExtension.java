@@ -1,10 +1,11 @@
 package com.enderio.conduits.client.gui.conduit;
 
 import com.enderio.base.api.EnderIO;
-import com.enderio.conduits.api.ConduitDataAccessor;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.api.screen.ConduitScreenExtension;
 import com.enderio.base.common.lang.EIOLang;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduitData;
+import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.util.TooltipUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -68,10 +69,10 @@ public final class FluidConduitScreenExtension implements ConduitScreenExtension
         @Override
         public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
             if (isHoveredOrFocused()) {
-                MutableComponent tooltip = EIOLang.FLUID_CONDUIT_CHANGE_FLUID1.copy();
-                tooltip.append("\n").append(EIOLang.FLUID_CONDUIT_CHANGE_FLUID2);
+                MutableComponent tooltip = ConduitLang.FLUID_CONDUIT_CHANGE_FLUID1.copy();
+                tooltip.append("\n").append(ConduitLang.FLUID_CONDUIT_CHANGE_FLUID2);
                 if (!currentFluid.get().isSame(Fluids.EMPTY)) {
-                    tooltip.append("\n").append(TooltipUtil.withArgs(EIOLang.FLUID_CONDUIT_CHANGE_FLUID3, currentFluid.get().getFluidType().getDescription()));
+                    tooltip.append("\n").append(TooltipUtil.withArgs(ConduitLang.FLUID_CONDUIT_CHANGE_FLUID3, currentFluid.get().getFluidType().getDescription()));
                 }
                 setTooltip(Tooltip.create(TooltipUtil.style(tooltip)));
             }

@@ -2,8 +2,8 @@ package com.enderio.modconduits.mods.mekanism;
 
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitNetwork;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.network.ConduitNetwork;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.IOAwareConduitTicker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

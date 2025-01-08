@@ -40,7 +40,7 @@ public abstract class BaseBlockEntityMenu<T extends BlockEntity> extends BaseEnd
     }
 
     @Override
-    public boolean stillValid(Player pPlayer) {
-        return Container.stillValidBlockEntity(getBlockEntity(), pPlayer);
+    public boolean stillValid(Player player) {
+        return Container.stillValidBlockEntity(getBlockEntity(), player);
     }
 }

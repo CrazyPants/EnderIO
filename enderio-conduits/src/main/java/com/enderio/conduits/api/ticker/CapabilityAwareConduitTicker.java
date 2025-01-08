@@ -2,8 +2,8 @@ package com.enderio.conduits.api.ticker;
 
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitNetwork;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.network.ConduitNetwork;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

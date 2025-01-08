@@ -1,7 +1,7 @@
 package com.enderio.conduits.common.conduit.type.energy;
 
 import com.enderio.conduits.api.ColoredRedstoneProvider;
-import com.enderio.conduits.api.ConduitNetwork;
+import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.ticker.IOAwareConduitTicker;
 import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.init.Conduits;
@@ -28,7 +28,7 @@ public class EnergyConduitTicker implements IOAwareConduitTicker<EnergyConduit> 
         // Adjust for tick rate. Always flow up so we are at minimum meeting the required rate.
         int transferRate = (int)Math.ceil(conduit.transferRatePerTick() * (20.0 / conduit.graphTickRate()));
 
-        EnergyConduitNetworkContext context = graph.getContext(Conduits.ContextSerializers.ENERGY.get());
+        EnergyConduitNetworkContext context = graph.getContext(EnergyConduitNetworkContext.TYPE);
         if (context == null) {
             return;
         }

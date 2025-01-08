@@ -1,7 +1,8 @@
 package com.enderio.conduits.common.conduit.type.fluid;
 
-import com.enderio.conduits.api.ConduitData;
-import com.enderio.conduits.api.ConduitDataType;
+import com.enderio.conduits.api.network.node.NodeData;
+import com.enderio.conduits.api.network.node.legacy.ConduitData;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -16,7 +17,6 @@ import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class FluidConduitData implements ConduitData<FluidConduitData> {
 
@@ -82,6 +82,11 @@ public class FluidConduitData implements ConduitData<FluidConduitData> {
     @Override
     public ConduitDataType<FluidConduitData> type() {
         return ConduitTypes.Data.FLUID.get();
+    }
+
+    @Override
+    public @Nullable NodeData toNodeData() {
+        return null;
     }
 
     @Override

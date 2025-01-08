@@ -3,6 +3,7 @@ package com.enderio.conduits.client.gui;
 import com.enderio.base.api.EnderIO;
 import com.enderio.base.client.gui.widget.DyeColorPickerWidget;
 import com.enderio.base.common.lang.EIOLang;
+import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.menu.RedstoneCountFilterMenu;
 import com.enderio.core.client.gui.screen.EIOScreen;
 import net.minecraft.client.gui.components.Button;
@@ -26,7 +27,7 @@ public class RedstoneCountFilterScreen extends EIOScreen<RedstoneCountFilterMenu
         addRenderableWidget(new DyeColorPickerWidget(this.leftPos + 15, this.topPos + 30,
             getMenu().getFilter()::getChannel,
             getMenu()::setChannel,
-            EIOLang.REDSTONE_CHANNEL));
+            ConduitLang.REDSTONE_CHANNEL));
 
         EditBox pWidget = new EditBox(this.font, this.leftPos + 60, this.topPos + 20, 60, 20, Component.literal("" + getMenu().getFilter().getMaxCount())) {
             @Override

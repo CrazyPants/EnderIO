@@ -4,8 +4,10 @@ import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitNetwork;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
+import com.enderio.conduits.api.network.ConduitNetwork;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import net.minecraft.core.BlockPos;
@@ -24,18 +26,21 @@ public interface IOAwareConduitTicker<TConduit extends Conduit<TConduit>> extend
         ListMultimap<DyeColor, Connection> extracts = ArrayListMultimap.create();
         ListMultimap<DyeColor, Connection> inserts = ArrayListMultimap.create();
         for (ConduitNode node : loadedNodes) {
-            for (Direction direction : Direction.values()) {
-                node.getIOState(direction).ifPresent(ioState -> {
-                    ioState
-                        .extract()
-                        .filter(extract -> isRedstoneMode(conduit, level, node.getPos(), ioState, coloredRedstoneProvider))
-                        .ifPresent(color -> extracts.get(color).add(new Connection(direction, node)));
-                    ioState
-                        .insert()
-                        .ifPresent(color -> inserts.get(color).add(new Connection(direction, node)));
-                });
+            for (Direction side : Direction.values()) {
+                if (node.isConnectedTo(side)) {
+                    if (node.getConnectionConfig(side) instanceof ResourceConnectionConfig config) {
+                        if (config.canInsert() && isActive(level, side, node, coloredRedstoneProvider)) {
+                            extracts.get(config.extractChannel()).add(new Connection(side, node));
+                        }
+
+                        if (config.canExtract()) {
+                            inserts.get(config.insertChannel()).add(new Connection(side, node));
+                        }
+                    }
+                }
             }
         }
+
         for (DyeColor color : DyeColor.values()) {
             List<Connection> extractList = extracts.get(color);
             List<Connection> insertList = inserts.get(color);
@@ -60,29 +65,31 @@ public interface IOAwareConduitTicker<TConduit extends Conduit<TConduit>> extend
         ConduitNetwork graph,
         ColoredRedstoneProvider coloredRedstoneProvider);
 
-    default boolean isRedstoneMode(TConduit conduit, ServerLevel level, BlockPos pos, ConduitNode.IOState state,
-        ColoredRedstoneProvider coloredRedstoneProvider) {
-        if (!conduit.getMenuData().showRedstoneExtract()) {
+    default boolean isActive(ServerLevel level, Direction side, ConduitNode node, ColoredRedstoneProvider coloredRedstoneProvider) {
+        var connectionConfig = node.getConnectionConfig(side);
+        if (!(connectionConfig instanceof RedstoneControlledConnection redstoneControlledConnection)) {
             return true;
         }
 
-        if (state.control() == RedstoneControl.ALWAYS_ACTIVE) {
+        if (redstoneControlledConnection.redstoneControl() == RedstoneControl.ALWAYS_ACTIVE) {
             return true;
         }
 
-        if (state.control() == RedstoneControl.NEVER_ACTIVE) {
+        if (redstoneControlledConnection.redstoneControl() == RedstoneControl.NEVER_ACTIVE) {
             return false;
         }
 
-        boolean hasRedstone = false;
-        for (Direction direction : Direction.values()) {
-            if (level.getSignal(pos.relative(direction), direction) > 0) {
-                hasRedstone = true;
-                break;
+        boolean hasRedstone = coloredRedstoneProvider.isRedstoneActive(level, node.getPos(), redstoneControlledConnection.redstoneChannel());
+        if (!hasRedstone) {
+            for (Direction direction : Direction.values()) {
+                if (level.getSignal(node.getPos().relative(direction), direction) > 0) {
+                    hasRedstone = true;
+                    break;
+                }
             }
         }
 
-        return state.control().isActive(hasRedstone || coloredRedstoneProvider.isRedstoneActive(level, pos, state.redstoneChannel()));
+        return redstoneControlledConnection.redstoneControl().isActive(hasRedstone);
     }
 
     class Connection {

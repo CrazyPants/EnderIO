@@ -33,6 +33,30 @@ public class ConduitLang {
 
     // endregion
 
+    // region Conduit Screen Tooltips
+
+    public static final Component CONDUIT_CHANNEL = addTranslation("gui", EnderIO.loc("conduit_channel"),
+        "Channel");
+    public static final Component REDSTONE_CHANNEL = addTranslation("gui", EnderIO.loc("redstone_channel"),
+        "Signal Color");
+
+    public static final Component ROUND_ROBIN_ENABLED = addTranslation("gui", EnderIO.loc("round_robin.enabled"),
+        "Round Robin Enabled");
+    public static final Component ROUND_ROBIN_DISABLED = addTranslation("gui", EnderIO.loc("round_robin.disabled"),
+        "Round Robin Disabled");
+    public static final Component SELF_FEED_ENABLED = addTranslation("gui", EnderIO.loc("self_feed.enabled"),
+        "Self Feed Enabled");
+    public static final Component SELF_FEED_DISABLED = addTranslation("gui", EnderIO.loc("self_feed.disabled"),
+        "Self Feed Disabled");
+    public static final Component FLUID_CONDUIT_CHANGE_FLUID1 = addTranslation("gui",
+        EnderIO.loc("fluid_conduit.change_fluid1"), "Locked Fluid:");
+    public static final Component FLUID_CONDUIT_CHANGE_FLUID2 = addTranslation("gui",
+        EnderIO.loc("fluid_conduit.change_fluid2"), "Click to reset!");
+    public static final MutableComponent FLUID_CONDUIT_CHANGE_FLUID3 = addTranslation("gui",
+        EnderIO.loc("fluid_conduit.change_fluid3"), "Fluid: %s");
+
+    // endregion
+
     public static final MutableComponent GRAPH_TICK_RATE_TOOLTIP = addTranslation("tooltip",
             EnderIO.loc("conduit.debug.tick_rate"), "Graph Ticks: %s/sec");
 
@@ -52,9 +76,13 @@ public class ConduitLang {
     public static final MutableComponent ITEM_EFFECTIVE_RATE_TOOLTIP = addTranslation("tooltip",
             EnderIO.loc("conduit.item.effective_rate"), "Effective Rate: %s Items/sec");
 
+    public static final Component CONDUIT_ENABLED = addTranslation("gui", EnderIO.loc("conduit.enabled"), "Enabled");
     public static final Component CONDUIT_INSERT = addTranslation("gui", EnderIO.loc("conduit.insert"), "Insert");
     public static final Component CONDUIT_EXTRACT = addTranslation("gui", EnderIO.loc("conduit.extract"),
             "Extract");
+    public static final Component CONDUIT_INPUT = addTranslation("gui", EnderIO.loc("conduit.input"), "Input");
+    public static final Component CONDUIT_OUTPUT = addTranslation("gui", EnderIO.loc("conduit.output"),
+            "Output");
 
     public static final MutableComponent TRANSPARENT_FACADE_TOOLTIP = addTranslation("tooltip",
             EnderIO.loc("conduit_facade.transparent"),

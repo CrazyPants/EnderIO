@@ -1,9 +1,9 @@
 package com.enderio.conduits.common.conduit.graph;
 
-import com.enderio.conduits.api.ConduitNetwork;
-import com.enderio.conduits.api.ConduitNetworkContext;
-import com.enderio.conduits.api.ConduitNetworkContextType;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.network.ConduitNetwork;
+import com.enderio.conduits.api.network.ConduitNetworkContext;
+import com.enderio.conduits.api.network.ConduitNetworkContextType;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import dev.gigaherz.graph3.Graph;
 import java.util.Collection;
 import org.jetbrains.annotations.Nullable;

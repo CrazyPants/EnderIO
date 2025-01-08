@@ -1,6 +1,5 @@
 package com.enderio.conduits.api.bundle;
 
-import com.enderio.conduits.api.SlotType;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;

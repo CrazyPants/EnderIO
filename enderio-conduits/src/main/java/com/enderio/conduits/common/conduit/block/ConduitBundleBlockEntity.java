@@ -5,16 +5,15 @@ import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.common.init.EIOCapabilities;
 import com.enderio.conduits.ConduitNBTKeys;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.api.ConduitMenuData;
-import com.enderio.conduits.api.ConduitNode;
-import com.enderio.conduits.api.SlotType;
+import com.enderio.conduits.api.network.node.ConduitNode;
+import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.common.conduit.ConduitBundle;
 import com.enderio.conduits.common.conduit.ConduitSavedData;
 import com.enderio.conduits.common.conduit.ConduitShape;
-import com.enderio.conduits.common.conduit.RightClickAction;
+import com.enderio.conduits.api.bundle.AddConduitResult;
 import com.enderio.conduits.common.conduit.SlotData;
 import com.enderio.conduits.common.conduit.connection.ConnectionState;
 import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
@@ -141,7 +140,7 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
 
             // Update node IO state.
             var node = bundle.getNodeFor(conduit);
-            node.pushState(direction, connectionState);
+//            node.pushState(direction, connectionState);
 
             // Proxied capabilities are likely to have changed.
             level.invalidateCapabilities(worldPosition);
@@ -154,7 +153,7 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
     @EnsureSide(EnsureSide.Side.SERVER)
     public void handleConduitDataUpdate(Holder<Conduit<?>> conduit, ConduitDataContainer clientDataContainer) {
         var node = getBundle().getNodeFor(conduit);
-        node.handleClientChanges(clientDataContainer);
+//        node.handleClientChanges(clientDataContainer);
     }
 
     // endregion
@@ -262,7 +261,7 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
                     ConnectionState connectionState = bundle.getConnectionState(direction, conduit);
                     if (connectionState instanceof DynamicConnectionState dyn) {
                         if (!conduit.value().canForceConnectTo(level, pos, direction)) {
-                            bundle.getNodeFor(conduit).clearState(direction);
+//                            bundle.getNodeFor(conduit).clearState(direction);
                             dropConnectionItems(dyn);
                             bundle.setConnectionState(direction, conduit, StaticConnectionStates.DISCONNECTED);
                             updateShape();
@@ -285,8 +284,8 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
 
         ListTag listTag = new ListTag();
         for (Holder<Conduit<?>> conduit : bundle.getConduits()) {
-            var data = bundle.getNodeFor(conduit).conduitDataContainer();
-            listTag.add(data.save(lookupProvider));
+//            var data = bundle.getNodeFor(conduit).conduitDataContainer();
+//            listTag.add(data.save(lookupProvider));
         }
 
         tag.put(ConduitNBTKeys.CONDUIT_EXTRA_DATA, listTag);
@@ -335,8 +334,8 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
         return bundle.hasType(conduit);
     }
 
-    public RightClickAction addType(Holder<Conduit<?>> conduit, Player player) {
-        RightClickAction action = bundle.addConduit(level, conduit, player);
+    public AddConduitResult addType(Holder<Conduit<?>> conduit, Player player) {
+        AddConduitResult action = bundle.addConduit(level, conduit, player);
 
         // something has changed
         if (action.hasChanged()) {
@@ -359,7 +358,7 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
                 ConduitSavedData.addPotentialGraph(conduit, Objects.requireNonNull(thisNode.getGraph()), serverLevel);
             }
 
-            if (action instanceof RightClickAction.Upgrade upgrade
+            if (action instanceof AddConduitResult.Upgrade upgrade
                     && !upgrade.replacedConduit().value().canConnectTo(conduit)) {
                 removeNeighborConnections(upgrade.replacedConduit());
             }
@@ -389,16 +388,16 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
 
             conduit.value().onConnectTo(firstNode, secondNode);
 
-            if (firstNode.getParentGraph() != null) {
-                for (var node : firstNode.getParentGraph().getNodes()) {
+            if (firstNode.getNetwork() != null) {
+                for (var node : firstNode.getNetwork().getNodes()) {
                     if (node != firstNode) {
                         conduit.value().onConnectTo(firstNode, node);
                     }
                 }
             }
 
-            if (secondNode.getParentGraph() != null && firstNode.getParentGraph() != secondNode.getParentGraph()) {
-                for (var node : secondNode.getParentGraph().getNodes()) {
+            if (secondNode.getNetwork() != null && firstNode.getNetwork() != secondNode.getNetwork()) {
+                for (var node : secondNode.getNetwork().getNodes()) {
                     if (node != secondNode) {
                         conduit.value().onConnectTo(secondNode, node);
                     }
@@ -683,6 +682,12 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
         }
 
         ConduitGraphObject node = blockEntity.bundle.getNodeFor(conduit);
+
+        // Node must be attached to its network
+        if (node.getNetwork() == null) {
+            return null;
+        }
+
         return conduit.value().proxyCapability(capability, node, blockEntity.level, blockEntity.getBlockPos(), context);
     }
 
@@ -848,7 +853,7 @@ public class ConduitBundleBlockEntity extends EnderBlockEntity {
                         conduit) instanceof DynamicConnectionState dynamicConnectionState) {
                     ConduitGraphObject node = bundle.getNodeForTypeExact(conduit);
                     if (node != null) {
-                        node.pushState(data.direction(), dynamicConnectionState);
+//                        node.pushState(data.direction(), dynamicConnectionState);
                     }
                 }
             }

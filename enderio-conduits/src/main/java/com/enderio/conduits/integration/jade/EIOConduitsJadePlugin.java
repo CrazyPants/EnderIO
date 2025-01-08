@@ -10,6 +10,9 @@ import snownee.jade.api.WailaPlugin;
 
 @WailaPlugin
 public class EIOConduitsJadePlugin implements IWailaPlugin {
+
+    // TODO: Could implement stuff like a waila tooltip for bound souls.
+
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         // Show the correct conduit (or facade item)

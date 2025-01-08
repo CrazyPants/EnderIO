@@ -1,7 +1,8 @@
 package com.enderio.conduits.common.conduit.type.redstone;
 
-import com.enderio.conduits.api.ConduitData;
-import com.enderio.conduits.api.ConduitDataType;
+import com.enderio.conduits.api.network.node.NodeData;
+import com.enderio.conduits.api.network.node.legacy.ConduitData;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -10,6 +11,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -49,6 +51,11 @@ public class RedstoneConduitData implements ConduitData<RedstoneConduitData> {
         return ConduitTypes.Data.REDSTONE.get();
     }
 
+    @Override
+    public @Nullable NodeData toNodeData() {
+        return null;
+    }
+
     public boolean isActive() {
         return isActive;
     }
@@ -59,6 +66,10 @@ public class RedstoneConduitData implements ConduitData<RedstoneConduitData> {
 
     public int getSignal(DyeColor color) {
         return activeColors.getOrDefault(color, 0);
+    }
+
+    public Map<DyeColor, Integer> getActiveColors() {
+        return activeColors;
     }
 
     public void clearActive() {

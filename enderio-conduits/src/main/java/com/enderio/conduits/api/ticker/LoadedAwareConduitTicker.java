@@ -2,8 +2,8 @@ package com.enderio.conduits.api.ticker;
 
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitNetwork;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.network.ConduitNetwork;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -15,7 +15,7 @@ public interface LoadedAwareConduitTicker<TConduit extends Conduit<TConduit>> ex
     @Override
     default void tickGraph(ServerLevel level, TConduit conduit, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
         List<ConduitNode> nodeIdentifiers = graph.getNodes()
-            .stream().filter(node -> isLoaded(level, node.getPos()))
+            .stream().filter(ConduitNode::isLoaded)
             .toList();
 
         tickGraph(level, conduit, nodeIdentifiers, graph, coloredRedstoneProvider);
@@ -24,8 +24,4 @@ public interface LoadedAwareConduitTicker<TConduit extends Conduit<TConduit>> ex
     void tickGraph(ServerLevel level, TConduit type,
         List<ConduitNode> loadedNodes, ConduitNetwork graph,
         ColoredRedstoneProvider coloredRedstoneProvider);
-
-    default boolean isLoaded(Level level, BlockPos pos) {
-        return level.isLoaded(pos) && level.shouldTickBlocksAt(pos);
-    }
 }

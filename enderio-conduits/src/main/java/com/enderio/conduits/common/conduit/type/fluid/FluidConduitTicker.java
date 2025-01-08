@@ -2,8 +2,8 @@ package com.enderio.conduits.common.conduit.type.fluid;
 
 import com.enderio.base.api.filter.FluidStackFilter;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
-import com.enderio.conduits.api.ConduitNetwork;
-import com.enderio.conduits.api.ConduitNode;
+import com.enderio.conduits.api.network.ConduitNetwork;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.CapabilityAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitTypes;
 import net.minecraft.core.Direction;
@@ -69,21 +69,21 @@ public class FluidConduitTicker extends CapabilityAwareConduitTicker<FluidCondui
         ConduitNetwork graph,
         ColoredRedstoneProvider coloredRedstoneProvider) {
 
-        boolean shouldReset = false;
-        for (var loadedNode : loadedNodes) {
-            FluidConduitData fluidExtendedData = loadedNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
-            if (fluidExtendedData.shouldReset()) {
-                shouldReset = true;
-                fluidExtendedData.setShouldReset(false);
-            }
-        }
-
-        if (shouldReset) {
-            for (var loadedNode : loadedNodes) {
-                FluidConduitData fluidExtendedData = loadedNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
-                fluidExtendedData.setLockedFluid(Fluids.EMPTY);
-            }
-        }
+//        boolean shouldReset = false;
+//        for (var loadedNode : loadedNodes) {
+//            FluidConduitData fluidExtendedData = loadedNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
+//            if (fluidExtendedData.shouldReset()) {
+//                shouldReset = true;
+//                fluidExtendedData.setShouldReset(false);
+//            }
+//        }
+//
+//        if (shouldReset) {
+//            for (var loadedNode : loadedNodes) {
+//                FluidConduitData fluidExtendedData = loadedNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
+//                fluidExtendedData.setLockedFluid(Fluids.EMPTY);
+//            }
+//        }
         super.tickGraph(level, conduit, loadedNodes, graph, coloredRedstoneProvider);
     }
 
@@ -96,14 +96,15 @@ public class FluidConduitTicker extends CapabilityAwareConduitTicker<FluidCondui
         ConduitNetwork graph,
         ColoredRedstoneProvider coloredRedstoneProvider) {
 
+        var context = graph.getOrCreateContext(FluidConduitNetworkContext.TYPE);
+
         for (CapabilityConnection extract : extracts) {
             IFluidHandler extractHandler = extract.capability();
-            FluidConduitData fluidExtendedData = extract.node().getOrCreateData(ConduitTypes.Data.FLUID.get());
 
             final int fluidRate = getScaledFluidRate(conduit, extract);
 
-            if (!fluidExtendedData.lockedFluid().isSame(Fluids.EMPTY)) {
-                doFluidTransfer(new FluidStack(fluidExtendedData.lockedFluid(), fluidRate), extract, inserts);
+            if (!context.lockedFluid().isSame(Fluids.EMPTY)) {
+                doFluidTransfer(new FluidStack(context.lockedFluid(), fluidRate), extract, inserts);
             } else {
                 int remaining = fluidRate;
 
@@ -116,13 +117,11 @@ public class FluidConduitTicker extends CapabilityAwareConduitTicker<FluidCondui
                     remaining = doFluidTransfer(new FluidStack(fluid, remaining), extract, inserts);
 
                     if (!conduit.isMultiFluid() && remaining < fluidRate) {
-                        for (ConduitNode node : graph.getNodes()) {
-                            if (fluid instanceof FlowingFluid flowing) {
-                                fluid = flowing.getSource();
-                            }
-
-                            node.getOrCreateData(ConduitTypes.Data.FLUID.get()).setLockedFluid(fluid);
+                        if (fluid instanceof FlowingFluid flowing) {
+                            fluid = flowing.getSource();
                         }
+
+                        context.setLockedFluid(fluid);
 
                         break;
                     }

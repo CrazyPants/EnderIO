@@ -2,7 +2,7 @@ package com.enderio.conduits.common.init;
 
 import com.enderio.base.api.EnderIO;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitNetworkContextType;
+import com.enderio.conduits.api.network.ConduitNetworkContextType;
 import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import com.enderio.conduits.common.conduit.type.energy.EnergyConduit;
 import com.enderio.conduits.common.conduit.type.energy.EnergyConduitNetworkContext;
@@ -68,16 +68,6 @@ public class Conduits {
         // ConduitLang.ENDER_ITEM_CONDUIT, 4, 5));
     }
 
-    public static class ContextSerializers {
-        public static final DeferredRegister<ConduitNetworkContextType<?>> CONDUIT_NETWORK_CONTEXT_TYPES = DeferredRegister
-                .create(EnderIOConduitsRegistries.CONDUIT_NETWORK_CONTEXT_TYPE, EnderIO.NAMESPACE);
-
-        public static final Supplier<ConduitNetworkContextType<EnergyConduitNetworkContext>> ENERGY = CONDUIT_NETWORK_CONTEXT_TYPES
-                .register("energy", () -> new ConduitNetworkContextType<>(EnergyConduitNetworkContext.CODEC,
-                        EnergyConduitNetworkContext::new));
-    }
-
-    public static void register(IEventBus bus) {
-        ContextSerializers.CONDUIT_NETWORK_CONTEXT_TYPES.register(bus);
+    public static void register() {
     }
 }

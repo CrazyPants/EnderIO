@@ -76,6 +76,7 @@ public class MachineBlock<T extends MachineBlockEntity> extends EIOEntityBlock<T
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hitResult) {
+
         // Attempt to open machine menu.
         if (canOpenMenu()) {
 //            var menuProvider = this.getMenuProvider(state, level, pos);

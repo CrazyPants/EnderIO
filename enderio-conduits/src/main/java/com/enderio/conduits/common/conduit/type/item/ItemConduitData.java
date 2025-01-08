@@ -1,7 +1,8 @@
 package com.enderio.conduits.common.conduit.type.item;
 
-import com.enderio.conduits.api.ConduitDataType;
-import com.enderio.conduits.api.ConduitData;
+import com.enderio.conduits.api.network.node.NodeData;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
+import com.enderio.conduits.api.network.node.legacy.ConduitData;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -11,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +69,20 @@ public class ItemConduitData implements ConduitData<ItemConduitData> {
     @Override
     public ConduitDataType<ItemConduitData> type() {
         return ConduitTypes.Data.ITEM.get();
+    }
+
+    @Override
+    public @Nullable NodeData toNodeData() {
+        // Convert to the new node data format
+        Map<Direction, Integer> roundRobinIndexes = new HashMap<>();
+        for (var side : Direction.values()) {
+            var sidedData = itemSidedData.get(side);
+            if (sidedData != null && sidedData.isRoundRobin) {
+                roundRobinIndexes.put(side, sidedData.rotatingIndex);
+            }
+        }
+
+        return new ItemConduitNodeData(roundRobinIndexes);
     }
 
     @Override

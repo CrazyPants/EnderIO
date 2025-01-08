@@ -25,22 +25,22 @@ public class EIOBundledRedstoneProvider implements BundledRedstoneProvider {
 
         Holder<Conduit<?>> redstoneConduit = world.holderOrThrow(Conduits.REDSTONE);
 
-        if (be instanceof ConduitBundleBlockEntity conduit) {
-            ConnectionState connectionState = conduit.getBundle().getConnectionState(side, redstoneConduit);
-            if (connectionState instanceof DynamicConnectionState dyn && dyn.isInsert()) {
-                RedstoneConduitData data = conduit.getBundle().getNodeFor(redstoneConduit).getData(ConduitTypes.Data.REDSTONE.get());
-                if (data == null) {
-                    return -1;
-                }
-
-                int out = 0;
-
-                for (DyeColor color : DyeColor.values()) {
-                    out |= (data.isActive(color) ? 1 : 0) << color.getId();
-                }
-                return out;
-            }
-        }
+//        if (be instanceof ConduitBundleBlockEntity conduit) {
+//            ConnectionState connectionState = conduit.getBundle().getConnectionState(side, redstoneConduit);
+//            if (connectionState instanceof DynamicConnectionState dyn && dyn.isInsert()) {
+//                RedstoneConduitData data = conduit.getBundle().getNodeFor(redstoneConduit).getData(ConduitTypes.Data.REDSTONE.get());
+//                if (data == null) {
+//                    return -1;
+//                }
+//
+//                int out = 0;
+//
+//                for (DyeColor color : DyeColor.values()) {
+//                    out |= (data.isActive(color) ? 1 : 0) << color.getId();
+//                }
+//                return out;
+//            }
+//        }
         return -1;
     }
 }

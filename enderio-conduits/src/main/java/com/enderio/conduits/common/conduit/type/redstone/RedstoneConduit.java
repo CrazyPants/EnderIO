@@ -1,20 +1,27 @@
 package com.enderio.conduits.common.conduit.type.redstone;
 
 import com.enderio.base.api.filter.ResourceFilter;
+import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.menu.ConduitMenuExtension;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitMenuData;
-import com.enderio.conduits.api.ConduitNode;
 import com.enderio.conduits.api.ConduitType;
-import com.enderio.conduits.api.SlotType;
+import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.redstone.RedstoneExtractFilter;
 import com.enderio.conduits.common.redstone.RedstoneInsertFilter;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public record RedstoneConduit(
     ResourceLocation texture,
@@ -63,9 +70,46 @@ public record RedstoneConduit(
     }
 
     @Override
-    public ResourceLocation getTexture(ConduitNode node) {
-        RedstoneConduitData data = node.getData(ConduitTypes.Data.REDSTONE.get());
-        return data != null && data.isActive() ? activeTexture() : texture();
+    public ResourceLocation getTexture(@Nullable CompoundTag clientDataTag) {
+        if (clientDataTag != null) {
+            return clientDataTag.contains("IsActive") && clientDataTag.getBoolean("IsActive") ? activeTexture() : texture();
+        }
+
+        return texture();
+    }
+
+    @Override
+    public ConnectionConfigType<?> connectionConfigType() {
+//        return SimpleConnectionConfig.TYPE;
+        return null;
+    }
+
+    @Override
+    public ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
+        RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+//        return new SimpleConnectionConfig(ConduitConnectionMode.of(isInsert, isExtract), inputChannel, outputChannel);
+        return null;
+    }
+
+    @Override
+    public boolean hasClientDataTag() {
+        return true;
+    }
+
+    @Override
+    public CompoundTag getClientDataTag(ConduitNode node) {
+        var tag = new CompoundTag();
+
+        if (node.getNetwork() == null) {
+            return tag;
+        }
+
+        var context = node.getNetwork().getContext(RedstoneConduitNetworkContext.TYPE);
+        if (context != null) {
+            tag.putBoolean("IsActive", context.isActive());
+        }
+
+        return tag;
     }
 
     @Override

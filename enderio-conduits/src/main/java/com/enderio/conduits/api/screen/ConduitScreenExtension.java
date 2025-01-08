@@ -1,6 +1,6 @@
 package com.enderio.conduits.api.screen;
 
-import com.enderio.conduits.api.ConduitDataAccessor;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;

@@ -2,19 +2,27 @@ package com.enderio.conduits.common.conduit.type.item;
 
 import com.enderio.base.api.filter.ItemStackFilter;
 import com.enderio.base.api.filter.ResourceFilter;
+import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
-import com.enderio.conduits.api.SlotType;
+import com.enderio.conduits.api.bundle.SlotType;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.menu.ConduitMenuExtension;
+import com.enderio.conduits.api.network.node.ConduitNode;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.util.TooltipUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.NotNull;
@@ -82,6 +90,41 @@ public record ItemConduit(
     @Override
     public boolean showDebugTooltip() {
         return true;
+    }
+
+    @Override
+    public ConnectionConfigType<?> connectionConfigType() {
+        return ConduitTypes.ConnectionTypes.ITEM.get();
+    }
+
+    // TODO: Move conversions into the connection config type.
+    @Override
+    public ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
+        RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+
+        return new ItemConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel, redstoneControl,
+            redstoneChannel, false, false, 0);
+    }
+
+    @Override
+    public void copyLegacyData(ConduitNode node, ConduitDataAccessor legacyDataAccessor) {
+        var legacyData = legacyDataAccessor.getData(ConduitTypes.Data.ITEM.get());
+        if (legacyData == null) {
+            return;
+        }
+
+        // Copy connection config
+        for (Direction side : Direction.values()) {
+            if (node.isConnectedTo(side)) {
+                var oldSideConfig = legacyData.get(side);
+                var currentConfig = node.getConnectionConfig(side, ItemConduitConnectionConfig.TYPE);
+
+                node.setConnectionConfig(side, currentConfig
+                    .withRoundRobin(oldSideConfig.isRoundRobin)
+                    .withSelfFeed(oldSideConfig.isSelfFeed)
+                    .withPriority(oldSideConfig.priority));
+            }
+        }
     }
 
     @Override

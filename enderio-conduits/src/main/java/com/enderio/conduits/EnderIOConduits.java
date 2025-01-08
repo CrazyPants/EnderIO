@@ -39,7 +39,7 @@ public class EnderIOConduits {
     public static Regilite REGILITE = new Regilite(EnderIO.NAMESPACE);
 
     public EnderIOConduits(IEventBus modEventBus, ModContainer modContainer) {
-        Conduits.register(modEventBus);
+        Conduits.register();
         ConduitTypes.register(modEventBus);
         ConduitBlockEntities.register(modEventBus);
         ConduitMenus.register(modEventBus);
@@ -56,6 +56,8 @@ public class EnderIOConduits {
     public static void onNewRegistries(NewRegistryEvent event) {
         event.register(EnderIOConduitsRegistries.CONDUIT_TYPE);
         event.register(EnderIOConduitsRegistries.CONDUIT_DATA_TYPE);
+        event.register(EnderIOConduitsRegistries.CONDUIT_CONNECTION_CONFIG_TYPE);
+        event.register(EnderIOConduitsRegistries.CONDUIT_NODE_DATA_TYPE);
         event.register(EnderIOConduitsRegistries.CONDUIT_NETWORK_CONTEXT_TYPE);
     }
 

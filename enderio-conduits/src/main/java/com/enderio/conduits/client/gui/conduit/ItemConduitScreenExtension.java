@@ -1,9 +1,10 @@
 package com.enderio.conduits.client.gui.conduit;
 
 import com.enderio.base.api.EnderIO;
-import com.enderio.conduits.api.ConduitDataAccessor;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.api.screen.ConduitScreenExtension;
 import com.enderio.base.common.lang.EIOLang;
+import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.client.gui.widgets.ToggleIconButton;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -35,8 +36,8 @@ public class ItemConduitScreenExtension implements ConduitScreenExtension {
             16,
             ICON_ROUND_ROBIN_ENABLED,
             ICON_ROUND_ROBIN_DISABLED,
-            EIOLang.ROUND_ROBIN_ENABLED,
-            EIOLang.ROUND_ROBIN_DISABLED,
+            ConduitLang.ROUND_ROBIN_ENABLED,
+            ConduitLang.ROUND_ROBIN_DISABLED,
             () -> conduitDataAccessor.getOrCreateData(ConduitTypes.Data.ITEM.get()).get(direction.get()).isRoundRobin,
             bool -> {
                 var data = conduitDataAccessor.getOrCreateData(ConduitTypes.Data.ITEM.get());
@@ -52,8 +53,8 @@ public class ItemConduitScreenExtension implements ConduitScreenExtension {
             16,
             ICON_SELF_FEED_ENABLED,
             ICON_SELF_FEED_DISABLED,
-            EIOLang.SELF_FEED_ENABLED,
-            EIOLang.SELF_FEED_DISABLED,
+            ConduitLang.SELF_FEED_ENABLED,
+            ConduitLang.SELF_FEED_DISABLED,
             () -> conduitDataAccessor.getOrCreateData(ConduitTypes.Data.ITEM.get()).get(direction.get()).isSelfFeed,
             bool -> {
                 var data = conduitDataAccessor.getOrCreateData(ConduitTypes.Data.ITEM.get());

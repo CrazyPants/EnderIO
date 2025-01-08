@@ -1,7 +1,7 @@
 package com.enderio.conduits.common.conduit.type.energy;
 
-import com.enderio.conduits.api.ConduitNetworkContext;
-import com.enderio.conduits.api.ConduitNetworkContextType;
+import com.enderio.conduits.api.network.ConduitNetworkContext;
+import com.enderio.conduits.api.network.ConduitNetworkContextType;
 import com.enderio.conduits.common.init.Conduits;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -14,6 +14,8 @@ public class EnergyConduitNetworkContext implements ConduitNetworkContext<Energy
             Codec.INT.fieldOf("rotating_index").forGetter(i -> i.rotatingIndex)
         ).apply(builder, EnergyConduitNetworkContext::new)
     );
+
+    public static ConduitNetworkContextType<EnergyConduitNetworkContext> TYPE = new ConduitNetworkContextType<>(CODEC, EnergyConduitNetworkContext::new);
 
     private int energyStored = 0;
     private int rotatingIndex = 0;
@@ -61,6 +63,6 @@ public class EnergyConduitNetworkContext implements ConduitNetworkContext<Energy
 
     @Override
     public ConduitNetworkContextType<EnergyConduitNetworkContext> type() {
-        return Conduits.ContextSerializers.ENERGY.get();
+        return TYPE;
     }
 }

@@ -1,68 +1,86 @@
 package com.enderio.conduits.common.conduit.graph;
 
-import com.enderio.base.api.UseOnly;
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.common.init.EIOCapabilities;
-import com.enderio.conduits.api.ConduitCapabilities;
-import com.enderio.conduits.api.ConduitData;
-import com.enderio.conduits.api.ConduitDataType;
-import com.enderio.conduits.api.ConduitNetwork;
-import com.enderio.conduits.api.ConduitNode;
-import com.enderio.conduits.api.bundle.ConduitInventory;
-import com.enderio.conduits.api.connection.ConduitConnection;
-import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.network.node.NodeData;
+import com.enderio.conduits.api.network.node.NodeDataType;
+import com.enderio.conduits.api.network.ConduitNetwork;
+import com.enderio.conduits.api.network.node.ConduitNode;
+import com.enderio.conduits.api.bundle.SlotType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.graph3.Graph;
 import dev.gigaherz.graph3.GraphObject;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Objects;
+
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.neoforged.fml.LogicalSide;
 import org.jetbrains.annotations.Nullable;
 
 public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, ConduitNode {
 
-    public static final Codec<ConduitGraphObject> CODEC = RecordCodecBuilder.create(instance -> instance
+    private static final Codec<ConduitGraphObject> LEGACY_CODEC = RecordCodecBuilder.create(instance -> instance
             .group(BlockPos.CODEC.fieldOf("pos").forGetter(ConduitGraphObject::getPos),
-                    ConduitDataContainer.CODEC.fieldOf("data").forGetter(i -> i.conduitDataContainer))
+                    ConduitDataContainer.CODEC.fieldOf("data").forGetter(i -> i.legacyDataContainer))
             .apply(instance, ConduitGraphObject::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ConduitGraphObject> STREAM_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, ConduitGraphObject::getPos, ConduitDataContainer.STREAM_CODEC,
-            i -> i.conduitDataContainer, ConduitGraphObject::new);
+    private static final Codec<ConduitGraphObject> NEW_CODEC = RecordCodecBuilder.create(instance -> instance
+            .group(BlockPos.CODEC.fieldOf("pos").forGetter(ConduitGraphObject::getPos),
+                NodeData.GENERIC_CODEC.optionalFieldOf("node_data").forGetter(i -> Optional.ofNullable(i.nodeData)))
+            .apply(instance, ConduitGraphObject::new));
 
-    private final BlockPos pos;
+    public static final Codec<ConduitGraphObject> CODEC = Codec.withAlternative(NEW_CODEC, LEGACY_CODEC);
+
+    private BlockPos pos;
 
     @Nullable
     private Graph<ConduitGraphContext> graph = null;
+
     @Nullable
     private WrappedConduitNetwork wrappedGraph = null;
 
-    private final Map<Direction, IOState> ioStates = new EnumMap<>(Direction.class);
-    private final ConduitDataContainer conduitDataContainer;
-    private final Map<Direction, DynamicConnectionState> connectionStates = new EnumMap<>(Direction.class);
+    @Nullable
+    private ConduitDataContainer legacyDataContainer = null;
 
-    private final Map<Direction, ConduitConnection> connections = new EnumMap<>(Direction.class);
+    @Nullable
+    private NodeData nodeData;
 
-    private @Nullable ConduitInventory inventory;
+    // TODO: Instead of a special construct, we could just pass the type and bundle in?
+    @Nullable
+    private ConduitConnectionHost connectionHost;
 
     public ConduitGraphObject(BlockPos pos) {
         this.pos = pos;
-        this.conduitDataContainer = new ConduitDataContainer();
+        this.nodeData = null;
     }
 
     public ConduitGraphObject(BlockPos pos, ConduitDataContainer conduitDataContainer) {
         this.pos = pos;
-        this.conduitDataContainer = conduitDataContainer;
+
+        // Convert the old data
+        this.legacyDataContainer = conduitDataContainer;
+        var oldData = legacyDataContainer.getData();
+        if (oldData != null) {
+            this.nodeData = oldData.toNodeData();
+        } else {
+            this.nodeData = null;
+        }
+    }
+
+    public ConduitGraphObject(BlockPos pos, @Nullable NodeData nodeData) {
+        this.pos = pos;
+        this.nodeData = nodeData;
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private ConduitGraphObject(BlockPos pos, Optional<NodeData> nodeData) {
+        this.pos = pos;
+        this.nodeData = nodeData.orElse(null);
     }
 
     @Nullable
@@ -75,94 +93,169 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
     public void setGraph(@Nullable Graph<ConduitGraphContext> graph) {
         this.graph = graph;
         this.wrappedGraph = graph == null ? null : new WrappedConduitNetwork(graph);
+        upgradeLegacyData();
     }
 
     @Nullable
     @Override
-    public ConduitNetwork getParentGraph() {
+    public ConduitNetwork getNetwork() {
         return wrappedGraph;
     }
 
-    public void setInventory(@Nullable ConduitInventory inventory) {
-        this.inventory = inventory;
-    }
-
-    public void setConnection(Direction side, @Nullable ConduitConnection connection) {
-        if (connection != null) {
-            connections.put(side, connection);
-            ioStates.put(side,
-                    IOState.of(connection.canInput() ? connection.inputChannel() : null,
-                            connection.canOutput() ? connection.outputChannel() : null, connection.redstoneControl(),
-                            connection.redstoneChannel()));
-        } else {
-            connections.remove(side);
-            ioStates.remove(side);
+    public void attach(ConduitConnectionHost connectionHost) {
+        if (!connectionHost.pos().equals(pos)) {
+            throw new IllegalArgumentException("Connection host and node position do not match!");
         }
+
+        this.connectionHost = connectionHost;
+        upgradeLegacyData();
     }
 
-    public void pushState(Direction direction, DynamicConnectionState connectionState) {
-        this.connectionStates.put(direction, connectionState);
-        ioStates.put(direction,
-                IOState.of(connectionState.isInsert() ? connectionState.insertChannel() : null,
-                        connectionState.isExtract() ? connectionState.extractChannel() : null,
-                        connectionState.control(), connectionState.redstoneChannel()));
-    }
-
-    public Optional<IOState> getIOState(Direction direction) {
-        return Optional.ofNullable(ioStates.get(direction));
-    }
-
-    public void clearState(Direction direction) {
-        ioStates.remove(direction);
+    public void detach() {
+        this.connectionHost = null;
     }
 
     public BlockPos getPos() {
         return pos;
     }
 
-    // region Conduit Data
+    // TODO: Remove in EnderIO 8.
+    // Convert old conduit data to the new formats.
+    private void upgradeLegacyData() {
+        if (graph == null || connectionHost == null) {
+            return;
+        }
 
-    // We're implementing ConduitDataAccessor for ease here, but we just pass
-    // through to the container.
+        if (legacyDataContainer == null || !legacyDataContainer.hasData()) {
+            return;
+        }
+
+        // Upgrade with old data
+        //noinspection deprecation
+        connectionHost.conduit().value().copyLegacyData(this, legacyDataContainer);
+        legacyDataContainer = null;
+    }
+
+    // region Node Data
 
     @Override
-    public boolean hasData(ConduitDataType<?> type) {
-        return conduitDataContainer.hasData(type);
+    public boolean hasNodeData(NodeDataType<?> type) {
+        return nodeData != null && nodeData.type() == type;
     }
 
     @Override
-    public <T extends ConduitData<T>> @Nullable T getData(ConduitDataType<T> type) {
-        return conduitDataContainer.getData(type);
+    public @Nullable NodeData getNodeData() {
+        return nodeData;
     }
 
     @Override
-    public <T extends ConduitData<T>> T getOrCreateData(ConduitDataType<T> type) {
-        return conduitDataContainer.getOrCreateData(type);
+    public <T extends NodeData> @Nullable T getNodeData(NodeDataType<T> type) {
+        if (nodeData != null && type == nodeData.type()) {
+            //noinspection unchecked
+            return (T) nodeData;
+        }
+
+        return null;
     }
 
-    public ConduitDataContainer conduitDataContainer() {
-        return conduitDataContainer;
+    @Override
+    public <T extends NodeData> T getOrCreateNodeData(NodeDataType<T> type) {
+        if (nodeData != null && type == nodeData.type()) {
+            //noinspection unchecked
+            return (T) nodeData;
+        }
+
+        nodeData = type.factory().get();
+        //noinspection unchecked
+        return (T) nodeData;
     }
 
-    public void handleClientChanges(ConduitDataContainer clientDataContainer) {
-        conduitDataContainer.handleClientChanges(clientDataContainer);
+    @Override
+    public <T extends NodeData> void setNodeData(@Nullable T data) {
+        nodeData = data;
+    }
+
+    // endregion
+
+    // region Connection Config
+
+    @Override
+    public boolean isConnectedTo(Direction side) {
+        if (connectionHost == null) {
+            throw new IllegalStateException("No connection host!");
+        }
+
+        return connectionHost.isConnectedTo(side);
+    }
+
+    @Override
+    public ConnectionConfig getConnectionConfig(Direction side) {
+        if (connectionHost == null) {
+            throw new IllegalStateException("No connection host!");
+        }
+
+        return connectionHost.getConnectionConfig(side);
+    }
+
+    @Override
+    public <T extends ConnectionConfig> T getConnectionConfig(Direction side, ConnectionConfigType<T> type) {
+        var config = getConnectionConfig(side);
+
+        if (config.type() != type) {
+            throw new IllegalStateException("Connection config type mismatch! Conversion failed somewhere in the bundle.");
+        }
+
+        //noinspection unchecked
+        return (T)config;
+    }
+
+    @Override
+    public void setConnectionConfig(Direction side, ConnectionConfig config) {
+        if (connectionHost == null) {
+            throw new IllegalStateException("No connection host!");
+        }
+
+        if (config.type() != connectionHost.getConnectionConfig(side).type()) {
+            throw new IllegalArgumentException("Connection config type mismatch!");
+        }
+
+        connectionHost.setConnectionConfig(side, config);
     }
 
     // endregion
 
     @Override
     public @Nullable ResourceFilter getExtractFilter(Direction direction) {
-        return connectionStates.get(direction).filterExtract().getCapability(EIOCapabilities.Filter.ITEM);
+        if (connectionHost == null) {
+            throw new IllegalStateException("No connection host!");
+        }
+
+        return connectionHost.inventory().getStackInSlot(direction, SlotType.FILTER_EXTRACT).getCapability(EIOCapabilities.Filter.ITEM);
     }
 
     @Override
     public @Nullable ResourceFilter getInsertFilter(Direction direction) {
-        return connectionStates.get(direction).filterInsert().getCapability(EIOCapabilities.Filter.ITEM);
+        if (connectionHost == null) {
+            throw new IllegalStateException("No connection host!");
+        }
+
+        return connectionHost.inventory().getStackInSlot(direction, SlotType.FILTER_INSERT).getCapability(EIOCapabilities.Filter.ITEM);
     }
 
-    @UseOnly(LogicalSide.CLIENT)
-    public ConduitGraphObject deepCopy() {
-        return new ConduitGraphObject(pos, conduitDataContainer.deepCopy());
+    @Override
+    public boolean isLoaded() {
+        if (connectionHost == null) {
+            return false;
+        }
+
+        return connectionHost.isLoaded();
+    }
+
+    @Override
+    public void markDirty() {
+        if (connectionHost != null) {
+            connectionHost.onNodeDirty();
+        }
     }
 
     public Tag save(HolderLookup.Provider lookupProvider) {
@@ -171,10 +264,5 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
 
     public static ConduitGraphObject parse(HolderLookup.Provider lookupProvider, Tag tag) {
         return CODEC.decode(lookupProvider.createSerializationContext(NbtOps.INSTANCE), tag).getOrThrow().getFirst();
-    }
-
-    // Separate method to avoid breaking the graph
-    public int hashContents() {
-        return Objects.hash(pos, conduitDataContainer, ioStates, connectionStates);
     }
 }

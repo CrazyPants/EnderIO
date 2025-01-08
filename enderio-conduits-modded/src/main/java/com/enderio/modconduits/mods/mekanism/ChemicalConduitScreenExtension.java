@@ -1,7 +1,7 @@
 package com.enderio.modconduits.mods.mekanism;
 
 import com.enderio.base.api.EnderIO;
-import com.enderio.conduits.api.ConduitDataAccessor;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.api.screen.ConduitScreenExtension;
 import com.enderio.core.common.util.TooltipUtil;
 import com.mojang.blaze3d.systems.RenderSystem;

@@ -2,10 +2,12 @@ package com.enderio.conduits.common.conduit.type.item;
 
 import com.enderio.base.api.filter.ItemStackFilter;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
-import com.enderio.conduits.api.ConduitNetwork;
+import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.ticker.CapabilityAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitTypes;
+
 import java.util.List;
+
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +24,8 @@ public class ItemConduitTicker extends CapabilityAwareConduitTicker<ItemConduit,
             ColoredRedstoneProvider coloredRedstoneProvider) {
 
         toNextExtract: for (CapabilityConnection extract : extracts) {
+            ItemConduitNodeData nodeData = extract.node().getOrCreateNodeData(ConduitTypes.NodeData.ITEM.get());
+
             IItemHandler extractHandler = extract.capability();
             int extracted = 0;
 
@@ -39,23 +43,21 @@ public class ItemConduitTicker extends CapabilityAwareConduitTicker<ItemConduit,
                     }
                 }
 
-                ItemConduitData.ItemSidedData sidedExtractData = extract.node()
-                        .getOrCreateData(ConduitTypes.Data.ITEM.get())
-                        .compute(extract.direction());
+                var connectionConfig = extract.node().getConnectionConfig(extract.direction(), ConduitTypes.ConnectionTypes.ITEM.get());
 
-                if (sidedExtractData.isRoundRobin) {
-                    if (inserts.size() <= sidedExtractData.rotatingIndex) {
-                        sidedExtractData.rotatingIndex = 0;
+                int startingIndex = 0;
+                if (connectionConfig.isRoundRobin()) {
+                    startingIndex = nodeData.getIndex(extract.direction());
+                    if (inserts.size() <= startingIndex) {
+                        startingIndex = 0;
                     }
-                } else {
-                    sidedExtractData.rotatingIndex = 0;
                 }
 
-                for (int j = sidedExtractData.rotatingIndex; j < sidedExtractData.rotatingIndex + inserts.size(); j++) {
+                for (int j = startingIndex; j < startingIndex + inserts.size(); j++) {
                     int insertIndex = j % inserts.size();
                     CapabilityConnection insert = inserts.get(insertIndex);
 
-                    if (!sidedExtractData.isSelfFeed && extract.direction() == insert.direction()
+                    if (!connectionConfig.isSelfFeed() && extract.direction() == insert.direction()
                             && extract.pos() == insert.pos()) {
                         continue;
                     }
@@ -73,8 +75,8 @@ public class ItemConduitTicker extends CapabilityAwareConduitTicker<ItemConduit,
                         extracted += successfullyInserted;
                         extractHandler.extractItem(i, successfullyInserted, false);
                         if (extracted >= speed || isEmpty(extractHandler, i + 1)) {
-                            if (sidedExtractData.isRoundRobin) {
-                                sidedExtractData.rotatingIndex = insertIndex + 1;
+                            if (connectionConfig.isRoundRobin()) {
+                                nodeData.setIndex(extract.direction(), insertIndex + 1);
                             }
                             continue toNextExtract;
                         } else {

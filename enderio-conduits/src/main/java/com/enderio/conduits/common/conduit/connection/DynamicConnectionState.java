@@ -4,7 +4,7 @@ import com.enderio.base.api.UseOnly;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.base.api.network.MassiveStreamCodec;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.SlotType;
+import com.enderio.conduits.api.bundle.SlotType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.HashMap;
