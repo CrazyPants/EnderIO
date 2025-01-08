@@ -38,7 +38,7 @@ public record ItemConduit(
     Component description,
     int transferRatePerCycle,
     int graphTickRate
-) implements Conduit<ItemConduit> {
+) implements Conduit<ItemConduit, ItemConduitConnectionConfig> {
 
     public static final MapCodec<ItemConduit> CODEC = RecordCodecBuilder.mapCodec(
         builder -> builder
@@ -103,15 +103,14 @@ public record ItemConduit(
     }
 
     @Override
-    public ConnectionConfigType<?> connectionConfigType() {
+    public ConnectionConfigType<ItemConduitConnectionConfig> connectionConfigType() {
         return ConduitTypes.ConnectionTypes.ITEM.get();
     }
 
-    // TODO: Move conversions into the connection config type.
+    // TODO: Move conversions into the connection config type?
     @Override
-    public ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
+    public ItemConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
         RedstoneControl redstoneControl, DyeColor redstoneChannel) {
-
         return new ItemConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel, redstoneControl,
             redstoneChannel, false, false, 0);
     }

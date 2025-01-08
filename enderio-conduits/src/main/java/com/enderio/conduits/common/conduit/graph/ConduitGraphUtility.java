@@ -10,19 +10,19 @@ import net.minecraft.nbt.CompoundTag;
 
 public class ConduitGraphUtility {
 
-    public static void integrate(Holder<Conduit<?>> conduit, GraphObject<ConduitGraphContext> graphObject,
+    public static void integrate(Holder<Conduit<?, ?>> conduit, GraphObject<ConduitGraphContext> graphObject,
             List<GraphObject<ConduitGraphContext>> neighbours) {
         Graph.integrate(graphObject, neighbours, Graph::new, g -> ConduitGraphContext.createNetworkContext());
     }
 
-    public static void integrateWithLoad(Holder<Conduit<?>> conduit, GraphObject<ConduitGraphContext> graphObject,
+    public static void integrateWithLoad(Holder<Conduit<?, ?>> conduit, GraphObject<ConduitGraphContext> graphObject,
             List<GraphObject<ConduitGraphContext>> neighbours, HolderLookup.Provider lookupProvider,
             CompoundTag contextTag) {
         Graph.integrate(graphObject, neighbours, Graph::new,
                 g -> ConduitGraphContext.loadNetworkContext(conduit, lookupProvider, contextTag));
     }
 
-    public static void connect(Holder<Conduit<?>> conduit, GraphObject<ConduitGraphContext> graphObject,
+    public static void connect(Holder<Conduit<?, ?>> conduit, GraphObject<ConduitGraphContext> graphObject,
             GraphObject<ConduitGraphContext> neighbour) {
         Graph.connect(graphObject, neighbour, Graph::new, g -> ConduitGraphContext.createNetworkContext());
     }

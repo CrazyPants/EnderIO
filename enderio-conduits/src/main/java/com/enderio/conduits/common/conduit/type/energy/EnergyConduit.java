@@ -1,11 +1,10 @@
 package com.enderio.conduits.common.conduit.type.energy;
 
 import com.enderio.base.api.misc.RedstoneControl;
+import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
-import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.common.init.ConduitLang;
@@ -34,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 // TODO: Redstone control isn't working properly - the cap needs to refuse input to the node if the connection being fed into is blocked by a redstone signal.
 
 public record EnergyConduit(ResourceLocation texture, Component description, int transferRatePerTick)
-        implements Conduit<EnergyConduit> {
+        implements Conduit<EnergyConduit, EnergyConduitConnectionConfig> {
 
     public static final MapCodec<EnergyConduit> CODEC = RecordCodecBuilder.mapCodec(builder -> builder
             .group(ResourceLocation.CODEC.fieldOf("texture").forGetter(Conduit::texture),
@@ -72,12 +71,12 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
     }
 
     @Override
-    public boolean canBeInSameBundle(Holder<Conduit<?>> otherConduit) {
+    public boolean canBeInSameBundle(Holder<Conduit<?, ?>> otherConduit) {
         return !(otherConduit.value() instanceof EnergyConduit);
     }
 
     @Override
-    public boolean canBeReplacedBy(Holder<Conduit<?>> otherConduit) {
+    public boolean canBeReplacedBy(Holder<Conduit<?, ?>> otherConduit) {
         if (!(otherConduit.value() instanceof EnergyConduit otherEnergyConduit)) {
             return false;
         }
@@ -92,28 +91,46 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
     }
 
     @Override
-    public <TCap, TContext> @Nullable TCap proxyCapability(BlockCapability<TCap, TContext> capability, ConduitNode node,
-            Level level, BlockPos pos, @Nullable TContext context) {
+    public <TCap, TContext> @Nullable TCap proxyCapability(Level level, ColoredRedstoneProvider coloredRedstoneProvider, ConduitNode node, BlockCapability<TCap, TContext> capability,
+        @Nullable TContext context) {
 
         if (Capabilities.EnergyStorage.BLOCK == capability && (context == null || context instanceof Direction)) {
+            boolean isMutable = true;
+
             if (context != null) {
+                Direction side = (Direction)context;
+
                 // No connection, no cap.
-                if (!node.isConnectedTo((Direction) context)) {
+                if (!node.isConnectedTo(side)) {
                     return null;
                 }
 
-                var config = node.getConnectionConfig((Direction) context);
-                if (!config.isConnected()) {
+                var config = node.getConnectionConfig(side, connectionConfigType());
+                if (!config.isConnected() || !config.canExtract()) {
                     return null;
                 }
 
-                if (config instanceof IOConnectionConfig ioConfig && !ioConfig.canInsert()) {
-                    return null;
+                if (config.redstoneControl() == RedstoneControl.NEVER_ACTIVE) {
+                    isMutable = false;
+                } else if (config.redstoneControl() != RedstoneControl.ALWAYS_ACTIVE) {
+                    boolean hasRedstone = coloredRedstoneProvider.isRedstoneActive(level, node.getPos(), config.redstoneChannel());
+                    if (!hasRedstone) {
+                        for (Direction direction : Direction.values()) {
+                            if (level.getSignal(node.getPos().relative(direction), direction.getOpposite()) > 0) {
+                                hasRedstone = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!hasRedstone) {
+                        isMutable = false;
+                    }
                 }
             }
 
             // noinspection unchecked
-            return (TCap) new EnergyConduitStorage(transferRatePerTick(), node);
+            return (TCap) new EnergyConduitStorage(isMutable, transferRatePerTick(), node);
         }
 
         return null;
@@ -125,12 +142,12 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
     }
 
     @Override
-    public ConnectionConfigType<?> connectionConfigType() {
+    public ConnectionConfigType<EnergyConduitConnectionConfig> connectionConfigType() {
         return ConduitTypes.ConnectionTypes.ENERGY.get();
     }
 
     @Override
-    public ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
+    public EnergyConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
         RedstoneControl redstoneControl, DyeColor redstoneChannel) {
         return new EnergyConduitConnectionConfig(isInsert, isExtract, redstoneControl, redstoneChannel);
     }

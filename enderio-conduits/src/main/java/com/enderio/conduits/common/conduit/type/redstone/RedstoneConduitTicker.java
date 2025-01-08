@@ -3,23 +3,21 @@ package com.enderio.conduits.common.conduit.type.redstone;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.ticker.IOAwareConduitTicker;
+import com.enderio.conduits.api.ticker.ChannelIOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitBlocks;
-import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.redstone.RedstoneExtractFilter;
-import com.enderio.conduits.common.tag.ConduitTags;
-import java.util.Collection;
+
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.core.BlockPos;
+
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
-public class RedstoneConduitTicker implements IOAwareConduitTicker<RedstoneConduit> {
+public class RedstoneConduitTicker extends ChannelIOAwareConduitTicker<RedstoneConduit, ChannelIOAwareConduitTicker.SimpleConnection> {
 
     private final Map<DyeColor, Integer> activeColors = new EnumMap<>(DyeColor.class);
 
@@ -27,37 +25,34 @@ public class RedstoneConduitTicker implements IOAwareConduitTicker<RedstoneCondu
     public void tickGraph(ServerLevel level, RedstoneConduit conduit, ConduitNetwork graph,
             ColoredRedstoneProvider coloredRedstoneProvider) {
 
-        Collection<ConduitNode> nodes = graph.getNodes();
-
-        RedstoneConduitNetworkContext context = graph.getOrCreateContext(RedstoneConduitNetworkContext.TYPE);
+        var context = graph.getOrCreateContext(RedstoneConduitNetworkContext.TYPE);
         boolean isActiveBeforeTick = context.isActive();
         context.clear();
 
         activeColors.clear();
-        tickGraph(level, conduit, nodes.stream().filter(ConduitNode::isLoaded).toList(),
-                graph, coloredRedstoneProvider);
+        super.tickGraph(level, conduit, graph, coloredRedstoneProvider);
 
         // If active changed, nodes need to be synced.
         if (context.isActive() != isActiveBeforeTick) {
-            for (var node : nodes) {
+            for (var node : graph.getNodes()) {
                 node.markDirty();
             }
         }
     }
 
     @Override
-    public void tickColoredGraph(ServerLevel level, RedstoneConduit conduit, List<Connection> inserts,
-            List<Connection> extracts, DyeColor color, ConduitNetwork graph,
+    public void tickColoredGraph(ServerLevel level, RedstoneConduit conduit, List<SimpleConnection> inserts,
+            List<SimpleConnection> extracts, DyeColor color, ConduitNetwork graph,
             ColoredRedstoneProvider coloredRedstoneProvider) {
 
         RedstoneConduitNetworkContext networkContext = graph.getOrCreateContext(RedstoneConduitNetworkContext.TYPE);
 
-        for (Connection extract : extracts) {
+        for (SimpleConnection extract : extracts) {
             int signal;
             if (extract.extractFilter() instanceof RedstoneExtractFilter filter) {
-                signal = filter.getInputSignal(level, extract.move(), extract.direction());
+                signal = filter.getInputSignal(level, extract.neighborPos(), extract.neighborSide());
             } else {
-                signal = level.getSignal(extract.move(), extract.direction());
+                signal = level.getSignal(extract.neighborPos(), extract.neighborSide());
             }
 
             if (signal > 0) {
@@ -65,13 +60,19 @@ public class RedstoneConduitTicker implements IOAwareConduitTicker<RedstoneCondu
             }
         }
 
-        for (Connection insert : inserts) {
-            level.neighborChanged(insert.move(), ConduitBlocks.CONDUIT.get(), insert.pos());
+        for (SimpleConnection insert : inserts) {
+            level.neighborChanged(insert.neighborPos(), ConduitBlocks.CONDUIT.get(), insert.pos());
         }
     }
 
     @Override
-    public boolean shouldSkipColor(List<Connection> extractList, List<Connection> insertList) {
-        return extractList.isEmpty() && insertList.isEmpty(); // Only skip if no one uses the channel
+    protected @Nullable ChannelIOAwareConduitTicker.SimpleConnection createConnection(Level level, ConduitNode node, Direction side) {
+        return new SimpleConnection(node, side);
+    }
+
+    @Override
+    protected boolean shouldSkipColor(List<SimpleConnection> extractList, List<SimpleConnection> insertList) {
+        // Skip if the channel is completely un-utilised.
+        return extractList.isEmpty() && insertList.isEmpty();
     }
 }

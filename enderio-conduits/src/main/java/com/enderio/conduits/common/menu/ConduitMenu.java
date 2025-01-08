@@ -24,10 +24,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class ConduitMenu extends LegacyBaseBlockEntityMenu<ConduitBundleBlockEntity> {
     private Direction direction;
-    private Holder<Conduit<?>> conduit;
+    private Holder<Conduit<?, ?>> conduit;
 
     public ConduitMenu(@Nullable ConduitBundleBlockEntity blockEntity, Inventory inventory, int pContainerId,
-            Direction direction, Holder<Conduit<?>> conduit) {
+            Direction direction, Holder<Conduit<?, ?>> conduit) {
         super(ConduitMenus.CONDUIT_MENU.get(), pContainerId, blockEntity, inventory);
 
         this.direction = direction;
@@ -90,7 +90,7 @@ public class ConduitMenu extends LegacyBaseBlockEntityMenu<ConduitBundleBlockEnt
     public static ConduitMenu factory(int pContainerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
         BlockEntity entity = inventory.player.level().getBlockEntity(buf.readBlockPos());
         Direction direction = buf.readEnum(Direction.class);
-        Holder<Conduit<?>> type = Conduit.STREAM_CODEC.decode(buf);
+        Holder<Conduit<?, ?>> type = Conduit.STREAM_CODEC.decode(buf);
         if (entity instanceof ConduitBundleBlockEntity castBlockEntity) {
             return new ConduitMenu(castBlockEntity, inventory, pContainerId, direction, type);
         }
@@ -99,11 +99,11 @@ public class ConduitMenu extends LegacyBaseBlockEntityMenu<ConduitBundleBlockEnt
         return new ConduitMenu(null, inventory, pContainerId, direction, type);
     }
 
-    public Holder<Conduit<?>> getConduit() {
+    public Holder<Conduit<?, ?>> getConduit() {
         return conduit;
     }
 
-    public void setConduit(Holder<Conduit<?>> conduit) {
+    public void setConduit(Holder<Conduit<?, ?>> conduit) {
         this.conduit = conduit;
 
         if (getBlockEntity().hasLevel() && getBlockEntity().getLevel().isClientSide()) {

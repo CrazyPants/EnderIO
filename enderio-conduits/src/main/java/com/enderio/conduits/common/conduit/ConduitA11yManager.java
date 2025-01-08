@@ -18,10 +18,10 @@ import org.jetbrains.annotations.Nullable;
 @EventBusSubscriber(/*value = Dist.CLIENT, */modid = EnderIOConduits.MODULE_MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class ConduitA11yManager {
 
-    private static Holder<Conduit<?>> heldConduit;
+    private static Holder<Conduit<?, ?>> heldConduit;
 
     @Nullable
-    public static Holder<Conduit<?>> getHeldConduit() {
+    public static Holder<Conduit<?, ?>> getHeldConduit() {
         return heldConduit;
     }
 

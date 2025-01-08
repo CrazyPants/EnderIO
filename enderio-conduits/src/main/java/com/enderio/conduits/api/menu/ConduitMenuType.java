@@ -32,11 +32,11 @@ public class ConduitMenuType<TConnectionConfig extends ConnectionConfig> {
         return components;
     }
 
-    public static <TConduit extends Conduit<TConduit>, TConnectionConfig extends ConnectionConfig> Builder<TConduit, TConnectionConfig> builder(ConnectionConfigType<TConnectionConfig> connectionConfigType) {
+    public static <TConduit extends Conduit<TConduit, TConnectionConfig>, TConnectionConfig extends ConnectionConfig> Builder<TConduit, TConnectionConfig> builder(ConnectionConfigType<TConnectionConfig> connectionConfigType) {
         return new Builder<>(connectionConfigType);
     }
 
-    public static class Builder<TConduit extends Conduit<TConduit>, TConnectionConfig extends ConnectionConfig> {
+    public static class Builder<TConduit extends Conduit<TConduit, TConnectionConfig>, TConnectionConfig extends ConnectionConfig> {
         private final ConnectionConfigType<TConnectionConfig> connectionConfigType;
 
         @Nullable

@@ -8,8 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
-public interface ConduitTicker<TConduit extends Conduit<TConduit>> {
-
+public interface ConduitTicker<TConduit extends Conduit<TConduit, ?>> {
     void tickGraph(ServerLevel level, TConduit conduit, ConduitNetwork graph,
             ColoredRedstoneProvider coloredRedstoneProvider);
 }

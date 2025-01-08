@@ -43,7 +43,7 @@ public class EnderIOConduitsRegistries {
         /**
          * Conduit types are now a datapack registry.
          */
-        public static final ResourceKey<Registry<Conduit<?>>> CONDUIT = createKey("conduit");
+        public static final ResourceKey<Registry<Conduit<?, ?>>> CONDUIT = createKey("conduit");
 
         private static <T> ResourceKey<Registry<T>> createKey(String name) {
             return ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath("enderio", name));

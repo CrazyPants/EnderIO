@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @ApiStatus.Experimental
 public interface ConduitBundleAccessor extends ConduitBundleReader {
 
-    boolean canAddConduit(Holder<Conduit<?>> conduit);
+    boolean canAddConduit(Holder<Conduit<?, ?>> conduit);
 
     /**
      * Attempt to add a conduit to the bundle.
@@ -24,19 +24,19 @@ public interface ConduitBundleAccessor extends ConduitBundleReader {
      * @param player the player adding the conduit, or null if performed from another source.
      * @return the result of the add operation.
      */
-    AddConduitResult addConduit(Holder<Conduit<?>> conduit, @Nullable Player player);
+    AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Player player);
 
     /**
      * Remove a conduit from the bundle.
      * @throws IllegalArgumentException if this conduit is not present (in dev only).
      */
-    void removeConduit(Holder<Conduit<?>> conduit, @Nullable Player player);
+    void removeConduit(Holder<Conduit<?, ?>> conduit, @Nullable Player player);
 
     /**
      * @param conduit the conduit to get the inventory for.
      * @return the inventory for this conduit.
      */
-    ConduitInventory getInventory(Holder<Conduit<?>> conduit);
+    ConduitInventory getInventory(Holder<Conduit<?, ?>> conduit);
 
     // region Connections
 
@@ -46,7 +46,7 @@ public interface ConduitBundleAccessor extends ConduitBundleReader {
      * @param side
      * @param config
      */
-    void setConnectionConfig(Direction side, Holder<Conduit<?>> conduit, ConnectionConfig config);
+    void setConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit, ConnectionConfig config);
 
     /**
      * Attempt to connect this conduit something in the given direction.
@@ -55,7 +55,7 @@ public interface ConduitBundleAccessor extends ConduitBundleReader {
      * @param isForcedConnection whether this is a forced connection or automated connection. (Wrench)
      * @return whether a new connection was made.
      */
-    boolean tryConnectTo(Direction side, Holder<Conduit<?>> conduit, boolean isForcedConnection);
+    boolean tryConnectTo(Direction side, Holder<Conduit<?, ?>> conduit, boolean isForcedConnection);
 
     // endregion
 

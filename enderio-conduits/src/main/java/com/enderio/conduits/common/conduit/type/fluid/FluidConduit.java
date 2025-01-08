@@ -40,7 +40,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 public record FluidConduit(ResourceLocation texture, Component description, int transferRatePerTick,
-        boolean isMultiFluid) implements Conduit<FluidConduit> {
+        boolean isMultiFluid) implements Conduit<FluidConduit, FluidConduitConnectionConfig> {
 
     public static final MapCodec<FluidConduit> CODEC = RecordCodecBuilder
             .mapCodec(
@@ -74,12 +74,12 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
     }
 
     @Override
-    public boolean canBeInSameBundle(Holder<Conduit<?>> otherConduit) {
+    public boolean canBeInSameBundle(Holder<Conduit<?, ?>> otherConduit) {
         return !(otherConduit.value() instanceof FluidConduit);
     }
 
     @Override
-    public boolean canBeReplacedBy(Holder<Conduit<?>> otherConduit) {
+    public boolean canBeReplacedBy(Holder<Conduit<?, ?>> otherConduit) {
         if (!(otherConduit.value() instanceof FluidConduit otherFluidConduit)) {
             return false;
         }
@@ -121,17 +121,14 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
     }
 
     @Override
-    public ConnectionConfigType<?> connectionConfigType() {
-//        return SimpleRedstoneControlledConnectionConfig.TYPE;
-        return null;
+    public ConnectionConfigType<FluidConduitConnectionConfig> connectionConfigType() {
+        return FluidConduitConnectionConfig.TYPE;
     }
 
     @Override
-    public ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
+    public FluidConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
         RedstoneControl redstoneControl, DyeColor redstoneChannel) {
-//        return new SimpleRedstoneControlledConnectionConfig(ConduitConnectionMode.of(isInsert, isExtract), inputChannel, outputChannel,
-//            redstoneControl, redstoneChannel);
-        return null;
+        return new FluidConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel, redstoneControl, redstoneChannel);
     }
 
     @Override

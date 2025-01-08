@@ -5,6 +5,7 @@ import com.enderio.conduits.common.init.Conduits;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public record EnergyConduitStorage(
+    boolean isMutable,
     int transferRate,
     ConduitNode node
 ) implements IEnergyStorage {
@@ -70,6 +71,6 @@ public record EnergyConduitStorage(
     // This means we don't have to worry about checking if we can extract at this point.
     @Override
     public boolean canReceive() {
-        return node.getNetwork() != null;
+        return node.getNetwork() != null && isMutable;
     }
 }

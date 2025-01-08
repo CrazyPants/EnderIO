@@ -93,6 +93,6 @@ public record ItemConduitConnectionConfig(
 
     @Override
     public ConnectionConfigType<ItemConduitConnectionConfig> type() {
-        return ConduitTypes.ConnectionTypes.ITEM.get();
+        return TYPE;
     }
 }

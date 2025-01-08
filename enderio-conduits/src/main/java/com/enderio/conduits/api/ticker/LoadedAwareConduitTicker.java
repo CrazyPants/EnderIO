@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public interface LoadedAwareConduitTicker<TConduit extends Conduit<TConduit>> extends ConduitTicker<TConduit> {
+public interface LoadedAwareConduitTicker<TConduit extends Conduit<TConduit, ?>> extends ConduitTicker<TConduit> {
 
     @Override
     default void tickGraph(ServerLevel level, TConduit conduit, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {

@@ -10,7 +10,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public record ConduitMenuSelectionPacket(
-    Holder<Conduit<?>> conduit
+    Holder<Conduit<?, ?>> conduit
 ) implements CustomPacketPayload {
 
     public static final Type<ConduitMenuSelectionPacket> TYPE = new Type<>(EnderIO.loc("conduit_menu_selection"));

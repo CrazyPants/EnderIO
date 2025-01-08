@@ -204,7 +204,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 return blockEntity.getFacadeBlock().asItem().getDefaultInstance();
             }
 
-            Holder<Conduit<?>> conduit = blockEntity.getShape().getConduit(pos, target);
+            Holder<Conduit<?, ?>> conduit = blockEntity.getShape().getConduit(pos, target);
             if (conduit == null) {
                 if (blockEntity.getConduits().isEmpty()) {
                     return ItemStack.EMPTY;
@@ -232,9 +232,13 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock,
             BlockPos neighborPos, boolean movedByPiston) {
+
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduit) {
             conduit.updateConnections(level, pos, neighborPos, true);
         }
+
+        // Invalidate caps in case of redstone update or something else.
+        level.invalidateCapabilities(pos);
 
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
     }
@@ -283,7 +287,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         }
 
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
-            Holder<Conduit<?>> conduit = stack.get(ConduitComponents.CONDUIT);
+            Holder<Conduit<?, ?>> conduit = stack.get(ConduitComponents.CONDUIT);
             if (conduit != null) {
                 conduitBundle.addConduit(conduit, player);
             } else {
@@ -331,7 +335,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 }
             } else {
                 // TODO: accessibility feature flag
-                Holder<Conduit<?>> conduit = null;
+                Holder<Conduit<?, ?>> conduit = null;
 //                if (true) {
 //                    // If the player is holding a conduit and this flag is enabled, they purposely want to break the held conduit.
 //                    conduit = ConduitA11yManager.getHeldConduit();
@@ -441,7 +445,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     private ItemInteractionResult addConduit(ItemStack stack, Level level, BlockPos pos, Player player,
             NewConduitBundleBlockEntity conduitBundle) {
         // Get the conduit from the item
-        Holder<Conduit<?>> conduit = stack.get(ConduitComponents.CONDUIT);
+        Holder<Conduit<?, ?>> conduit = stack.get(ConduitComponents.CONDUIT);
         if (conduit == null) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }

@@ -50,7 +50,7 @@ public record DynamicConnectionState(boolean isInsert, DyeColor insertChannel, b
                     DynamicConnectionState::new);
 
     public static DynamicConnectionState defaultConnection(Level level, BlockPos pos, Direction direction,
-            Holder<Conduit<?>> type) {
+            Holder<Conduit<?, ?>> type) {
         // Conduit.ConduitConnectionData defaultConnection =
         // type.value().getDefaultConnection(level, pos, direction);
         // return new DynamicConnectionState(defaultConnection.isInsert(),

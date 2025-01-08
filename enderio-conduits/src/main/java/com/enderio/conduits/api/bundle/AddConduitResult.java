@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
 public sealed interface AddConduitResult permits AddConduitResult.Upgrade, AddConduitResult.Blocked, AddConduitResult.Insert{
-     record Upgrade(Holder<Conduit<?>> replacedConduit) implements AddConduitResult {
+     record Upgrade(Holder<Conduit<?, ?>> replacedConduit) implements AddConduitResult {
         @Override
         public String toString() {
              return "Upgrade[" + replacedConduit.getRegisteredName() + "]";

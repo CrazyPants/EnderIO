@@ -58,7 +58,7 @@ public record ChemicalConduit(
     }
 
     @Override
-    public boolean canBeInSameBundle(Holder<Conduit<?>> otherConduit) {
+    public boolean canBeInSameBundle(Holder<Conduit<?, ?>> otherConduit) {
         if (otherConduit.value().type() != type()) {
             return true;
         }
@@ -67,7 +67,7 @@ public record ChemicalConduit(
     }
 
     @Override
-    public boolean canBeReplacedBy(Holder<Conduit<?>> otherConduit) {
+    public boolean canBeReplacedBy(Holder<Conduit<?, ?>> otherConduit) {
         if (otherConduit.value().type() != type()) {
             return false;
         }

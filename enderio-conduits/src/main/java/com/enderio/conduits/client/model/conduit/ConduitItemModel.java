@@ -42,17 +42,17 @@ public class ConduitItemModel extends BakedModelWrapper<BakedModel> {
 
     public static class ConduitItemOverrides extends ItemOverrides {
 
-        private final Map<Holder<Conduit<?>>, BakedModel> CACHE = new HashMap<>();
+        private final Map<Holder<Conduit<?, ?>>, BakedModel> CACHE = new HashMap<>();
 
         @Nullable
         @Override
         public BakedModel resolve(BakedModel pModel, ItemStack pStack, @Nullable ClientLevel pLevel,
                 @Nullable LivingEntity pEntity, int pSeed) {
-            Holder<Conduit<?>> conduit = pStack.get(ConduitComponents.CONDUIT);
+            Holder<Conduit<?, ?>> conduit = pStack.get(ConduitComponents.CONDUIT);
             return CACHE.computeIfAbsent(conduit, t -> createBakedModel(t, pModel));
         }
 
-        private BakedModel createBakedModel(@Nullable Holder<Conduit<?>> conduit, BakedModel model) {
+        private BakedModel createBakedModel(@Nullable Holder<Conduit<?, ?>> conduit, BakedModel model) {
             ResourceLocation conduitTexture = MissingTextureAtlasSprite.getLocation();
             if (conduit != null) {
                 conduitTexture = conduit.value().texture();

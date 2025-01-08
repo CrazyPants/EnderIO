@@ -53,9 +53,9 @@ public class AE2ConduitsModule implements ConduitModule {
                     .exposeCapability(AECapabilities.IN_WORLD_GRID_NODE_HOST)
                     .build());
 
-    public static ResourceKey<Conduit<?>> NORMAL = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> NORMAL = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("me"));
-    public static ResourceKey<Conduit<?>> DENSE = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> DENSE = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("dense_me"));
 
     public static final Supplier<ConduitDataType<ConduitInWorldGridNodeHost>> DATA = CONDUIT_DATA_TYPES.register("me",
@@ -97,7 +97,7 @@ public class AE2ConduitsModule implements ConduitModule {
     }
 
     @Override
-    public void bootstrapConduits(BootstrapContext<Conduit<?>> context) {
+    public void bootstrapConduits(BootstrapContext<Conduit<?, ?>> context) {
         context.register(NORMAL, new MEConduit(EnderIO.loc("block/conduit/me"), LANG_ME_CONDUIT, false));
         context.register(DENSE, new MEConduit(EnderIO.loc("block/conduit/dense_me"), LANG_DENSE_ME_CONDUIT, true));
     }

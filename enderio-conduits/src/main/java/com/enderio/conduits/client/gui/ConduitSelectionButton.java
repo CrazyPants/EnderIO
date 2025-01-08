@@ -15,11 +15,11 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ConduitSelectionButton extends AbstractButton {
-    private final Holder<Conduit<?>> conduit;
-    private final Supplier<Holder<Conduit<?>>> getter;
-    private final Consumer<Holder<Conduit<?>>> setter;
+    private final Holder<Conduit<?, ?>> conduit;
+    private final Supplier<Holder<Conduit<?, ?>>> getter;
+    private final Consumer<Holder<Conduit<?, ?>>> setter;
 
-    public ConduitSelectionButton(int pX, int pY, Holder<Conduit<?>> conduit, Supplier<Holder<Conduit<?>>> getter, Consumer<Holder<Conduit<?>>> setter) {
+    public ConduitSelectionButton(int pX, int pY, Holder<Conduit<?, ?>> conduit, Supplier<Holder<Conduit<?, ?>>> getter, Consumer<Holder<Conduit<?, ?>>> setter) {
         super(pX, pY, 21, 24, Component.empty());
         this.conduit = conduit;
         this.getter = getter;
@@ -62,7 +62,7 @@ public class ConduitSelectionButton extends AbstractButton {
     protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
     }
 
-    public Holder<Conduit<?>> getConduit() {
+    public Holder<Conduit<?, ?>> getConduit() {
         return conduit;
     }
 }

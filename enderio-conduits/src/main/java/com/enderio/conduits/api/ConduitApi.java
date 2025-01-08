@@ -9,13 +9,13 @@ public interface ConduitApi {
 
     ConduitApi INSTANCE = ServiceLoader.load(ConduitApi.class).findFirst().orElseThrow();
 
-    default ItemStack getStackForType(Holder<Conduit<?>> conduit) {
+    default ItemStack getStackForType(Holder<Conduit<?, ?>> conduit) {
         return getStackForType(conduit, 1);
     }
 
-    ItemStack getStackForType(Holder<Conduit<?>> conduit, int count);
+    ItemStack getStackForType(Holder<Conduit<?, ?>> conduit, int count);
 
-    Ingredient getIngredientForType(Holder<Conduit<?>> conduit);
+    Ingredient getIngredientForType(Holder<Conduit<?, ?>> conduit);
 
-    int getConduitSortIndex(Holder<Conduit<?>> conduit);
+    int getConduitSortIndex(Holder<Conduit<?, ?>> conduit);
 }

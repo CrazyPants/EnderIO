@@ -26,34 +26,34 @@ public interface ConduitBundleReader {
      * @implNote Must be sorted according to {@link com.enderio.conduits.api.ConduitApi#getConduitSortIndex(Holder)}
      * @return a list of all conduits in the bundle.
      */
-    List<Holder<Conduit<?>>> getConduits();
+    List<Holder<Conduit<?, ?>>> getConduits();
 
     /**
      * @throws IllegalArgumentException if the conduit is not present.
      * @param conduit the conduit to get a node for.
      * @return the conduit node.
      */
-    ConduitNode getConduitNode(Holder<Conduit<?>> conduit);
+    ConduitNode getConduitNode(Holder<Conduit<?, ?>> conduit);
 
     /**
      * @param conduit the conduit to get data for.
      * @return the client data tag, or null if there is none or the conduit doesn't sync extra data.
      */
     @Nullable
-    CompoundTag getConduitClientDataTag(Holder<Conduit<?>> conduit);
+    CompoundTag getConduitClientDataTag(Holder<Conduit<?, ?>> conduit);
 
     /**
      * @implNote compare conduits using {@link Conduit#canConnectToConduit(Holder)}
      * @param conduit the conduit to check for
      * @return whether the bundle has this conduit, or another which is compatible.
      */
-    boolean hasConduitByType(Holder<Conduit<?>> conduit);
+    boolean hasConduitByType(Holder<Conduit<?, ?>> conduit);
 
     /**
      * @param conduit the conduit to check for
      * @return whether the bundle has this specific conduit.
      */
-    boolean hasConduitStrict(Holder<Conduit<?>> conduit);
+    boolean hasConduitStrict(Holder<Conduit<?, ?>> conduit);
 
     /**
      * @return whether the bundle has no conduits and no facade.
@@ -72,7 +72,7 @@ public interface ConduitBundleReader {
      * @param side the side to check for.
      * @return a list of all conduits connected on this side.
      */
-    List<Holder<Conduit<?>>> getConnectedConduits(Direction side);
+    List<Holder<Conduit<?, ?>>> getConnectedConduits(Direction side);
 
     /**
      *
@@ -80,14 +80,14 @@ public interface ConduitBundleReader {
      * @param conduit
      * @return
      */
-    ConnectionStatus getConnectionStatus(Direction side, Holder<Conduit<?>> conduit);
+    ConnectionStatus getConnectionStatus(Direction side, Holder<Conduit<?, ?>> conduit);
 
     /**
      * @param side
      * @param conduit
      * @return
      */
-    ConnectionConfig getConnectionConfig(Direction side, Holder<Conduit<?>> conduit);
+    ConnectionConfig getConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit);
 
     /**
      * An endpoint is a side which has a "connection plate" to another block, rather than to continued line of bundles.

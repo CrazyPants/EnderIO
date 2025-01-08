@@ -23,7 +23,7 @@ public class EIOBundledRedstoneProvider implements BundledRedstoneProvider {
     public int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
         BlockEntity be = world.getBlockEntity(pos);
 
-        Holder<Conduit<?>> redstoneConduit = world.holderOrThrow(Conduits.REDSTONE);
+        Holder<Conduit<?, ?>> redstoneConduit = world.holderOrThrow(Conduits.REDSTONE);
 
 //        if (be instanceof ConduitBundleBlockEntity conduit) {
 //            ConnectionState connectionState = conduit.getBundle().getConnectionState(side, redstoneConduit);

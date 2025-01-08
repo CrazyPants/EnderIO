@@ -14,7 +14,7 @@ import net.minecraft.world.item.DyeColor;
 public record C2SSetConduitRedstoneControlPacket(
     BlockPos pos,
     Direction side,
-    Holder<Conduit<?>> conduit,
+    Holder<Conduit<?, ?>> conduit,
     RedstoneControl redstoneControl
 ) implements C2SConduitConnectionPacket, CustomPacketPayload {
 

@@ -32,7 +32,7 @@ public record RedstoneConduit(
     ResourceLocation texture,
     ResourceLocation activeTexture,
     Component description
-) implements Conduit<RedstoneConduit> {
+) implements Conduit<RedstoneConduit, RedstoneConduitConnectionConfig> {
 
     public static MapCodec<RedstoneConduit> CODEC = RecordCodecBuilder.mapCodec(
         builder -> builder.group(
@@ -99,16 +99,14 @@ public record RedstoneConduit(
     }
 
     @Override
-    public ConnectionConfigType<?> connectionConfigType() {
-//        return SimpleConnectionConfig.TYPE;
-        return null;
+    public ConnectionConfigType<RedstoneConduitConnectionConfig> connectionConfigType() {
+        return RedstoneConduitConnectionConfig.TYPE;
     }
 
     @Override
-    public ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
+    public RedstoneConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
         RedstoneControl redstoneControl, DyeColor redstoneChannel) {
-//        return new SimpleConnectionConfig(ConduitConnectionMode.of(isInsert, isExtract), inputChannel, outputChannel);
-        return null;
+        return new RedstoneConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel);
     }
 
     @Override

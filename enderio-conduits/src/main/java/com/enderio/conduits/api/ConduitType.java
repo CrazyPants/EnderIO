@@ -18,7 +18,7 @@ import java.util.function.BiFunction;
 
 // TODO: Change this from an interface to a record + builder?
 //       No point in having an interface imo.
-public interface ConduitType<T extends Conduit<T>> {
+public interface ConduitType<T extends Conduit<T, ?>> {
     Codec<ConduitType<?>> CODEC = Codec.lazyInitialized(EnderIOConduitsRegistries.CONDUIT_TYPE::byNameCodec);
     StreamCodec<RegistryFriendlyByteBuf, ConduitType<?>> STREAM_CODEC = StreamCodec.recursive(
         streamCodec -> ByteBufCodecs.registry(EnderIOConduitsRegistries.Keys.CONDUIT_TYPE)
@@ -34,19 +34,19 @@ public interface ConduitType<T extends Conduit<T>> {
      */
     Set<BlockCapability<?, ?>> exposedCapabilities();
 
-    static <T extends Conduit<T>> ConduitType<T> of(MapCodec<T> codec) {
+    static <T extends Conduit<T, ?>> ConduitType<T> of(MapCodec<T> codec) {
         return builder(codec).build();
     }
 
-    static <T extends Conduit<T>> Builder<T> builder(MapCodec<T> codec) {
+    static <T extends Conduit<T, ?>> Builder<T> builder(MapCodec<T> codec) {
         return new Builder<>(codec);
     }
 
-    static <T extends Conduit<T>> ConduitType<T> of(BiFunction<ResourceLocation, Component, T> factory) {
+    static <T extends Conduit<T, ?>> ConduitType<T> of(BiFunction<ResourceLocation, Component, T> factory) {
         return builder(factory).build();
     }
 
-    static <T extends Conduit<T>> Builder<T> builder(BiFunction<ResourceLocation, Component, T> factory) {
+    static <T extends Conduit<T, ?>> Builder<T> builder(BiFunction<ResourceLocation, Component, T> factory) {
         return new Builder<T>(RecordCodecBuilder.mapCodec(
             builder -> builder.group(
                 ResourceLocation.CODEC.fieldOf("texture").forGetter(Conduit::texture),
@@ -55,7 +55,7 @@ public interface ConduitType<T extends Conduit<T>> {
         ));
     }
 
-    class Builder<T extends Conduit<T>> {
+    class Builder<T extends Conduit<T, ?>> {
         private final MapCodec<T> codec;
         private final Set<BlockCapability<?, ?>> exposedCapabilities;
 
@@ -73,7 +73,7 @@ public interface ConduitType<T extends Conduit<T>> {
             return new SimpleType<>(codec, exposedCapabilities);
         }
 
-        record SimpleType<T extends Conduit<T>>(
+        record SimpleType<T extends Conduit<T, ?>>(
             MapCodec<T> codec,
             Set<BlockCapability<?, ?>> exposedCapabilities
         ) implements ConduitType<T> {}

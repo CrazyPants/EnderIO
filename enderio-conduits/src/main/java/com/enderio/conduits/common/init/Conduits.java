@@ -17,28 +17,28 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class Conduits {
 
-    public static ResourceKey<Conduit<?>> ENERGY = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> ENERGY = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("energy"));
-    public static ResourceKey<Conduit<?>> ENHANCED_ENERGY = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> ENHANCED_ENERGY = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("enhanced_energy"));
-    public static ResourceKey<Conduit<?>> ENDER_ENERGY = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> ENDER_ENERGY = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("ender_energy"));
-    public static ResourceKey<Conduit<?>> REDSTONE = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> REDSTONE = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("redstone"));
-    public static ResourceKey<Conduit<?>> FLUID = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> FLUID = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("fluid"));
-    public static ResourceKey<Conduit<?>> PRESSURIZED_FLUID = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> PRESSURIZED_FLUID = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("pressurized_fluid"));
-    public static ResourceKey<Conduit<?>> ENDER_FLUID = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> ENDER_FLUID = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("ender_fluid"));
-    public static ResourceKey<Conduit<?>> ITEM = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> ITEM = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("item"));
-    public static ResourceKey<Conduit<?>> ENHANCED_ITEM = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> ENHANCED_ITEM = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("enhanced_item"));
-    public static ResourceKey<Conduit<?>> ENDER_ITEM = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
+    public static ResourceKey<Conduit<?, ?>> ENDER_ITEM = ResourceKey.create(EnderIOConduitsRegistries.Keys.CONDUIT,
             EnderIO.loc("ender_item"));
 
-    public static void bootstrap(BootstrapContext<Conduit<?>> context) {
+    public static void bootstrap(BootstrapContext<Conduit<?, ?>> context) {
         // TODO: These rates are still up for change, but will refine through testing.
         context.register(ENERGY,
                 new EnergyConduit(EnderIO.loc("block/conduit/energy"), ConduitLang.ENERGY_CONDUIT, 1_000));

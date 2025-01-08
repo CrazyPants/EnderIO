@@ -23,7 +23,7 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 @EventBusSubscriber(modid = EnderIOConduits.MODULE_MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class ConduitSorter {
-    private static final List<Holder<Conduit<?>>> SORTED_CONDUITS = new ArrayList<>();
+    private static final List<Holder<Conduit<?, ?>>> SORTED_CONDUITS = new ArrayList<>();
 
     @SubscribeEvent
     public static void serverSortTypes(ServerStartedEvent event) {
@@ -37,7 +37,7 @@ public class ConduitSorter {
         sortTypes(conduitRegistry);
     }
 
-    private static void sortTypes(Registry<Conduit<?>> registry) {
+    private static void sortTypes(Registry<Conduit<?, ?>> registry) {
         SORTED_CONDUITS.clear();
 
         // Group like types together.
@@ -46,28 +46,28 @@ public class ConduitSorter {
             .sorted(Comparator.comparing(i -> Objects.requireNonNull(EnderIOConduitsRegistries.CONDUIT_TYPE.getKey(i)).toString()))
             .toList();
 
-        List<Holder<Conduit<?>>> sortedConduits = new ArrayList<>();
+        List<Holder<Conduit<?, ?>>> sortedConduits = new ArrayList<>();
         for (ConduitType<?> conduitType : conduitTypes) {
              sortedConduits.addAll(gatherConduitsForType(registry, conduitType));
         }
         SORTED_CONDUITS.addAll(sortedConduits);
     }
 
-    private static <T extends Conduit<T>> List<Holder<Conduit<?>>> gatherConduitsForType(Registry<Conduit<?>> registry, ConduitType<T> conduitType) {
+    private static <T extends Conduit<T, ?>> List<Holder<Conduit<?, ?>>> gatherConduitsForType(Registry<Conduit<?, ?>> registry, ConduitType<T> conduitType) {
         return registry.holders()
             .filter(i -> i.value().type() == conduitType)
             // Group by tier, then by name
-            .sorted(new Comparator<Holder<Conduit<?>>>() {
+            .sorted(new Comparator<Holder<Conduit<?, ?>>>() {
                 @Override
-                public int compare(Holder<Conduit<?>> o1, Holder<Conduit<?>> o2) {
+                public int compare(Holder<Conduit<?, ?>> o1, Holder<Conduit<?, ?>> o2) {
                      return ((T)o1.value()).compareTo((T)o2.value());
                 }
             }.thenComparing(Holder::getRegisteredName))
-            .map(i -> (Holder<Conduit<?>>)i)
+            .map(i -> (Holder<Conduit<?, ?>>)i)
             .toList();
     }
 
-    public static int getSortIndex(Holder<Conduit<?>> conduit) {
+    public static int getSortIndex(Holder<Conduit<?, ?>> conduit) {
         return SORTED_CONDUITS.indexOf(conduit);
     }
 }

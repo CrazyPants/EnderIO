@@ -13,7 +13,7 @@ import net.minecraft.world.item.DyeColor;
 public record C2SSetConduitRedstoneChannelPacket(
     BlockPos pos,
     Direction side,
-    Holder<Conduit<?>> conduit,
+    Holder<Conduit<?, ?>> conduit,
     DyeColor redstoneChannel
 ) implements C2SConduitConnectionPacket, CustomPacketPayload {
 

@@ -15,7 +15,7 @@ import net.minecraft.world.item.DyeColor;
 public record C2SSetConduitChannelPacket(
     BlockPos pos,
     Direction side,
-    Holder<Conduit<?>> conduit,
+    Holder<Conduit<?, ?>> conduit,
     Side channelSide,
     DyeColor channelColor
 ) implements C2SConduitConnectionPacket, CustomPacketPayload {

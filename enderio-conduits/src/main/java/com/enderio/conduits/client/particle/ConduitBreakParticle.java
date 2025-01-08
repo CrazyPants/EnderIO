@@ -61,7 +61,7 @@ public class ConduitBreakParticle extends TextureSheetParticle {
         return i == 0 && this.level.hasChunkAt(this.pos) ? LevelRenderer.getLightColor(this.level, this.pos) : i;
     }
 
-    public static void addDestroyEffects(BlockPos pos, Conduit<?> conduit) {
+    public static void addDestroyEffects(BlockPos pos, Conduit<?, ?> conduit) {
         Level level = Minecraft.getInstance().level;
         ParticleEngine engine = Minecraft.getInstance().particleEngine;
         List<AABB> boxes = ConduitShape.CONNECTION.toAabbs();

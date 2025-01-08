@@ -4,31 +4,31 @@ import com.enderio.base.api.filter.FluidStackFilter;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.ticker.CapabilityAwareConduitTicker;
-import com.enderio.conduits.common.init.ConduitTypes;
+import com.enderio.conduits.api.ticker.ChannelIOAwareConduitTicker;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class FluidConduitTicker extends CapabilityAwareConduitTicker<FluidConduit, IFluidHandler> {
+public class FluidConduitTicker extends ChannelIOAwareConduitTicker<FluidConduit, FluidConduitTicker.Connection> {
 
-    private int getScaledFluidRate(FluidConduit conduit, CapabilityConnection extractingConnection) {
+    private int getScaledFluidRate(FluidConduit conduit) {
         // Adjust for tick rate. Always flow up so we are at minimum meeting the required rate.
-        int rate = (int)Math.ceil(conduit.transferRatePerTick() * (20.0 / conduit.graphTickRate()));
-        return rate;
+        return (int)Math.ceil(conduit.transferRatePerTick() * (20.0 / conduit.graphTickRate()));
     }
 
-    private int doFluidTransfer(FluidStack fluid, CapabilityConnection extract, List<CapabilityConnection> inserts) {
-        FluidStack extractedFluid = extract.capability().drain(fluid, IFluidHandler.FluidAction.SIMULATE);
+    private int doFluidTransfer(FluidStack fluid, Connection extract, List<Connection> inserts) {
+        FluidStack extractedFluid = extract.fluidHandler().drain(fluid, IFluidHandler.FluidAction.SIMULATE);
 
         if (extractedFluid.isEmpty()) {
             return fluid.getAmount();
@@ -40,14 +40,14 @@ public class FluidConduitTicker extends CapabilityAwareConduitTicker<FluidCondui
             }
         }
 
-        for (CapabilityConnection insert : inserts) {
+        for (Connection insert : inserts) {
             if (insert.insertFilter() instanceof FluidStackFilter fluidStackFilter) {
                 if (!fluidStackFilter.test(extractedFluid)) {
                     continue;
                 }
             }
 
-            FluidStack transferredFluid = FluidUtil.tryFluidTransfer(insert.capability(), extract.capability(), fluid, true);
+            FluidStack transferredFluid = FluidUtil.tryFluidTransfer(insert.fluidHandler(), extract.fluidHandler(), fluid, true);
 
             if (!transferredFluid.isEmpty()) {
                 fluid.shrink(transferredFluid.getAmount());
@@ -62,46 +62,14 @@ public class FluidConduitTicker extends CapabilityAwareConduitTicker<FluidCondui
     }
 
     @Override
-    public void tickGraph(
-        ServerLevel level,
-        FluidConduit conduit,
-        List<ConduitNode> loadedNodes,
-        ConduitNetwork graph,
-        ColoredRedstoneProvider coloredRedstoneProvider) {
+    protected void tickColoredGraph(ServerLevel level, FluidConduit conduit, List<Connection> inserts, List<Connection> extracts, DyeColor color,
+        ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
 
-//        boolean shouldReset = false;
-//        for (var loadedNode : loadedNodes) {
-//            FluidConduitData fluidExtendedData = loadedNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
-//            if (fluidExtendedData.shouldReset()) {
-//                shouldReset = true;
-//                fluidExtendedData.setShouldReset(false);
-//            }
-//        }
-//
-//        if (shouldReset) {
-//            for (var loadedNode : loadedNodes) {
-//                FluidConduitData fluidExtendedData = loadedNode.getOrCreateData(ConduitTypes.Data.FLUID.get());
-//                fluidExtendedData.setLockedFluid(Fluids.EMPTY);
-//            }
-//        }
-        super.tickGraph(level, conduit, loadedNodes, graph, coloredRedstoneProvider);
-    }
-
-    @Override
-    protected void tickCapabilityGraph(
-        ServerLevel level,
-        FluidConduit conduit,
-        List<CapabilityConnection> inserts,
-        List<CapabilityConnection> extracts,
-        ConduitNetwork graph,
-        ColoredRedstoneProvider coloredRedstoneProvider) {
-
+        final int fluidRate = getScaledFluidRate(conduit);
         var context = graph.getOrCreateContext(FluidConduitNetworkContext.TYPE);
 
-        for (CapabilityConnection extract : extracts) {
-            IFluidHandler extractHandler = extract.capability();
-
-            final int fluidRate = getScaledFluidRate(conduit, extract);
+        for (Connection extract : extracts) {
+            IFluidHandler extractHandler = extract.fluidHandler();
 
             if (!context.lockedFluid().isSame(Fluids.EMPTY)) {
                 doFluidTransfer(new FluidStack(context.lockedFluid(), fluidRate), extract, inserts);
@@ -131,7 +99,24 @@ public class FluidConduitTicker extends CapabilityAwareConduitTicker<FluidCondui
     }
 
     @Override
-    protected BlockCapability<IFluidHandler, Direction> getCapability() {
-        return Capabilities.FluidHandler.BLOCK;
+    protected @Nullable FluidConduitTicker.Connection createConnection(Level level, ConduitNode node, Direction side) {
+        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, node.getPos().relative(side), side.getOpposite());
+        if (fluidHandler != null) {
+            return new Connection(node, side, fluidHandler);
+        }
+        return null;
+    }
+
+    protected static class Connection extends SimpleConnection {
+        private final IFluidHandler fluidHandler;
+
+        public Connection(ConduitNode node, Direction side, IFluidHandler fluidHandler) {
+            super(node, side);
+            this.fluidHandler = fluidHandler;
+        }
+
+        public IFluidHandler fluidHandler() {
+            return fluidHandler;
+        }
     }
 }

@@ -31,14 +31,14 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
-public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<TConduit>, TooltipProvider {
+public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, TConnectionConfig extends ConnectionConfig> extends Comparable<TConduit>, TooltipProvider {
 
-    Codec<Conduit<?>> DIRECT_CODEC = EnderIOConduitsRegistries.CONDUIT_TYPE.byNameCodec()
+    Codec<Conduit<?, ?>> DIRECT_CODEC = EnderIOConduitsRegistries.CONDUIT_TYPE.byNameCodec()
             .dispatch(Conduit::type, ConduitType::codec);
 
-    Codec<Holder<Conduit<?>>> CODEC = RegistryFixedCodec.create(EnderIOConduitsRegistries.Keys.CONDUIT);
+    Codec<Holder<Conduit<?, ?>>> CODEC = RegistryFixedCodec.create(EnderIOConduitsRegistries.Keys.CONDUIT);
 
-    StreamCodec<RegistryFriendlyByteBuf, Holder<Conduit<?>>> STREAM_CODEC = ByteBufCodecs
+    StreamCodec<RegistryFriendlyByteBuf, Holder<Conduit<?, ?>>> STREAM_CODEC = ByteBufCodecs
             .holderRegistry(EnderIOConduitsRegistries.Keys.CONDUIT);
 
     /**
@@ -75,18 +75,18 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
 
     // region Conduit Checks
 
-    default boolean canBeInSameBundle(Holder<Conduit<?>> otherConduit) {
+    default boolean canBeInSameBundle(Holder<Conduit<?, ?>> otherConduit) {
         return true;
     }
 
-    default boolean canBeReplacedBy(Holder<Conduit<?>> otherConduit) {
+    default boolean canBeReplacedBy(Holder<Conduit<?, ?>> otherConduit) {
         return false;
     }
 
     /**
      * @return true if both types are compatible
      */
-    default boolean canConnectToConduit(Holder<Conduit<?>> other) {
+    default boolean canConnectToConduit(Holder<Conduit<?, ?>> other) {
         return this.equals(other.value());
     }
 
@@ -146,8 +146,8 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
     // endregion
 
     @Nullable
-    default <TCapability, TContext> TCapability proxyCapability(BlockCapability<TCapability, TContext> capability,
-            ConduitNode node, Level level, BlockPos pos, @Nullable TContext context) {
+    default <TCapability, TContext> TCapability proxyCapability(Level level, ColoredRedstoneProvider coloredRedstoneProvider, ConduitNode node, BlockCapability<TCapability, TContext> capability,
+        @Nullable TContext context) {
         return null;
     }
 
@@ -156,7 +156,7 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
     /**
      * @return the expected conduit connection config type.
      */
-    ConnectionConfigType<?> connectionConfigType();
+    ConnectionConfigType<TConnectionConfig> connectionConfigType();
 
     /**
      * Convert old conduit connection data into the new connection config.
@@ -165,7 +165,7 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
      * @deprecated Only for conversion of <7.1 conduit data. Will be removed in Ender IO 8.
      */
     @Deprecated(since = "7.2")
-    ConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
+    TConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
         DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel);
 
     /**

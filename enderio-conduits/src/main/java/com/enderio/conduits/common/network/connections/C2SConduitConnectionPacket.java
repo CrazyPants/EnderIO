@@ -8,5 +8,5 @@ import net.minecraft.core.Holder;
 public interface C2SConduitConnectionPacket {
     BlockPos pos();
     Direction side();
-    Holder<Conduit<?>> conduit();
+    Holder<Conduit<?, ?>> conduit();
 }

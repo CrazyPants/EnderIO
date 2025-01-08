@@ -15,7 +15,7 @@ public class RegisterConduitModelModifiersEvent extends Event implements IModBus
 
     private final Map<ConduitType<?>, ConduitCoreModelModifierFactory> modifiers = new ConcurrentHashMap<>();
 
-    public void register(ConduitType<? extends Conduit<?>> type, ConduitCoreModelModifierFactory modifierFactory) {
+    public void register(ConduitType<? extends Conduit<?, ?>> type, ConduitCoreModelModifierFactory modifierFactory) {
         modifiers.put(type, modifierFactory);
     }
 

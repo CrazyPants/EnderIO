@@ -9,7 +9,7 @@ import net.minecraft.core.Holder;
 
 // TODO: Did the interface for now but honestly maybe this should just be an object because its not API public.
 public interface ConduitConnectionHost {
-    Holder<Conduit<?>> conduit();
+    Holder<Conduit<?, ?>> conduit();
     BlockPos pos();
     boolean isConnectedTo(Direction side);
     ConnectionConfig getConnectionConfig(Direction side);

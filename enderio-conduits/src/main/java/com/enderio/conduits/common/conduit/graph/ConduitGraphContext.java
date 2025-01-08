@@ -121,14 +121,14 @@ public class ConduitGraphContext implements Mergeable<ConduitGraphContext>, Cond
         return new ConduitGraphContext();
     }
 
-    public static ConduitGraphContext loadNetworkContext(Holder<Conduit<?>> conduit,
+    public static ConduitGraphContext loadNetworkContext(Holder<Conduit<?, ?>> conduit,
             HolderLookup.Provider lookupProvider, CompoundTag contextTag) {
         ConduitNetworkContext<?> context = loadNetworkContext(conduit.value(), lookupProvider, contextTag);
         return new ConduitGraphContext(context);
     }
 
     @Nullable
-    private static ConduitNetworkContext<?> loadNetworkContext(Conduit<?> conduit, HolderLookup.Provider lookupProvider,
+    private static ConduitNetworkContext<?> loadNetworkContext(Conduit<?, ?> conduit, HolderLookup.Provider lookupProvider,
             CompoundTag contextTag) {
         ResourceLocation serializerKey = ResourceLocation.parse(contextTag.getString("Type"));
         ConduitNetworkContextType<?> contextType = Objects.requireNonNull(

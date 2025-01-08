@@ -37,7 +37,7 @@ public class ConduitBlockItem extends BlockItem {
         super(block, properties);
     }
 
-    public static ItemStack getStackFor(Holder<Conduit<?>> conduit, int count) {
+    public static ItemStack getStackFor(Holder<Conduit<?, ?>> conduit, int count) {
         var stack = new ItemStack(ConduitBlocks.CONDUIT.asItem(), count);
         stack.set(ConduitComponents.CONDUIT, conduit);
         return stack;
@@ -45,7 +45,7 @@ public class ConduitBlockItem extends BlockItem {
 
     @Override
     public Component getName(ItemStack pStack) {
-        Holder<Conduit<?>> conduit = pStack.get(ConduitComponents.CONDUIT);
+        Holder<Conduit<?, ?>> conduit = pStack.get(ConduitComponents.CONDUIT);
         if (conduit == null) {
             return super.getName(pStack);
         }
@@ -83,7 +83,7 @@ public class ConduitBlockItem extends BlockItem {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
             TooltipFlag tooltipFlag) {
-        Holder<Conduit<?>> conduit = stack.get(ConduitComponents.CONDUIT);
+        Holder<Conduit<?, ?>> conduit = stack.get(ConduitComponents.CONDUIT);
         if (conduit != null) {
             conduit.value().addToTooltip(context, tooltipComponents::add, tooltipFlag);
 
@@ -130,7 +130,7 @@ public class ConduitBlockItem extends BlockItem {
         }
     }
 
-    private static <T extends Conduit<T>> int compareConduitTo(Conduit<T> o1, Conduit<?> o2) {
+    private static <T extends Conduit<T, ?>> int compareConduitTo(Conduit<T, ?> o1, Conduit<?, ?> o2) {
         return o1.compareTo((T) o2);
     }
 }

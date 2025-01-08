@@ -23,10 +23,10 @@ public class ConduitBundleRenderState {
     public static final ModelProperty<ConduitBundleRenderState> PROPERTY = new ModelProperty<>();
 
     private Direction.Axis mainAxis;
-    private List<Holder<Conduit<?>>> conduits;
-    private Map<Holder<Conduit<?>>, CompoundTag> conduitClientData;
-    private Map<Direction, List<Holder<Conduit<?>>>> conduitsByDirection;
-    private Map<Direction, Map<Holder<Conduit<?>>, ConduitConnectionRenderState>> conduitConnections;
+    private List<Holder<Conduit<?, ?>>> conduits;
+    private Map<Holder<Conduit<?, ?>>, CompoundTag> conduitClientData;
+    private Map<Direction, List<Holder<Conduit<?, ?>>>> conduitsByDirection;
+    private Map<Direction, Map<Holder<Conduit<?, ?>>, ConduitConnectionRenderState>> conduitConnections;
 
     private boolean hasFacade;
     private BlockState facadeBlockstate;
@@ -54,7 +54,7 @@ public class ConduitBundleRenderState {
 
         renderState.conduitConnections = new HashMap<>();
         for (var side : Direction.values()) {
-            HashMap<Holder<Conduit<?>>, ConduitConnectionRenderState> conduits = new HashMap<>();
+            HashMap<Holder<Conduit<?, ?>>, ConduitConnectionRenderState> conduits = new HashMap<>();
             for (var conduit : renderState.conduits) {
                 if (bundle.getConnectionStatus(side, conduit) == ConnectionStatus.CONNECTED_BLOCK) {
                     var connectionConfig = bundle.getConnectionConfig(side, conduit);
@@ -78,16 +78,16 @@ public class ConduitBundleRenderState {
         return renderState;
     }
 
-    public List<Holder<Conduit<?>>> conduits() {
+    public List<Holder<Conduit<?, ?>>> conduits() {
         return conduits;
     }
 
     @Nullable
-    public CompoundTag getConduitClientDataTag(Holder<Conduit<?>> conduit) {
+    public CompoundTag getConduitClientDataTag(Holder<Conduit<?, ?>> conduit) {
         return conduitClientData.get(conduit);
     }
 
-    public List<Holder<Conduit<?>>> getConnectedConduits(Direction side) {
+    public List<Holder<Conduit<?, ?>>> getConnectedConduits(Direction side) {
         return conduitsByDirection.getOrDefault(side, List.of());
     }
 
@@ -95,7 +95,7 @@ public class ConduitBundleRenderState {
         return !conduitConnections.get(side).isEmpty();
     }
 
-    public ConduitConnectionRenderState getConnectionState(Direction side, Holder<Conduit<?>> conduit) {
+    public ConduitConnectionRenderState getConnectionState(Direction side, Holder<Conduit<?, ?>> conduit) {
         return conduitConnections.get(side).get(conduit);
     }
 
@@ -103,7 +103,7 @@ public class ConduitBundleRenderState {
         return mainAxis;
     }
 
-    public ResourceLocation getTexture(Holder<Conduit<?>> conduit) {
+    public ResourceLocation getTexture(Holder<Conduit<?, ?>> conduit) {
         return conduit.value().getTexture(getConduitClientDataTag(conduit));
     }
 

@@ -28,9 +28,9 @@ public class NewConduitMenu extends BaseBlockEntityMenu<NewConduitBundleBlockEnt
     private static final int RESERVED_BUTTON_ID_COUNT = BUTTON_SELECT_CONDUIT_START_ID + BUTTON_SELECT_CONDUIT_ID_COUNT + 1;
 
     private final Direction side;
-    private Holder<Conduit<?>> selectedConduit; // TODO: Sync with sync slot instead of using initial menu open?
+    private Holder<Conduit<?, ?>> selectedConduit; // TODO: Sync with sync slot instead of using initial menu open?
 
-    public NewConduitMenu(int containerId, Inventory playerInventory, NewConduitBundleBlockEntity blockEntity, Direction side, Holder<Conduit<?>> selectedConduit) {
+    public NewConduitMenu(int containerId, Inventory playerInventory, NewConduitBundleBlockEntity blockEntity, Direction side, Holder<Conduit<?, ?>> selectedConduit) {
         super(ConduitMenus.CONDUIT_MENU.get(), containerId, playerInventory, blockEntity);
 
         this.side = side;
@@ -56,7 +56,7 @@ public class NewConduitMenu extends BaseBlockEntityMenu<NewConduitBundleBlockEnt
         return side;
     }
 
-    public Holder<Conduit<?>> getSelectedConduit() {
+    public Holder<Conduit<?, ?>> getSelectedConduit() {
         return selectedConduit;
     }
 

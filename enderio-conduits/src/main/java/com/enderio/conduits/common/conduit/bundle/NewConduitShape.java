@@ -23,10 +23,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class NewConduitShape {
 
-    private final Map<Pair<Direction, Holder<Conduit<?>>>, VoxelShape> conduitConnections = new HashMap<>();
-    private final Map<Holder<Conduit<?>>, VoxelShape> conduitShapes = new HashMap<>();
+    private final Map<Pair<Direction, Holder<Conduit<?, ?>>>, VoxelShape> conduitConnections = new HashMap<>();
+    private final Map<Holder<Conduit<?, ?>>, VoxelShape> conduitShapes = new HashMap<>();
 
-    private final Map<Holder<Conduit<?>>, List<VoxelShape>> individualShapes = new HashMap<>();
+    private final Map<Holder<Conduit<?, ?>>, List<VoxelShape>> individualShapes = new HashMap<>();
 
     private static final VoxelShape CONNECTOR = Block.box(2.5f, 2.5, 15f, 13.5f, 13.5f, 16f);
     public static final VoxelShape CONNECTION = Block.box(6.5f, 6.5f, 9.5, 9.5f, 9.5f, 16);
@@ -41,7 +41,7 @@ public class NewConduitShape {
         this.conduitShapes.clear();
         this.conduitConnections.clear();
         this.individualShapes.clear();
-        for (Holder<Conduit<?>> conduit : bundle.getConduits()) {
+        for (Holder<Conduit<?, ?>> conduit : bundle.getConduits()) {
             updateShapeForConduit(bundle, conduit);
         }
         updateTotalShape();
@@ -72,12 +72,12 @@ public class NewConduitShape {
     }
 
     @Nullable
-    public Holder<Conduit<?>> getConduit(BlockPos pos, HitResult result) {
+    public Holder<Conduit<?, ?>> getConduit(BlockPos pos, HitResult result) {
         return getLookUpValue(conduitShapes, pos, result);
     }
 
     @Nullable
-    public Pair<Direction, Holder<Conduit<?>>> getConnectionFromHit(BlockPos pos, HitResult hit) {
+    public Pair<Direction, Holder<Conduit<?, ?>>> getConnectionFromHit(BlockPos pos, HitResult hit) {
         return getLookUpValue(conduitConnections, pos, hit);
     }
 
@@ -109,12 +109,12 @@ public class NewConduitShape {
         return this.totalShape;
     }
 
-    private void updateShapeForConduit(ConduitBundleReader conduitBundle, Holder<Conduit<?>> conduit) {
+    private void updateShapeForConduit(ConduitBundleReader conduitBundle, Holder<Conduit<?, ?>> conduit) {
         List<VoxelShape> individualShapeList = individualShapes.computeIfAbsent(conduit, ignored -> new ArrayList<>());
 
         VoxelShape conduitShape = Shapes.empty();
         Direction.Axis axis = OffsetHelper.findMainAxis(conduitBundle);
-        Map<Holder<Conduit<?>>, List<Vec3i>> offsets = new HashMap<>();
+        Map<Holder<Conduit<?, ?>>, List<Vec3i>> offsets = new HashMap<>();
         for (Direction direction : Direction.values()) {
             // Only create and save connection shape if it's a block connection, as that's what the lookup is for.
             VoxelShape conduitConnectionShape = null;
@@ -153,7 +153,7 @@ public class NewConduitShape {
         @Nullable
         Area box = null;
         @Nullable
-        Holder<Conduit<?>> notRendered = null;
+        Holder<Conduit<?, ?>> notRendered = null;
         int i = allConduits.indexOf(conduit);
         if (i == -1) {
             conduitShapes.put(conduit, Shapes.block());

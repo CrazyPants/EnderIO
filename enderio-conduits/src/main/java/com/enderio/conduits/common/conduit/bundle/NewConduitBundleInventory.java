@@ -33,7 +33,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
 
     private final ConduitBundleReader conduitBundle;
 
-    private Map<Holder<Conduit<?>>, Map<Direction, NonNullList<ItemStack>>> conduitSlots = new HashMap<>();
+    private Map<Holder<Conduit<?, ?>>, Map<Direction, NonNullList<ItemStack>>> conduitSlots = new HashMap<>();
 
     public NewConduitBundleInventory(ConduitBundleReader conduitBundle) {
         this.conduitBundle = conduitBundle;
@@ -42,11 +42,11 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
     protected void onChanged() {
     }
 
-    public ConduitInventory getInventoryFor(Holder<Conduit<?>> conduit) {
+    public ConduitInventory getInventoryFor(Holder<Conduit<?, ?>> conduit) {
         return new InventoryReference(this, conduit);
     }
 
-    public void removeConduit(Holder<Conduit<?>> conduit) {
+    public void removeConduit(Holder<Conduit<?, ?>> conduit) {
         conduitSlots.remove(conduit);
     }
 
@@ -70,11 +70,11 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
                 slotData.slotType());
     }
 
-    public ItemStack getStackInSlot(Holder<Conduit<?>> conduit, Direction side, SlotType slotType) {
+    public ItemStack getStackInSlot(Holder<Conduit<?, ?>> conduit, Direction side, SlotType slotType) {
         return getStackInSlot(conduit, side, slotType.ordinal());
     }
 
-    public ItemStack getStackInSlot(Holder<Conduit<?>> conduit, Direction side, int slot) {
+    public ItemStack getStackInSlot(Holder<Conduit<?, ?>> conduit, Direction side, int slot) {
         if (!conduitBundle.hasConduitStrict(conduit)) {
             throw new IllegalArgumentException("Conduit not found in bundle");
         }
@@ -90,7 +90,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
         return slots.get(slot);
     }
 
-    public void setStackInSlot(Holder<Conduit<?>> conduit, Direction side, int slot, ItemStack stack) {
+    public void setStackInSlot(Holder<Conduit<?, ?>> conduit, Direction side, int slot, ItemStack stack) {
         if (!conduitBundle.hasConduitStrict(conduit)) {
             throw new IllegalArgumentException("Conduit not found in bundle");
         }
@@ -106,7 +106,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
         onChanged();
     }
 
-    public void setStackInSlot(Holder<Conduit<?>> conduit, Direction side, SlotType slotType, ItemStack stack) {
+    public void setStackInSlot(Holder<Conduit<?, ?>> conduit, Direction side, SlotType slotType, ItemStack stack) {
         setStackInSlot(conduit, side, slotType.ordinal(), stack);
     }
 
@@ -151,7 +151,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
             return false;
         }
 
-        Holder<Conduit<?>> conduit = conduitBundle.getConduits().get(slotData.conduitIndex());
+        Holder<Conduit<?, ?>> conduit = conduitBundle.getConduits().get(slotData.conduitIndex());
 
         switch (slotData.slotType()) {
         case FILTER_EXTRACT:
@@ -189,7 +189,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
         }
     }
 
-    private record InventoryReference(NewConduitBundleInventory inventory, Holder<Conduit<?>> conduit)
+    private record InventoryReference(NewConduitBundleInventory inventory, Holder<Conduit<?, ?>> conduit)
             implements ConduitInventory {
         @Override
         public ItemStack getStackInSlot(Direction side, SlotType slotType) {

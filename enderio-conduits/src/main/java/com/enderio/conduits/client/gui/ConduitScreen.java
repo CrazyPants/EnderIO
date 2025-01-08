@@ -150,22 +150,22 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
     }
 
     private void addConduitSelectionButtons() {
-        List<Holder<Conduit<?>>> validConnections = new ArrayList<>();
-        for (Holder<Conduit<?>> type : getBundle().getConduits()) {
+        List<Holder<Conduit<?, ?>>> validConnections = new ArrayList<>();
+        for (Holder<Conduit<?, ?>> type : getBundle().getConduits()) {
             if (getConnectionState(type) instanceof DynamicConnectionState) {
                 validConnections.add(type);
             }
         }
 
         for (int i = 0; i < validConnections.size(); i++) {
-            Holder<Conduit<?>> connection = validConnections.get(i);
+            Holder<Conduit<?, ?>> connection = validConnections.get(i);
             addRenderableWidget(new ConduitSelectionButton(getGuiLeft() + 206, getGuiTop() + 4 + 24 * i, connection,
                     this::getConduit, this::setConduitType));
         }
     }
 
     private void sendExtendedConduitUpdate() {
-        Holder<Conduit<?>> conduit = menu.getConduit();
+        Holder<Conduit<?, ?>> conduit = menu.getConduit();
         ConduitGraphObject node = getBundle().getNodeFor(conduit);
 
 //        PacketDistributor.sendToServer(new C2SSetConduitExtendedData(menu.getBlockEntity().getBlockPos(),
@@ -183,7 +183,7 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         return getConnectionState() instanceof DynamicConnectionState dyn ? map.apply(dyn) : defaultValue;
     }
 
-    public Holder<Conduit<?>> getConduit() {
+    public Holder<Conduit<?, ?>> getConduit() {
         return menu.getConduit();
     }
 
@@ -191,7 +191,7 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         return getConduit().value().getMenuData();
     }
 
-    private void setConduitType(Holder<Conduit<?>> conduit) {
+    private void setConduitType(Holder<Conduit<?, ?>> conduit) {
         menu.setConduit(conduit);
         rebuildWidgets();
     }
@@ -200,7 +200,7 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         return getConnectionState(menu.getConduit());
     }
 
-    private ConnectionState getConnectionState(Holder<Conduit<?>> type) {
+    private ConnectionState getConnectionState(Holder<Conduit<?, ?>> type) {
         return getBundle().getConnectionState(menu.getDirection(), type);
     }
 

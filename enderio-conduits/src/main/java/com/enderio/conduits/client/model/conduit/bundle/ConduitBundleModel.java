@@ -83,7 +83,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
             }
 
             Direction.Axis axis = bundleState.mainAxis();
-            Map<Holder<Conduit<?>>, List<Vec3i>> offsets = new HashMap<>();
+            Map<Holder<Conduit<?, ?>>, List<Vec3i>> offsets = new HashMap<>();
 
             for (Direction direction : Direction.values()) {
                 boolean isEnd = bundleState.isConnectionEndpoint(direction);
@@ -97,7 +97,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
 
                 var connectedTypes = bundleState.getConnectedConduits(direction);
                 for (int i = 0; i < connectedTypes.size(); i++) {
-                    Holder<Conduit<?>> conduit = connectedTypes.get(i);
+                    Holder<Conduit<?, ?>> conduit = connectedTypes.get(i);
                     CompoundTag clientData = bundleState.getConduitClientDataTag(conduit);
 
                     Vec3i offset = OffsetHelper.translationFor(direction.getAxis(),
@@ -155,8 +155,8 @@ public class ConduitBundleModel implements IDynamicBakedModel {
             var allTypes = bundleState.conduits();
             @Nullable
             Area box = null;
-            Map<Holder<Conduit<?>>, Integer> notRendered = new HashMap<>();
-            List<Holder<Conduit<?>>> rendered = new ArrayList<>();
+            Map<Holder<Conduit<?, ?>>, Integer> notRendered = new HashMap<>();
+            List<Holder<Conduit<?, ?>>> rendered = new ArrayList<>();
             for (int i = 0; i < allTypes.size(); i++) {
                 var type = allTypes.get(i);
                 @Nullable
@@ -191,7 +191,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
                     box.makeContain(duplicatePosition);
                 }
             }
-            for (Holder<Conduit<?>> toRender : rendered) {
+            for (Holder<Conduit<?, ?>> toRender : rendered) {
                 List<Vec3i> offsetsForType = offsets.get(toRender);
                 if (box == null || !box.contains(offsetsForType.getFirst())) {
                     quads.addAll(new ConduitTextureEmissiveQuadTransformer(sprite(bundleState.getTexture(toRender)), 0)
@@ -201,7 +201,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
             }
 
             if (box != null) {
-                for (Map.Entry<Holder<Conduit<?>>, Integer> notRenderedEntry : notRendered.entrySet()) {
+                for (Map.Entry<Holder<Conduit<?, ?>>, Integer> notRenderedEntry : notRendered.entrySet()) {
                     Vec3i offset = OffsetHelper.translationFor(axis,
                             OffsetHelper.offsetConduit(notRenderedEntry.getValue(), allTypes.size()));
                     if (!box.contains(offset)) {
@@ -217,7 +217,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
                         .andThen(QuadTransformers.applying(translateTransformation(box.getMin())))
                         .process(modelOf(BOX).getQuads(state, side, rand, extraData, renderType)));
             } else {
-                for (Map.Entry<Holder<Conduit<?>>, Integer> notRenderedEntry : notRendered.entrySet()) {
+                for (Map.Entry<Holder<Conduit<?, ?>>, Integer> notRenderedEntry : notRendered.entrySet()) {
                     quads.addAll(new ConduitTextureEmissiveQuadTransformer(
                             sprite(bundleState.getTexture(notRenderedEntry.getKey())), 0).andThen(
                                     QuadTransformers.applying(translateTransformation(OffsetHelper.translationFor(axis,

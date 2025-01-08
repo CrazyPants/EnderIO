@@ -20,17 +20,17 @@ public class ConduitIngredient implements ICustomIngredient {
             builder -> builder.group(Conduit.CODEC.fieldOf("conduit_type").forGetter(ConduitIngredient::conduit))
                     .apply(builder, ConduitIngredient::new));
 
-    private final Holder<Conduit<?>> conduit;
+    private final Holder<Conduit<?, ?>> conduit;
 
-    private ConduitIngredient(Holder<Conduit<?>> conduit) {
+    private ConduitIngredient(Holder<Conduit<?, ?>> conduit) {
         this.conduit = conduit;
     }
 
-    public static Ingredient of(Holder<Conduit<?>> conduit) {
+    public static Ingredient of(Holder<Conduit<?, ?>> conduit) {
         return new ConduitIngredient(conduit).toVanilla();
     }
 
-    public Holder<Conduit<?>> conduit() {
+    public Holder<Conduit<?, ?>> conduit() {
         return conduit;
     }
 
@@ -44,7 +44,7 @@ public class ConduitIngredient implements ICustomIngredient {
             return false;
         }
 
-        Holder<Conduit<?>> conduit = stack.get(ConduitComponents.CONDUIT);
+        Holder<Conduit<?, ?>> conduit = stack.get(ConduitComponents.CONDUIT);
         if (conduit == null) {
             return false;
         }

@@ -22,7 +22,7 @@ public record ConduitConnectionRenderState(
 ) {
 
     @EnsureSide(EnsureSide.Side.CLIENT)
-    public static ConduitConnectionRenderState of(Holder<Conduit<?>> conduit, ConnectionConfig connectionConfig) {
+    public static ConduitConnectionRenderState of(Holder<Conduit<?, ?>> conduit, ConnectionConfig connectionConfig) {
         boolean canInput = false;
         boolean canOutput = false;
         DyeColor inputChannel = DyeColor.GREEN;

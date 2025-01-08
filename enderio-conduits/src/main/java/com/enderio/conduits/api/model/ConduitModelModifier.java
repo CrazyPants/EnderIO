@@ -26,7 +26,7 @@ public interface ConduitModelModifier {
     /**
      * Create additional quads to be rendered at the point of conduit connection.
      */
-    default List<BakedQuad> createConnectionQuads(Holder<Conduit<?>> conduit, @Nullable CompoundTag clientDataTag, @Nullable Direction facing, Direction connectionDirection, RandomSource rand,
+    default List<BakedQuad> createConnectionQuads(Holder<Conduit<?, ?>> conduit, @Nullable CompoundTag clientDataTag, @Nullable Direction facing, Direction connectionDirection, RandomSource rand,
                                                   @Nullable RenderType type) {
         return List.of();
     }

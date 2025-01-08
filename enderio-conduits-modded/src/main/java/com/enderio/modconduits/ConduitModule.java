@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
 
 public interface ConduitModule {
     void register(IEventBus modEventBus);
-    void bootstrapConduits(BootstrapContext<Conduit<?>> context);
+    void bootstrapConduits(BootstrapContext<Conduit<?, ?>> context);
     void buildConduitConditions(BiConsumer<ResourceKey<?>, ICondition> conditions);
     void buildRecipes(HolderLookup.Provider lookupProvider, RecipeOutput recipeOutput);
 }

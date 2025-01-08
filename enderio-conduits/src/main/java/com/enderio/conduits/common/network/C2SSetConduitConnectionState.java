@@ -13,7 +13,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 public record C2SSetConduitConnectionState(
     BlockPos pos,
     Direction direction,
-    Holder<Conduit<?>> conduit,
+    Holder<Conduit<?, ?>> conduit,
     DynamicConnectionState connectionState
 ) implements CustomPacketPayload {
 

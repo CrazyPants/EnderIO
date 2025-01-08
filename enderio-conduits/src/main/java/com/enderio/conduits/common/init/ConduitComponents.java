@@ -21,7 +21,7 @@ public class ConduitComponents {
     private static final DeferredRegister.DataComponents DATA_COMPONENT_TYPES = DeferredRegister
             .createDataComponents(EnderIO.NAMESPACE);
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Conduit<?>>>> CONDUIT = DATA_COMPONENT_TYPES
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Conduit<?, ?>>>> CONDUIT = DATA_COMPONENT_TYPES
             .registerComponentType("conduit",
                     builder -> builder.persistent(Conduit.CODEC).networkSynchronized(Conduit.STREAM_CODEC));
 

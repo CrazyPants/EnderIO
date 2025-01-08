@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 public class ConduitSubtypeInterpreter implements IIngredientSubtypeInterpreter<ItemStack> {
     @Override
     public String apply(ItemStack ingredient, UidContext context) {
-        Holder<Conduit<?>> conduit = ingredient.get(ConduitComponents.CONDUIT);
+        Holder<Conduit<?, ?>> conduit = ingredient.get(ConduitComponents.CONDUIT);
         if (conduit != null) {
             return conduit.getRegisteredName();
         }
