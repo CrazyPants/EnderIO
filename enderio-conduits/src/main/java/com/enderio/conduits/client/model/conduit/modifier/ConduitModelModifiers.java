@@ -1,8 +1,8 @@
 package com.enderio.conduits.client.model.conduit.modifier;
 
 import com.enderio.conduits.api.ConduitType;
-import com.enderio.conduits.api.model.ConduitCoreModelModifier;
-import com.enderio.conduits.api.model.RegisterConduitCoreModelModifiersEvent;
+import com.enderio.conduits.api.model.ConduitModelModifier;
+import com.enderio.conduits.api.model.RegisterConduitModelModifiersEvent;
 import me.liliandev.ensure.ensures.EnsureSide;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.fml.ModLoader;
@@ -13,12 +13,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ConduitCoreModelModifiers {
-    private static Map<ConduitType<?>, ConduitCoreModelModifier> MODIFIERS;
+public class ConduitModelModifiers {
+    private static Map<ConduitType<?>, ConduitModelModifier> MODIFIERS;
 
     @EnsureSide(EnsureSide.Side.CLIENT)
     public static void init() {
-        var event = new RegisterConduitCoreModelModifiersEvent();
+        var event = new RegisterConduitModelModifiersEvent();
         ModLoader.postEvent(event);
         var factories = event.getModifiers();
 
@@ -28,7 +28,7 @@ public class ConduitCoreModelModifiers {
 
     @EnsureSide(EnsureSide.Side.CLIENT)
     @Nullable
-    public static ConduitCoreModelModifier getModifier(ConduitType<?> type) {
+    public static ConduitModelModifier getModifier(ConduitType<?> type) {
         return MODIFIERS.get(type);
     }
 

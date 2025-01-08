@@ -2,12 +2,8 @@ package com.enderio.conduits.client.model.conduit.modifier;
 
 import com.enderio.base.api.EnderIO;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.model.ConduitCoreModelModifier;
-import com.enderio.conduits.api.network.node.NodeData;
+import com.enderio.conduits.api.model.ConduitModelModifier;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduit;
-import com.enderio.conduits.common.conduit.type.fluid.FluidConduitData;
-import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.client.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -31,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class FluidConduitCoreModelModifier implements ConduitCoreModelModifier {
+public class FluidConduitModelModifier implements ConduitModelModifier {
 
     private static final ModelResourceLocation FLUID_MODEL = ModelResourceLocation.standalone(EnderIO.loc("block/extra/fluids"));
 

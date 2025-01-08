@@ -2,9 +2,9 @@ package com.enderio.conduits.common.conduit.type.item;
 
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
-import com.enderio.conduits.api.connection.config.io.ChannelResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.mojang.serialization.Codec;
@@ -22,7 +22,7 @@ public record ItemConduitConnectionConfig(
     boolean isRoundRobin,
     boolean isSelfFeed,
     int priority
-) implements ChannelResourceConnectionConfig, RedstoneControlledConnection {
+) implements ChanneledIOConnectionConfig, RedstoneControlledConnection {
 
     public static ItemConduitConnectionConfig DEFAULT = new ItemConduitConnectionConfig(false, DyeColor.GREEN, true, DyeColor.GREEN,
         RedstoneControl.NEVER_ACTIVE, DyeColor.RED, false, false, 0);
@@ -50,27 +50,27 @@ public record ItemConduitConnectionConfig(
     }
 
     @Override
-    public ResourceConnectionConfig withInsert(boolean canInsert) {
+    public IOConnectionConfig withInsert(boolean canInsert) {
         return new ItemConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl, redstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 
     @Override
-    public ResourceConnectionConfig withExtract(boolean canExtract) {
+    public IOConnectionConfig withExtract(boolean canExtract) {
         return new ItemConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl, redstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 
     @Override
-    public ChannelResourceConnectionConfig withInputChannel(DyeColor inputChannel) {
+    public ItemConduitConnectionConfig withInputChannel(DyeColor inputChannel) {
         return new ItemConduitConnectionConfig(canInsert, inputChannel, canExtract, extractChannel, redstoneControl, redstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 
     @Override
-    public ChannelResourceConnectionConfig withOutputChannel(DyeColor outputChannel) {
+    public ItemConduitConnectionConfig withOutputChannel(DyeColor outputChannel) {
         return new ItemConduitConnectionConfig(canInsert, insertChannel, canExtract, outputChannel, redstoneControl, redstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 
     @Override
-    public RedstoneControlledConnection withRedstoneControl(RedstoneControl redstoneControl) {
+    public ItemConduitConnectionConfig withRedstoneControl(RedstoneControl redstoneControl) {
         return new ItemConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl, redstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 

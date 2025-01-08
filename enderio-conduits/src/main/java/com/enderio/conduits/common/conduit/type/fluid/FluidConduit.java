@@ -22,6 +22,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -31,7 +33,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 public record FluidConduit(ResourceLocation texture, Component description, int transferRatePerTick,
@@ -83,7 +88,7 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
     }
 
     @Override
-    public boolean canConnectTo(ConduitNode selfNode, ConduitNode otherNode) {
+    public boolean canConnectNodes(ConduitNode selfNode, ConduitNode otherNode) {
         // Ensure the networks are not locked to different fluids before connecting.
         var selfNetwork = selfNode.getNetwork();
         var otherNetwork = otherNode.getNetwork();
@@ -102,6 +107,12 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
         }
 
         return selfContext.lockedFluid() == otherContext.lockedFluid();
+    }
+
+    @Override
+    public boolean canConnectToBlock(Level level, BlockPos conduitPos, Direction direction) {
+        IFluidHandler capability = level.getCapability(Capabilities.FluidHandler.BLOCK, conduitPos.relative(direction), direction.getOpposite());
+        return capability != null;
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.enderio.conduits.common.conduit.type.energy;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -15,7 +15,7 @@ public record EnergyConduitConnectionConfig(
     boolean canExtract,
     RedstoneControl redstoneControl,
     DyeColor redstoneChannel
-) implements ResourceConnectionConfig, RedstoneControlledConnection {
+) implements IOConnectionConfig, RedstoneControlledConnection {
 
     public static EnergyConduitConnectionConfig DEFAULT = new EnergyConduitConnectionConfig(true, true, RedstoneControl.ALWAYS_ACTIVE, DyeColor.RED);
 
@@ -37,23 +37,12 @@ public record EnergyConduitConnectionConfig(
     }
 
     @Override
-    public DyeColor insertChannel() {
-        return DyeColor.RED;
-    }
-
-    @Override
-    public DyeColor extractChannel() {
-        return DyeColor.RED;
-    }
-
-
-    @Override
-    public ResourceConnectionConfig withInsert(boolean canInsert) {
+    public IOConnectionConfig withInsert(boolean canInsert) {
         return new EnergyConduitConnectionConfig(canInsert, canExtract, redstoneControl, redstoneChannel);
     }
 
     @Override
-    public ResourceConnectionConfig withExtract(boolean canExtract) {
+    public IOConnectionConfig withExtract(boolean canExtract) {
         return new EnergyConduitConnectionConfig(canInsert, canExtract, redstoneControl, redstoneChannel);
     }
 

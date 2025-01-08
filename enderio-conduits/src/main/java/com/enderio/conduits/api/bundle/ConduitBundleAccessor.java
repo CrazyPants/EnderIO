@@ -1,7 +1,7 @@
 package com.enderio.conduits.api.bundle;
 
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
+import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -41,7 +41,7 @@ public interface ConduitBundleAccessor extends ConduitBundleReader {
     // region Connections
 
     /**
-     * @throws IllegalStateException if {@link #getConnectionType} is not {@link ConduitConnectionType#CONNECTED_BLOCK}.
+     * @throws IllegalStateException if {@link #getConnectionStatus} is not {@link ConnectionStatus#CONNECTED_BLOCK}.
      * @throws IllegalArgumentException if the connection config is not the right type for this conduit.
      * @param side
      * @param config

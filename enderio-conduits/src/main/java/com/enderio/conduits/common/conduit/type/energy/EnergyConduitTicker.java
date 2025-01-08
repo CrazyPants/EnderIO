@@ -71,14 +71,4 @@ public class EnergyConduitTicker implements IOAwareConduitTicker<EnergyConduit> 
     public boolean shouldSkipColor(List<Connection> extractList, List<Connection> insertList) {
         return insertList.isEmpty();
     }
-
-    @Override
-    public boolean canConnectTo(Level level, BlockPos conduitPos, Direction direction) {
-        if (level.getBlockEntity(conduitPos.relative(direction)) instanceof ConduitBundleBlockEntity) {
-            return false;
-        }
-
-        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, conduitPos.relative(direction), direction.getOpposite());
-        return capability != null;
-    }
 }

@@ -5,7 +5,7 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.common.init.ConduitLang;
@@ -27,6 +27,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,6 +86,12 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
     }
 
     @Override
+    public boolean canConnectToBlock(Level level, BlockPos conduitPos, Direction direction) {
+        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, conduitPos.relative(direction), direction.getOpposite());
+        return capability != null;
+    }
+
+    @Override
     public <TCap, TContext> @Nullable TCap proxyCapability(BlockCapability<TCap, TContext> capability, ConduitNode node,
             Level level, BlockPos pos, @Nullable TContext context) {
 
@@ -100,7 +107,7 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
                     return null;
                 }
 
-                if (config instanceof ResourceConnectionConfig ioConfig && !ioConfig.canInsert()) {
+                if (config instanceof IOConnectionConfig ioConfig && !ioConfig.canInsert()) {
                     return null;
                 }
             }

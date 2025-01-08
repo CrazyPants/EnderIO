@@ -73,6 +73,8 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
 
     ConduitMenuData getMenuData();
 
+    // region Conduit Checks
+
     default boolean canBeInSameBundle(Holder<Conduit<?>> otherConduit) {
         return true;
     }
@@ -84,25 +86,29 @@ public interface Conduit<TConduit extends Conduit<TConduit>> extends Comparable<
     /**
      * @return true if both types are compatible
      */
-    default boolean canConnectTo(Holder<Conduit<?>> other) {
+    default boolean canConnectToConduit(Holder<Conduit<?>> other) {
         return this.equals(other.value());
     }
+
+    // endregion
+
+    // region Connection Checks
 
     /**
      * This can be used to prevent connection between nodes with incompatible data.
      * @return true if both nodes are compatible.
      */
-    default boolean canConnectTo(ConduitNode selfNode, ConduitNode otherNode) {
+    default boolean canConnectNodes(ConduitNode selfNode, ConduitNode otherNode) {
         return true;
     }
 
-    default boolean canConnectTo(Level level, BlockPos conduitPos, Direction direction) {
-        return getTicker().canConnectTo(level, conduitPos, direction);
+    boolean canConnectToBlock(Level level, BlockPos conduitPos, Direction direction);
+
+    default boolean canForceConnectToBlock(Level level, BlockPos conduitPos, Direction direction) {
+        return canConnectToBlock(level, conduitPos, direction);
     }
 
-    default boolean canForceConnectTo(Level level, BlockPos conduitPos, Direction direction) {
-        return getTicker().canForceConnectTo(level, conduitPos, direction);
-    }
+    // endregion
 
     /**
      * @return if this is not always able to determine connectivity to its neighbours at time of placement, but the tick later

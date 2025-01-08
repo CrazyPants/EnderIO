@@ -2,7 +2,7 @@ package com.enderio.conduits.common.conduit.bundle;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
+import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.common.Area;
 import com.enderio.conduits.common.conduit.OffsetHelper;
 import java.util.*;
@@ -14,7 +14,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -121,7 +120,7 @@ public class NewConduitShape {
             VoxelShape conduitConnectionShape = null;
 
             // TODO: Lift the connector plate out of updateShapeForConduit?
-            if (conduitBundle.getConnectionType(direction, conduit) == ConduitConnectionType.CONNECTED_BLOCK) {
+            if (conduitBundle.getConnectionStatus(direction, conduit) == ConnectionStatus.CONNECTED_BLOCK) {
                 VoxelShape connectorShape = rotateVoxelShape(CONNECTOR, direction);
                 conduitShape = Shapes.joinUnoptimized(conduitShape, connectorShape, BooleanOp.OR);
                 conduitConnectionShape = connectorShape;

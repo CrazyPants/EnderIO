@@ -1,10 +1,10 @@
 package com.enderio.conduits.common.conduit.menu;
 
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
+import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.common.conduit.bundle.NewConduitBundleBlockEntity;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
@@ -72,8 +72,18 @@ public class NewConduitMenu extends BaseBlockEntityMenu<NewConduitBundleBlockEnt
         return getBlockEntity().getConnectionConfig(side, selectedConduit);
     }
 
+    public <T extends ConnectionConfig> T connectionConfig(ConnectionConfigType<T> type) {
+        var config = getBlockEntity().getConnectionConfig(side, selectedConduit);
+        if (config.type() == type) {
+            //noinspection unchecked
+            return (T) config;
+        }
+
+        throw new IllegalStateException("Connection config type mismatch");
+    }
+
     public boolean isConnected() {
-        return getBlockEntity().getConnectionType(side, selectedConduit) == ConduitConnectionType.CONNECTED_BLOCK;
+        return getBlockEntity().getConnectionStatus(side, selectedConduit) == ConnectionStatus.CONNECTED_BLOCK;
     }
 
     public CompoundTag getClientDataTag() {
@@ -94,35 +104,35 @@ public class NewConduitMenu extends BaseBlockEntityMenu<NewConduitBundleBlockEnt
 
         switch (id) {
         case BUTTON_TOGGLE_0_ID:
-            if (currentConfig instanceof ResourceConnectionConfig ioConfig) {
+            if (currentConfig instanceof IOConnectionConfig ioConfig) {
                 var newConfig = ioConfig.withInsert(!ioConfig.canInsert());
                 bundle.setConnectionConfig(side, selectedConduit, newConfig);
 
                 if (newConfig.isConnected()) {
-                    bundle.setConnectionType(side, selectedConduit, ConduitConnectionType.CONNECTED_BLOCK);
+                    bundle.setConnectionStatus(side, selectedConduit, ConnectionStatus.CONNECTED_BLOCK);
                 } else {
-                    bundle.setConnectionType(side, selectedConduit, ConduitConnectionType.NONE);
+                    bundle.setConnectionStatus(side, selectedConduit, ConnectionStatus.DISCONNECTED);
                 }
             } else {
                 // Non IO connections are controlled soley by the connection type.
-                var connectionType = bundle.getConnectionType(side, selectedConduit);
-                if (connectionType == ConduitConnectionType.CONNECTED_BLOCK) {
-                    bundle.setConnectionType(side, selectedConduit, ConduitConnectionType.NONE);
+                var connectionType = bundle.getConnectionStatus(side, selectedConduit);
+                if (connectionType == ConnectionStatus.CONNECTED_BLOCK) {
+                    bundle.setConnectionStatus(side, selectedConduit, ConnectionStatus.DISCONNECTED);
                 } else {
-                    bundle.setConnectionType(side, selectedConduit, ConduitConnectionType.CONNECTED_BLOCK);
+                    bundle.setConnectionStatus(side, selectedConduit, ConnectionStatus.CONNECTED_BLOCK);
                 }
             }
 
             return true;
         case BUTTON_TOGGLE_1_ID:
-            if (currentConfig instanceof ResourceConnectionConfig ioConfig) {
+            if (currentConfig instanceof IOConnectionConfig ioConfig) {
                 var newConfig = ioConfig.withExtract(!ioConfig.canExtract());
                 bundle.setConnectionConfig(side, selectedConduit, newConfig);
 
                 if (newConfig.isConnected()) {
-                    bundle.setConnectionType(side, selectedConduit, ConduitConnectionType.CONNECTED_BLOCK);
+                    bundle.setConnectionStatus(side, selectedConduit, ConnectionStatus.CONNECTED_BLOCK);
                 } else {
-                    bundle.setConnectionType(side, selectedConduit, ConduitConnectionType.NONE);
+                    bundle.setConnectionStatus(side, selectedConduit, ConnectionStatus.DISCONNECTED);
                 }
             }
             return true;

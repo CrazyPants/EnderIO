@@ -2,13 +2,14 @@ package com.enderio.conduits.client.model.conduit.bundle;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
-import com.enderio.conduits.api.network.node.NodeData;
+import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.common.conduit.OffsetHelper;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import me.liliandev.ensure.ensures.EnsureSide;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -31,6 +32,7 @@ public class ConduitBundleRenderState {
     private BlockState facadeBlockstate;
     private boolean doesFacadeHideConduits;
 
+    @EnsureSide(EnsureSide.Side.CLIENT)
     public static ConduitBundleRenderState of(ConduitBundleReader bundle) {
         var renderState = new ConduitBundleRenderState();
 
@@ -54,9 +56,9 @@ public class ConduitBundleRenderState {
         for (var side : Direction.values()) {
             HashMap<Holder<Conduit<?>>, ConduitConnectionRenderState> conduits = new HashMap<>();
             for (var conduit : renderState.conduits) {
-                if (bundle.getConnectionType(side, conduit) == ConduitConnectionType.CONNECTED_BLOCK) {
+                if (bundle.getConnectionStatus(side, conduit) == ConnectionStatus.CONNECTED_BLOCK) {
                     var connectionConfig = bundle.getConnectionConfig(side, conduit);
-                    var connectionRenderState = ConduitConnectionRenderState.of(connectionConfig);
+                    var connectionRenderState = ConduitConnectionRenderState.of(conduit, connectionConfig);
                     conduits.put(conduit, connectionRenderState);
                 }
             }

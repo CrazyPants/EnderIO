@@ -24,21 +24,6 @@ public class RedstoneConduitTicker implements IOAwareConduitTicker<RedstoneCondu
     private final Map<DyeColor, Integer> activeColors = new EnumMap<>(DyeColor.class);
 
     @Override
-    public boolean canConnectTo(Level level, BlockPos conduitPos, Direction direction) {
-        BlockPos neighbor = conduitPos.relative(direction);
-        BlockState blockState = level.getBlockState(neighbor);
-        return blockState.is(ConduitTags.Blocks.REDSTONE_CONNECTABLE)
-                || blockState.canRedstoneConnectTo(level, neighbor, direction);
-    }
-
-    @Override
-    public boolean canForceConnectTo(Level level, BlockPos conduitPos, Direction direction) {
-        BlockPos neighbor = conduitPos.relative(direction);
-        BlockState blockState = level.getBlockState(neighbor);
-        return !blockState.isAir();
-    }
-
-    @Override
     public void tickGraph(ServerLevel level, RedstoneConduit conduit, ConduitNetwork graph,
             ColoredRedstoneProvider coloredRedstoneProvider) {
 

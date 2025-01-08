@@ -10,11 +10,11 @@ import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nullable;
 
-public enum ConduitConnectionType implements StringRepresentable {
+public enum ConnectionStatus implements StringRepresentable {
     /**
      * This conduit is not connected to anything.
      */
-    NONE("none"),
+    DISCONNECTED("none"),
 
     /**
      * This conduit is connected to a block for extract.
@@ -31,16 +31,16 @@ public enum ConduitConnectionType implements StringRepresentable {
      */
     DISABLED("disabled");
 
-    public static final StringRepresentable.EnumCodec<ConduitConnectionType> CODEC = StringRepresentable
-            .fromEnum(ConduitConnectionType::values);
-    public static final IntFunction<ConduitConnectionType> BY_ID = ByIdMap.continuous(Enum::ordinal, values(),
+    public static final StringRepresentable.EnumCodec<ConnectionStatus> CODEC = StringRepresentable
+            .fromEnum(ConnectionStatus::values);
+    public static final IntFunction<ConnectionStatus> BY_ID = ByIdMap.continuous(Enum::ordinal, values(),
             ByIdMap.OutOfBoundsStrategy.ZERO);
-    public static final StreamCodec<ByteBuf, ConduitConnectionType> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID,
+    public static final StreamCodec<ByteBuf, ConnectionStatus> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID,
             Enum::ordinal);
 
     private final String name;
 
-    ConduitConnectionType(String name) {
+    ConnectionStatus(String name) {
         this.name = name;
     }
 
@@ -48,14 +48,14 @@ public enum ConduitConnectionType implements StringRepresentable {
      * @return Whether a new connection can be made from this face.
      */
     public boolean canConnect() {
-        return this == NONE;
+        return this == DISCONNECTED;
     }
 
     /**
      * @return Whether this face is connected.
      */
     public boolean isConnected() {
-        return this != NONE && this != DISABLED;
+        return this != DISCONNECTED && this != DISABLED;
     }
 
     /**
@@ -71,7 +71,7 @@ public enum ConduitConnectionType implements StringRepresentable {
     }
 
     @Nullable
-    public static ConduitConnectionType byName(@Nullable String name) {
+    public static ConnectionStatus byName(@Nullable String name) {
         return CODEC.byName(name);
     }
 }

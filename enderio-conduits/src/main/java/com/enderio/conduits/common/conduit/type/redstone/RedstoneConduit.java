@@ -13,13 +13,18 @@ import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.redstone.RedstoneExtractFilter;
 import com.enderio.conduits.common.redstone.RedstoneInsertFilter;
+import com.enderio.conduits.common.tag.ConduitTags;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,6 +81,21 @@ public record RedstoneConduit(
         }
 
         return texture();
+    }
+
+    @Override
+    public boolean canConnectToBlock(Level level, BlockPos conduitPos, Direction direction) {
+        BlockPos neighbor = conduitPos.relative(direction);
+        BlockState blockState = level.getBlockState(neighbor);
+        return blockState.is(ConduitTags.Blocks.REDSTONE_CONNECTABLE)
+            || blockState.canRedstoneConnectTo(level, neighbor, direction.getOpposite());
+    }
+
+    @Override
+    public boolean canForceConnectToBlock(Level level, BlockPos conduitPos, Direction direction) {
+        BlockPos neighbor = conduitPos.relative(direction);
+        BlockState blockState = level.getBlockState(neighbor);
+        return !blockState.isAir();
     }
 
     @Override

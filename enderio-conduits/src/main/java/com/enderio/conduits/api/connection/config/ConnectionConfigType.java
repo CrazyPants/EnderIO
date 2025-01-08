@@ -1,7 +1,7 @@
 package com.enderio.conduits.api.connection.config;
 
-import com.enderio.conduits.api.connection.config.io.ChannelResourceConnectionConfig;
-import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.mojang.serialization.MapCodec;
 
@@ -17,11 +17,11 @@ public record ConnectionConfigType<T extends ConnectionConfig>(Class<T> clazz, M
     }
 
     public boolean supportsIO() {
-        return ResourceConnectionConfig.class.isAssignableFrom(clazz);
+        return IOConnectionConfig.class.isAssignableFrom(clazz);
     }
 
     public boolean supportsIOChannels() {
-        return ChannelResourceConnectionConfig.class.isAssignableFrom(clazz);
+        return ChanneledIOConnectionConfig.class.isAssignableFrom(clazz);
     }
 
     public boolean supportsRedstoneControl() {

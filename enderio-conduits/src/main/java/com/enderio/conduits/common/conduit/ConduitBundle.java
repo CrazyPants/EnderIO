@@ -326,7 +326,7 @@ public final class ConduitBundle {
 
     public boolean disconnectFrom(Direction direction, Holder<Conduit<?>> conduit) {
         for (int i = 0; i < conduits.size(); i++) {
-            if (conduit.value().canConnectTo(conduits.get(i))) {
+            if (conduit.value().canConnectToConduit(conduits.get(i))) {
                 connections.get(direction).tryDisconnect(i);
                 onChanged();
                 return true;
@@ -342,7 +342,7 @@ public final class ConduitBundle {
 
     public ConduitGraphObject getNodeFor(Holder<Conduit<?>> conduit) {
         for (var entry : conduitNodes.entrySet()) {
-            if (entry.getKey().value().canConnectTo(conduit)) {
+            if (entry.getKey().value().canConnectToConduit(conduit)) {
                 return conduitNodes.get(entry.getKey());
             }
         }
@@ -375,7 +375,7 @@ public final class ConduitBundle {
 
     public boolean hasType(Holder<Conduit<?>> conduitToFind) {
         for (var conduit : conduits) {
-            if (conduit.value().canConnectTo(conduitToFind)) {
+            if (conduit.value().canConnectToConduit(conduitToFind)) {
                 return true;
             }
         }
@@ -385,7 +385,7 @@ public final class ConduitBundle {
 
     public int getConduitIndex(Holder<Conduit<?>> conduit) {
         for (int i = 0; i < conduits.size(); i++) {
-            if (conduits.get(i).value().canConnectTo(conduit)) {
+            if (conduits.get(i).value().canConnectToConduit(conduit)) {
                 return i;
             }
         }

@@ -2,15 +2,16 @@ package com.enderio.conduits.client;
 
 import com.enderio.base.api.EnderIO;
 import com.enderio.conduits.EnderIOConduits;
-import com.enderio.conduits.api.model.RegisterConduitCoreModelModifiersEvent;
+import com.enderio.conduits.api.model.RegisterConduitModelModifiersEvent;
 import com.enderio.conduits.api.screen.RegisterConduitScreenExtensionsEvent;
 import com.enderio.conduits.client.gui.conduit.ConduitScreenExtensions;
 import com.enderio.conduits.client.gui.conduit.FluidConduitScreenExtension;
 import com.enderio.conduits.client.gui.conduit.ItemConduitScreenExtension;
 import com.enderio.conduits.client.model.conduit.ConduitItemModelLoader;
 import com.enderio.conduits.client.model.conduit.facades.FacadeItemGeometry;
-import com.enderio.conduits.client.model.conduit.modifier.ConduitCoreModelModifiers;
-import com.enderio.conduits.client.model.conduit.modifier.FluidConduitCoreModelModifier;
+import com.enderio.conduits.client.model.conduit.modifier.ConduitModelModifiers;
+import com.enderio.conduits.client.model.conduit.modifier.EnergyConduitModelModifier;
+import com.enderio.conduits.client.model.conduit.modifier.FluidConduitModelModifier;
 import com.enderio.conduits.client.model.conduit.bundle.ConduitBundleGeometry;
 import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.init.ConduitTypes;
@@ -53,8 +54,9 @@ public class ConduitClientSetup {
     }
 
     @SubscribeEvent
-    public static void registerConduitCoreModelModifiers(RegisterConduitCoreModelModifiersEvent event) {
-        event.register(ConduitTypes.FLUID.get(), FluidConduitCoreModelModifier::new);
+    public static void registerConduitCoreModelModifiers(RegisterConduitModelModifiersEvent event) {
+        event.register(ConduitTypes.FLUID.get(), FluidConduitModelModifier::new);
+        event.register(ConduitTypes.ENERGY.get(), EnergyConduitModelModifier::new);
     }
 
     @SubscribeEvent
@@ -77,8 +79,8 @@ public class ConduitClientSetup {
         }
 
         // Ensure conduit model modifiers are ready, then load all model dependencies.
-        ConduitCoreModelModifiers.init();
-        ConduitCoreModelModifiers.getAllModelDependencies().forEach(event::register);
+        ConduitModelModifiers.init();
+        ConduitModelModifiers.getAllModelDependencies().forEach(event::register);
     }
 
     @SubscribeEvent

@@ -6,7 +6,7 @@ import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.api.bundle.ConduitInventory;
 import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.bundle.ConduitBundleAccessor;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
+import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.facade.FacadeType;
 import com.enderio.conduits.api.network.node.NodeData;
@@ -307,7 +307,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     @Override
     public boolean hasConduitByType(Holder<Conduit<?>> conduit) {
-        return conduits.stream().anyMatch(c -> c.value().canConnectTo(conduit));
+        return conduits.stream().anyMatch(c -> c.value().canConnectToConduit(conduit));
     }
 
     @Override
@@ -463,7 +463,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         }
 
         if (result instanceof AddConduitResult.Upgrade upgrade
-                && !upgrade.replacedConduit().value().canConnectTo(conduit)) {
+                && !upgrade.replacedConduit().value().canConnectToConduit(conduit)) {
             removeNeighborConnections(conduit);
         }
 
@@ -604,15 +604,15 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
     public List<Holder<Conduit<?>>> getConnectedConduits(Direction side) {
         return conduitConnections.entrySet()
                 .stream()
-                .filter(e -> e.getValue().getType(side).isConnected())
+                .filter(e -> e.getValue().getStatus(side).isConnected())
                 .map(Map.Entry::getKey)
                 .sorted(Comparator.comparingInt(ConduitSorter::getSortIndex))
                 .toList();
     }
 
     @Override
-    public ConduitConnectionType getConnectionType(Direction side, Holder<Conduit<?>> conduit) {
-        return conduitConnections.computeIfAbsent(conduit, ConnectionContainer::new).getType(side);
+    public ConnectionStatus getConnectionStatus(Direction side, Holder<Conduit<?>> conduit) {
+        return conduitConnections.computeIfAbsent(conduit, ConnectionContainer::new).getStatus(side);
     }
 
     @Override
@@ -632,12 +632,12 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     // Intended for use by the menu, might need a better interface?
     @EnsureSide(EnsureSide.Side.SERVER)
-    public void setConnectionType(Direction side, Holder<Conduit<?>> conduit, ConduitConnectionType type) {
+    public void setConnectionStatus(Direction side, Holder<Conduit<?>> conduit, ConnectionStatus status) {
         if (!hasConduitStrict(conduit)) {
             throw new IllegalArgumentException("Conduit is not present in this bundle.");
         }
 
-        conduitConnections.get(conduit).setType(side, type);
+        conduitConnections.get(conduit).setStatus(side, status);
         bundleChanged();
     }
 
@@ -658,16 +658,16 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
             return false;
         }
 
-        if (!conduit.value().canConnectTo(conduitNodes.get(conduit), otherNode)) {
+        if (!conduit.value().canConnectNodes(conduitNodes.get(conduit), otherNode)) {
             return false;
         }
 
-        return isForcedConnection || conduitConnections.get(conduit).getType(side) != ConduitConnectionType.DISABLED;
+        return isForcedConnection || conduitConnections.get(conduit).getStatus(side) != ConnectionStatus.DISABLED;
     }
 
     private boolean doTypesMatch(Holder<Conduit<?>> conduitToMatch) {
         for (Holder<Conduit<?>> conduit : conduits) {
-            if (conduit.value().canConnectTo(conduitToMatch)) {
+            if (conduit.value().canConnectToConduit(conduitToMatch)) {
                 return true;
             }
         }
@@ -686,9 +686,9 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
         // Don't attempt a connection if we already have one, or we're disabled (and not
         // forcing a connection)
-        ConduitConnectionType currentConnectionType = conduitConnections.get(conduit).getType(side);
-        if (currentConnectionType.isConnected()
-                || (!isForcedConnection && currentConnectionType == ConduitConnectionType.DISABLED)) {
+        ConnectionStatus currentStatus = conduitConnections.get(conduit).getStatus(side);
+        if (currentStatus.isConnected()
+                || (!isForcedConnection && currentStatus == ConnectionStatus.DISABLED)) {
             return false;
         }
 
@@ -715,8 +715,8 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
             }
 
             return false;
-        } else if (conduit.value().canConnectTo(level, getBlockPos(), side)
-                || (isForcedConnection && conduit.value().canForceConnectTo(level, getBlockPos(), side))) {
+        } else if (conduit.value().canConnectToBlock(level, getBlockPos(), side)
+                || (isForcedConnection && conduit.value().canForceConnectToBlock(level, getBlockPos(), side))) {
             connectBlock(side, conduit);
             return true;
         }
@@ -729,7 +729,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
             var node = getConduitNode(conduit);
 
             Set<Direction> connectedSides = Arrays.stream(Direction.values())
-                    .filter(direction -> getConnectionType(direction, conduit).isConnected())
+                    .filter(direction -> getConnectionStatus(direction, conduit).isConnected())
                     .collect(Collectors.toSet());
 
             conduit.value().onConnectionsUpdated(node, level, getBlockPos(), connectedSides);
@@ -738,7 +738,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     private void connectConduit(Direction side, Holder<Conduit<?>> conduit) {
         conduitConnections.computeIfAbsent(conduit, ConnectionContainer::new)
-            .setType(side, ConduitConnectionType.CONNECTED_CONDUIT);
+            .setStatus(side, ConnectionStatus.CONNECTED_CONDUIT);
         onConnectionsUpdated(conduit);
         setChanged();
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
@@ -747,7 +747,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     private void connectBlock(Direction side, Holder<Conduit<?>> conduit) {
         conduitConnections.computeIfAbsent(conduit, ConnectionContainer::new)
-            .setType(side, ConduitConnectionType.CONNECTED_BLOCK);
+            .setStatus(side, ConnectionStatus.CONNECTED_BLOCK);
         onConnectionsUpdated(conduit);
         setChanged();
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
@@ -759,9 +759,9 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
     private void disconnect(Direction side, Holder<Conduit<?>> conduit) {
         boolean hasChanged = false;
         for (var c : conduits) {
-            if (c.value().canConnectTo(conduit)) {
+            if (c.value().canConnectToConduit(conduit)) {
                 conduitConnections.computeIfAbsent(c, ConnectionContainer::new)
-                    .setType(side, ConduitConnectionType.NONE);
+                    .setStatus(side, ConnectionStatus.DISCONNECTED);
                 onConnectionsUpdated(c);
                 hasChanged = true;
             }
@@ -797,12 +797,12 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
                     continue;
                 }
 
-                var currentConnectionType = getConnectionType(side, conduit);
+                var currentStatus = getConnectionStatus(side, conduit);
 
-                if (currentConnectionType == ConduitConnectionType.NONE) {
+                if (currentStatus == ConnectionStatus.DISCONNECTED) {
                     tryConnectTo(side, conduit, false);
-                } else if (currentConnectionType == ConduitConnectionType.CONNECTED_BLOCK) {
-                    if (!conduit.value().canForceConnectTo(level, getBlockPos(), side)) {
+                } else if (currentStatus == ConnectionStatus.CONNECTED_BLOCK) {
+                    if (!conduit.value().canForceConnectToBlock(level, getBlockPos(), side)) {
                         disconnect(side, conduit);
                         onConnectionsUpdated(conduit);
                     }
@@ -1059,7 +1059,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
                 for (Direction side : Direction.values()) {
                     CompoundTag connectionTag = new CompoundTag();
                     connectionTag.putString("Side", side.getSerializedName());
-                    connectionTag.putString("Type", getConnectionType(side, conduit).getSerializedName());
+                    connectionTag.putString("Status", getConnectionStatus(side, conduit).getSerializedName());
 
                     var config = getConnectionConfig(side, conduit);
                     if (!config.equals(config.type().getDefault())) {
@@ -1112,10 +1112,10 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
                     for (int j = 0; j < connectionsList.size(); j++) {
                         CompoundTag connectionTag = connectionsList.getCompound(j);
                         Direction side = Direction.byName(connectionTag.getString("Side"));
-                        ConduitConnectionType type = ConduitConnectionType.byName(connectionTag.getString("Type"));
+                        ConnectionStatus status = ConnectionStatus.byName(connectionTag.getString("Status"));
 
-                        if (side != null && type != null) {
-                            connections.setType(side, type);
+                        if (side != null && status != null) {
+                            connections.setStatus(side, status);
 
                             if (connectionTag.contains("Config")) {
                                 ConnectionConfig config = ConnectionConfig.GENERIC_CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), connectionTag.get("Config")).getOrThrow();
@@ -1199,13 +1199,13 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
                 var state = legacySide.getConnectionState(conduitIndex);
 
                 if (state == StaticConnectionStates.CONNECTED || state == StaticConnectionStates.CONNECTED_ACTIVE) {
-                    connections.setType(side, ConduitConnectionType.CONNECTED_CONDUIT);
+                    connections.setStatus(side, ConnectionStatus.CONNECTED_CONDUIT);
                 } else if (state == StaticConnectionStates.DISCONNECTED) {
-                    connections.setType(side, ConduitConnectionType.NONE);
+                    connections.setStatus(side, ConnectionStatus.DISCONNECTED);
                 } else if (state == StaticConnectionStates.DISABLED) {
-                    connections.setType(side, ConduitConnectionType.DISABLED);
+                    connections.setStatus(side, ConnectionStatus.DISABLED);
                 } else if (state instanceof DynamicConnectionState dynamicState) {
-                    connections.setType(side, ConduitConnectionType.CONNECTED_BLOCK);
+                    connections.setStatus(side, ConnectionStatus.CONNECTED_BLOCK);
 
                     connections.setConfig(side, conduit.value().convertConnection(dynamicState.isInsert(), dynamicState.isExtract(),
                         dynamicState.insertChannel(), dynamicState.extractChannel(), dynamicState.control(),
@@ -1232,39 +1232,39 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     private class ConnectionContainer {
         private final Holder<Conduit<?>> conduit;
-        private final Map<Direction, ConduitConnectionType> connectionTypes = new EnumMap<>(Direction.class);
-        private final Map<Direction, ConnectionConfig> connectionConfigs = new EnumMap<>(Direction.class);
+        private final Map<Direction, ConnectionStatus> statuses = new EnumMap<>(Direction.class);
+        private final Map<Direction, ConnectionConfig> configs = new EnumMap<>(Direction.class);
 
         public ConnectionContainer(Holder<Conduit<?>> conduit) {
             this.conduit = conduit;
             for (Direction dir : Direction.values()) {
-                connectionTypes.put(dir, ConduitConnectionType.NONE);
+                statuses.put(dir, ConnectionStatus.DISCONNECTED);
             }
         }
 
         public ConnectionContainer copyFor(Holder<Conduit<?>> conduit) {
             var copy = new ConnectionContainer(conduit);
-            copy.connectionTypes.putAll(connectionTypes);
+            copy.statuses.putAll(statuses);
 
             // Only copy connection config if compatible.
             if (this.conduit.value().connectionConfigType() == conduit.value().connectionConfigType()) {
-                copy.connectionConfigs.putAll(connectionConfigs);
+                copy.configs.putAll(configs);
             }
             return copy;
         }
 
-        public ConduitConnectionType getType(Direction side) {
-            return connectionTypes.getOrDefault(side, ConduitConnectionType.NONE);
+        public ConnectionStatus getStatus(Direction side) {
+            return statuses.getOrDefault(side, ConnectionStatus.DISCONNECTED);
         }
 
-        public void setType(Direction side, ConduitConnectionType type) {
-            connectionTypes.put(side, type);
+        public void setStatus(Direction side, ConnectionStatus status) {
+            statuses.put(side, status);
 
-            if (type == ConduitConnectionType.CONNECTED_BLOCK) {
-                if (connectionConfigs.containsKey(side)) {
-                    var config = connectionConfigs.get(side);
+            if (status == ConnectionStatus.CONNECTED_BLOCK) {
+                if (configs.containsKey(side)) {
+                    var config = configs.get(side);
                     if (!config.isConnected()) {
-                        connectionConfigs.put(side, config.reconnected());
+                        configs.put(side, config.reconnected());
                     }
                 }
             }
@@ -1272,25 +1272,25 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
         public ConnectionConfig getConfig(Direction side) {
             var defaultConfig = conduit.value().connectionConfigType().getDefault();
-            var config = connectionConfigs.getOrDefault(side, defaultConfig);
+            var config = configs.getOrDefault(side, defaultConfig);
 
             // Ensure the connection type is correct.
             // If it isn't, revert to the default.
             if (config.type() != conduit.value().connectionConfigType()) {
                 config = conduit.value().connectionConfigType().getDefault();
-                connectionConfigs.put(side, config);
-                bundleChanged(); // TODO: is this right?
+                configs.put(side, config);
+                bundleChanged();
             }
 
             return config;
         }
 
         public void setConfig(Direction side, ConnectionConfig config) {
-            connectionConfigs.put(side, config);
+            configs.put(side, config);
         }
 
         public boolean hasEndpoint(Direction side) {
-            return getType(side) == ConduitConnectionType.CONNECTED_BLOCK;
+            return getStatus(side) == ConnectionStatus.CONNECTED_BLOCK;
         }
     }
 
@@ -1303,7 +1303,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
         @Override
         public boolean isConnectedTo(Direction side) {
-            return conduitBundle.getConnectionType(side, conduit) == ConduitConnectionType.CONNECTED_BLOCK;
+            return conduitBundle.getConnectionStatus(side, conduit) == ConnectionStatus.CONNECTED_BLOCK;
         }
 
         @Override

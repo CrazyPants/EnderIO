@@ -3,7 +3,7 @@ package com.enderio.conduits.common.network;
 import com.enderio.base.common.init.EIOCapabilities;
 import com.enderio.conduits.api.bundle.ConduitBundleAccessor;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
-import com.enderio.conduits.api.connection.config.io.ChannelResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.menu.ConduitMenu;
@@ -86,7 +86,7 @@ public class ConduitServerPayloadHandler {
 
     public void handleSetConduitChannelPacket(C2SSetConduitChannelPacket packet, IPayloadContext context) {
         handleConduitConfigPacket(packet, context, (p, conduitBundle, currentConfig) -> {
-            if (currentConfig instanceof ChannelResourceConnectionConfig channelledConnectionConfig) {
+            if (currentConfig instanceof ChanneledIOConnectionConfig channelledConnectionConfig) {
                 if (packet.channelSide() == C2SSetConduitChannelPacket.Side.INPUT) {
                     conduitBundle.setConnectionConfig(p.side(), p.conduit(),
                         channelledConnectionConfig.withInputChannel(p.channelColor()));

@@ -1,7 +1,7 @@
 package com.enderio.conduits.api.bundle;
 
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.connection.ConduitConnectionType;
+import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.facade.FacadeType;
 
@@ -43,7 +43,7 @@ public interface ConduitBundleReader {
     CompoundTag getConduitClientDataTag(Holder<Conduit<?>> conduit);
 
     /**
-     * @implNote compare conduits using {@link Conduit#canConnectTo(Holder)}
+     * @implNote compare conduits using {@link Conduit#canConnectToConduit(Holder)}
      * @param conduit the conduit to check for
      * @return whether the bundle has this conduit, or another which is compatible.
      */
@@ -80,7 +80,7 @@ public interface ConduitBundleReader {
      * @param conduit
      * @return
      */
-    ConduitConnectionType getConnectionType(Direction side, Holder<Conduit<?>> conduit);
+    ConnectionStatus getConnectionStatus(Direction side, Holder<Conduit<?>> conduit);
 
     /**
      * @param side

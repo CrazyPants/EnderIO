@@ -4,7 +4,7 @@ import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
@@ -28,12 +28,12 @@ public interface IOAwareConduitTicker<TConduit extends Conduit<TConduit>> extend
         for (ConduitNode node : loadedNodes) {
             for (Direction side : Direction.values()) {
                 if (node.isConnectedTo(side)) {
-                    if (node.getConnectionConfig(side) instanceof ResourceConnectionConfig config) {
-                        if (config.canInsert() && isActive(level, side, node, coloredRedstoneProvider)) {
+                    if (node.getConnectionConfig(side) instanceof IOConnectionConfig config) {
+                        if (config.canExtract() && isActive(level, side, node, coloredRedstoneProvider)) {
                             extracts.get(config.extractChannel()).add(new Connection(side, node));
                         }
 
-                        if (config.canExtract()) {
+                        if (config.canInsert()) {
                             inserts.get(config.insertChannel()).add(new Connection(side, node));
                         }
                     }

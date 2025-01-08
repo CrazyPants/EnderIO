@@ -7,9 +7,12 @@ import com.enderio.base.client.gui.widget.RedstoneControlPickerWidget;
 import com.enderio.base.common.lang.EIOLang;
 import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
-import com.enderio.conduits.api.connection.config.io.ChannelResourceConnectionConfig;
-import com.enderio.conduits.api.connection.config.io.ResourceConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
+import com.enderio.conduits.api.menu.ConduitMenuComponent;
+import com.enderio.conduits.api.menu.ConduitMenuType;
 import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.network.connections.C2SSetConduitChannelPacket;
@@ -24,6 +27,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.function.Supplier;
 
 public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
     public static final ResourceLocation TEXTURE = EnderIO.loc("textures/gui/conduit.png");
@@ -111,6 +116,39 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
         // TODO: Conduit selection buttons
     }
 
+    // Example of conduit menu type thing.
+//    private ConduitMenuType<ItemConduitConnectionConfig> EXAMPLE = ConduitMenuType.builder(ItemConduitConnectionConfig.TYPE)
+//        .layout(/* TODO */) // << Ignore, i was going to do the enable buttons here, but I think I'll just make those components too.
+//        .addComponent(new ConduitMenuComponent.ColorPicker<>(22, 7, ConduitLang.CONDUIT_CHANNEL,
+//                ItemConduitConnectionConfig::insertChannel, ItemConduitConnectionConfig::withInputChannel))
+//        .addComponent(new ConduitMenuComponent.ColorPicker<>(22, 112, ConduitLang.CONDUIT_CHANNEL,
+//                ItemConduitConnectionConfig::extractChannel, ItemConduitConnectionConfig::withOutputChannel))
+//        .addComponent(new ConduitMenuComponent.RedstoneControlPicker<>(22, 112, EIOLang.REDSTONE_MODE,
+//                ItemConduitConnectionConfig::redstoneControl, ItemConduitConnectionConfig::withRedstoneControl))
+//        .build();
+
+    private <T extends ConnectionConfig> void addComponents(ConduitMenuType<T> menuType) {
+        Supplier<T> config = () -> getConnectionConfig(menuType.connectionType());
+
+        for (var component : menuType.components()) {
+            int x = getGuiLeft() + component.x();
+            int y = getGuiTop() + component.y();
+
+            if (component instanceof ConduitMenuComponent.Text<T> text) {
+                // TODO
+            } else if (component instanceof ConduitMenuComponent.ToggleButton<T> toggleButton) {
+                // TODO
+            } else if (component instanceof ConduitMenuComponent.ColorPicker<T> colorPicker) {
+                addRenderableWidget(new DyeColorPickerWidget(x, y,
+                        () -> colorPicker.getter().apply(config.get()),
+                        color -> {}, // TODO: Send packet with component ID and value
+                        colorPicker.title()));
+            } else if (component instanceof ConduitMenuComponent.RedstoneControlPicker<T> redstoneControlPicker) {
+                // TODO
+            }
+        }
+    }
+
     private BlockPos pos() {
         return menu.getBlockEntity().getBlockPos();
     }
@@ -123,24 +161,28 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
         return menu.connectionConfig();
     }
 
-    private ResourceConnectionConfig getIOConnectionConfig() {
+    private <T extends ConnectionConfig> T getConnectionConfig(ConnectionConfigType<T> configType) {
+        return menu.connectionConfig(configType);
+    }
+
+    private IOConnectionConfig getIOConnectionConfig() {
         if (!menu.connectionConfigType().supportsIO()) {
             throw new IllegalStateException("Connection config type does not support IO");
         }
 
-        if (!(getConnectionConfig() instanceof ResourceConnectionConfig resourceConnectionConfig)) {
+        if (!(getConnectionConfig() instanceof IOConnectionConfig ioConnectionConfig)) {
             throw new IllegalStateException("Connection config is not an IO connection config. Mismatch between connection type class and instance.");
         }
 
-        return resourceConnectionConfig;
+        return ioConnectionConfig;
     }
 
-    private ChannelResourceConnectionConfig getChannelledIOConnectionConfig() {
+    private ChanneledIOConnectionConfig getChannelledIOConnectionConfig() {
         if (!menu.connectionConfigType().supportsIOChannels()) {
             throw new IllegalStateException("Connection config type does not support IO");
         }
 
-        if (!(getConnectionConfig() instanceof ChannelResourceConnectionConfig chanelledIOConnectionConfig)) {
+        if (!(getConnectionConfig() instanceof ChanneledIOConnectionConfig chanelledIOConnectionConfig)) {
             throw new IllegalStateException("Connection config is not an IO connection config. Mismatch between connection type class and instance.");
         }
 

@@ -4,13 +4,13 @@ import static com.enderio.conduits.client.ConduitClientSetup.*;
 
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.model.ConduitCoreModelModifier;
+import com.enderio.conduits.api.model.ConduitModelModifier;
 import com.enderio.conduits.client.ConduitFacadeColor;
 import com.enderio.conduits.client.model.BoxTextureQuadTransformer;
 import com.enderio.conduits.client.model.ColorQuadTransformer;
 import com.enderio.conduits.client.model.ConduitTextureEmissiveQuadTransformer;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
-import com.enderio.conduits.client.model.conduit.modifier.ConduitCoreModelModifiers;
+import com.enderio.conduits.client.model.conduit.modifier.ConduitModelModifiers;
 import com.enderio.conduits.common.Area;
 import com.enderio.conduits.common.conduit.OffsetHelper;
 import com.enderio.core.data.model.ModelHelper;
@@ -110,10 +110,10 @@ public class ConduitBundleModel implements IDynamicBakedModel {
                             .process(modelOf(CONDUIT_CONNECTION).getQuads(state, preRotation, rand, extraData,
                                     renderType)));
 
-                    ConduitCoreModelModifier conduitCoreModifier = ConduitCoreModelModifiers
-                            .getModifier(conduit.value().type());
-                    if (conduitCoreModifier != null) {
-                        quads.addAll(rotationTranslation.process(conduitCoreModifier.createConnectionQuads(conduit,
+                    ConduitModelModifier conduitModelModifier = ConduitModelModifiers
+                        .getModifier(conduit.value().type());
+                    if (conduitModelModifier != null) {
+                        quads.addAll(rotationTranslation.process(conduitModelModifier.createConnectionQuads(conduit,
                                 clientData, side, direction, rand, renderType)));
                     }
 
