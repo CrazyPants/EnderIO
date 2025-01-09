@@ -49,14 +49,14 @@ public class RedstoneConduitNetworkContext implements ConduitNetworkContext<Reds
 
     @Override
     public RedstoneConduitNetworkContext mergeWith(RedstoneConduitNetworkContext other) {
-        // Merge the two maps
-        return null;
+        // Ticker will be responsible for updating it.
+        return copy();
     }
 
     @Override
     public RedstoneConduitNetworkContext copy() {
-        // Ticker will handle any changes to this, so we don't have to worry about it
-        return new RedstoneConduitNetworkContext(isActive, new HashMap<>(channelSignals));
+        // Ticker will be responsible for updating it.
+        return new RedstoneConduitNetworkContext(false, new HashMap<>());
     }
 
     @Override

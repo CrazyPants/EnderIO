@@ -4,13 +4,12 @@ import com.enderio.conduits.EnderIOConduits;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import com.enderio.conduits.api.ticker.ConduitTicker;
-import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
+import com.enderio.conduits.common.conduit.bundle.NewConduitBundleBlockEntity;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphContext;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphUtility;
 import com.enderio.conduits.common.conduit.graph.WrappedConduitNetwork;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
-import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.init.Conduits;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
@@ -357,19 +356,19 @@ public class ConduitSavedData extends SavedData {
             return false;
         }
 
-        if (!(level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity blockEntity)) {
+        if (!(level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle)) {
             return false;
         }
 
-        // TODO: Decouple from hard-coded REDSTONE conduit.
+        // TODO: Decouple from hard-coded REDSTONE conduit like we have for the block.
         var registry = level.holderLookup(EnderIOConduitsRegistries.Keys.CONDUIT);
         var redstoneConduit = registry.get(Conduits.REDSTONE);
 
-        if (redstoneConduit.isEmpty() || !blockEntity.getBundle().getConduits().contains(redstoneConduit.get())) {
+        if (redstoneConduit.isEmpty() || !conduitBundle.getConduits().contains(redstoneConduit.get())) {
             return false;
         }
 
-        var node = blockEntity.getBundle().getNodeFor(redstoneConduit.get());
+        var node = conduitBundle.getConduitNode(redstoneConduit.get());
         if (node.getNetwork() == null) {
             return false;
         }

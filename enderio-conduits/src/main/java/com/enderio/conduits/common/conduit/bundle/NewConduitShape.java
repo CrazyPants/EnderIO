@@ -116,14 +116,13 @@ public class NewConduitShape {
         Direction.Axis axis = OffsetHelper.findMainAxis(conduitBundle);
         Map<Holder<Conduit<?, ?>>, List<Vec3i>> offsets = new HashMap<>();
         for (Direction direction : Direction.values()) {
-            // Only create and save connection shape if it's a block connection, as that's what the lookup is for.
-            VoxelShape conduitConnectionShape = null;
+            VoxelShape conduitConnectionShape = Shapes.empty();
 
             // TODO: Lift the connector plate out of updateShapeForConduit?
             if (conduitBundle.getConnectionStatus(direction, conduit) == ConnectionStatus.CONNECTED_BLOCK) {
                 VoxelShape connectorShape = rotateVoxelShape(CONNECTOR, direction);
                 conduitShape = Shapes.joinUnoptimized(conduitShape, connectorShape, BooleanOp.OR);
-                conduitConnectionShape = connectorShape;
+                conduitConnectionShape = Shapes.joinUnoptimized(connectorShape, connectorShape, BooleanOp.OR);
 
                 individualShapeList.add(connectorShape);
             }
@@ -137,16 +136,12 @@ public class NewConduitShape {
                         offset.getY() * 3f / 16f, offset.getZ() * 3f / 16f);
                 conduitShape = Shapes.joinUnoptimized(conduitShape, connectionShape, BooleanOp.OR);
 
-                if (conduitConnectionShape != null) {
-                    conduitConnectionShape = Shapes.join(conduitConnectionShape, connectionShape, BooleanOp.OR);
-                }
+                conduitConnectionShape = Shapes.joinUnoptimized(conduitConnectionShape, connectionShape, BooleanOp.OR);
 
                 individualShapeList.add(connectionShape);
             }
 
-            if (conduitConnectionShape != null) {
-                conduitConnections.put(new Pair<>(direction, conduit), conduitConnectionShape);
-            }
+            conduitConnections.put(new Pair<>(direction, conduit), conduitConnectionShape.optimize());
         }
 
         var allConduits = conduitBundle.getConduits();

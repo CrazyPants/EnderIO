@@ -7,12 +7,14 @@ import com.enderio.conduits.api.screen.RegisterConduitScreenExtensionsEvent;
 import com.enderio.conduits.client.gui.conduit.ConduitScreenExtensions;
 import com.enderio.conduits.client.gui.conduit.FluidConduitScreenExtension;
 import com.enderio.conduits.client.gui.conduit.ItemConduitScreenExtension;
+import com.enderio.conduits.client.gui.screen.types.ConduitScreenTypes;
 import com.enderio.conduits.client.model.conduit.ConduitItemModelLoader;
 import com.enderio.conduits.client.model.conduit.facades.FacadeItemGeometry;
 import com.enderio.conduits.client.model.conduit.modifier.ConduitModelModifiers;
 import com.enderio.conduits.client.model.conduit.modifier.EnergyConduitModelModifier;
 import com.enderio.conduits.client.model.conduit.modifier.FluidConduitModelModifier;
 import com.enderio.conduits.client.model.conduit.bundle.ConduitBundleGeometry;
+import com.enderio.conduits.client.model.conduit.modifier.RedstoneConduitModelModifier;
 import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.init.ConduitTypes;
 import java.util.ArrayList;
@@ -51,12 +53,14 @@ public class ConduitClientSetup {
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
         ConduitScreenExtensions.init();
+        ConduitScreenTypes.init();
     }
 
     @SubscribeEvent
     public static void registerConduitCoreModelModifiers(RegisterConduitModelModifiersEvent event) {
         event.register(ConduitTypes.FLUID.get(), FluidConduitModelModifier::new);
         event.register(ConduitTypes.ENERGY.get(), EnergyConduitModelModifier::new);
+        event.register(ConduitTypes.REDSTONE.get(), RedstoneConduitModelModifier::new);
     }
 
     @SubscribeEvent

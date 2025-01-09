@@ -1,6 +1,7 @@
 package com.enderio.conduits.client.gui;
 
 import com.enderio.conduits.api.Conduit;
+import com.enderio.conduits.client.gui.screen.NewConduitScreen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -41,9 +42,9 @@ public class ConduitSelectionButton extends AbstractButton {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        guiGraphics.blit(ConduitScreen.TEXTURE, getX(), getY(), 227, 0, this.width, this.height);
+        guiGraphics.blit(NewConduitScreen.TEXTURE, getX(), getY(), 227, 0, this.width, this.height);
         if (getter.get() == conduit) {
-            guiGraphics.blit(ConduitScreen.TEXTURE, getX() - 3, getY(), 224, 0, 3, this.height);
+            guiGraphics.blit(NewConduitScreen.TEXTURE, getX() - 3, getY(), 224, 0, 3, this.height);
         }
 
         ResourceLocation iconLocation = MissingTextureAtlasSprite.getLocation();

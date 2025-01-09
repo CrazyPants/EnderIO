@@ -5,8 +5,6 @@ import com.enderio.conduits.api.bundle.ConduitBundleAccessor;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
-import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
-import com.enderio.conduits.common.menu.ConduitMenu;
 import com.enderio.conduits.common.network.connections.C2SConduitConnectionPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneChannelPacket;
@@ -26,31 +24,11 @@ public class ConduitServerPayloadHandler {
         return INSTANCE;
     }
 
-    public void handleConduitConnectionState(final C2SSetConduitConnectionState packet, final IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var level = context.player().level();
-            BlockEntity be = level.getBlockEntity(packet.pos());
-            if (be instanceof ConduitBundleBlockEntity conduitBundleBlockEntity) {
-                conduitBundleBlockEntity.handleConnectionStateUpdate(packet.direction(), packet.conduit(), packet.connectionState());
-            }
-        });
-    }
-
-    public void handleConduitExtendedData(final C2SSetConduitExtendedData packet, final IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var level = context.player().level();
-            BlockEntity be = level.getBlockEntity(packet.pos());
-            if (be instanceof ConduitBundleBlockEntity conduitBundleBlockEntity) {
-                conduitBundleBlockEntity.handleConduitDataUpdate(packet.conduit(), packet.conduitDataContainer());
-            }
-        });
-    }
-
     public void handleConduitMenuSelection(final ConduitMenuSelectionPacket packet, final IPayloadContext context) {
         context.enqueueWork(() -> {
-            if (context.player().containerMenu instanceof ConduitMenu menu) {
-                menu.setConduit(packet.conduit());
-            }
+//            if (context.player().containerMenu instanceof ConduitMenu menu) {
+//                menu.setConduit(packet.conduit());
+//            }
         });
     }
 

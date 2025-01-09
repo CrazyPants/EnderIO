@@ -2,6 +2,7 @@ package com.enderio.conduits.api;
 
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
+import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
@@ -70,6 +71,14 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
      * @apiNote The ticker should never change, it can use the options to determine behaviour in its implementation.
      */
     ConduitTicker<TConduit> getTicker();
+
+    /**
+     * @implNote if a conduit has a menu, you must also register a {@link com.enderio.conduits.api.screen.ConduitScreenType} for it.
+     * @return whether this conduit has a menu.
+     */
+//    boolean hasMenu();
+
+    // TODO: Custom menu data factory?
 
     ConduitMenuData getMenuData();
 

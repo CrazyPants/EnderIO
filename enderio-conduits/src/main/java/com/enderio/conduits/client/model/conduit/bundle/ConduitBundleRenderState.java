@@ -3,12 +3,17 @@ package com.enderio.conduits.client.model.conduit.bundle;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.connection.ConnectionStatus;
+import com.enderio.conduits.api.model.ConduitModelModifier;
+import com.enderio.conduits.client.model.conduit.modifier.ConduitModelModifiers;
 import com.enderio.conduits.common.conduit.OffsetHelper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.HashMultimap;
+import com.mojang.datafixers.util.Pair;
 import me.liliandev.ensure.ensures.EnsureSide;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -47,9 +52,26 @@ public class ConduitBundleRenderState {
             }
         }
 
+        HashMultimap<Direction, Holder<Conduit<?, ?>>> fakeConnections = HashMultimap.create();
+        for (var conduit : renderState.conduits) {
+            for (var side : Direction.values()) {
+                ConduitModelModifier conduitModelModifier = ConduitModelModifiers
+                    .getModifier(conduit.value().type());
+
+                if (conduitModelModifier != null && conduitModelModifier.shouldShowFakeConnection(bundle, side)) {
+                    fakeConnections.put(side, conduit);
+                }
+            }
+        }
+
         renderState.conduitsByDirection = new HashMap<>();
         for (var side : Direction.values()) {
-            renderState.conduitsByDirection.put(side, bundle.getConnectedConduits(side));
+            var connected = new ArrayList<>(bundle.getConnectedConduits(side));
+            if (fakeConnections.containsKey(side)) {
+                connected.addAll(fakeConnections.get(side));
+            }
+
+            renderState.conduitsByDirection.put(side, connected);
         }
 
         renderState.conduitConnections = new HashMap<>();
@@ -60,6 +82,10 @@ public class ConduitBundleRenderState {
                     var connectionConfig = bundle.getConnectionConfig(side, conduit);
                     var connectionRenderState = ConduitConnectionRenderState.of(conduit, connectionConfig);
                     conduits.put(conduit, connectionRenderState);
+                } else if (fakeConnections.containsKey(side)) {
+                    if (fakeConnections.get(side).contains(conduit)) {
+                        conduits.put(conduit, ConduitConnectionRenderState.fake());
+                    }
                 }
             }
 

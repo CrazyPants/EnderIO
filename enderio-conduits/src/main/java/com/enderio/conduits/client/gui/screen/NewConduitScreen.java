@@ -5,6 +5,7 @@ import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.base.client.gui.widget.DyeColorPickerWidget;
 import com.enderio.base.client.gui.widget.RedstoneControlPickerWidget;
 import com.enderio.base.common.lang.EIOLang;
+import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
@@ -12,22 +13,36 @@ import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig
 import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.enderio.conduits.api.menu.ConduitMenuComponent;
+import com.enderio.conduits.api.menu.ConduitMenuDataAccess;
 import com.enderio.conduits.api.menu.ConduitMenuType;
+import com.enderio.conduits.api.screen.ConduitScreenHelper;
+import com.enderio.conduits.api.screen.ConduitScreenType;
+import com.enderio.conduits.client.gui.screen.types.ConduitScreenTypes;
 import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.network.connections.C2SSetConduitChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneControlPacket;
+import com.enderio.conduits.common.network.connections.SetConduitConnectionConfigPacket;
 import com.enderio.core.client.gui.screen.EnderContainerScreen;
 import com.enderio.core.client.gui.widgets.ToggleIconButton;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
@@ -35,17 +50,32 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
     private static final int WIDTH = 206;
     private static final int HEIGHT = 195;
 
+    private final ScreenHelper screenHelper = new ScreenHelper();
+
+    private final ConduitScreenTypeContainer<?> screenTypeContainer;
+
+    private final List<Runnable> preRenderActions = new ArrayList<>();
+
     public NewConduitScreen(NewConduitMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
 
 //        this.shouldRenderLabels = true;
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
+
+        // Get the screen type for this conduit, if available.
+        this.screenTypeContainer = new ConduitScreenTypeContainer<>(menu.getSelectedConduit().value());
     }
 
     @Override
     protected void init() {
         super.init();
+        preRenderActions.clear();
+
+        if (screenTypeContainer.hasScreenType()) {
+            screenTypeContainer.addWidgets(screenHelper);
+            return;
+        }
 
         // Left column
         int leftX = getGuiLeft() + 22;
@@ -116,6 +146,12 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
         // TODO: Conduit selection buttons
     }
 
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        preRenderActions.forEach(Runnable::run);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
     // Example of conduit menu type thing.
 //    private ConduitMenuType<ItemConduitConnectionConfig> EXAMPLE = ConduitMenuType.builder(ItemConduitConnectionConfig.TYPE)
 //        .layout(/* TODO */) // << Ignore, i was going to do the enable buttons here, but I think I'll just make those components too.
@@ -124,7 +160,7 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
 //        .addComponent(new ConduitMenuComponent.ColorPicker<>(22, 112, ConduitLang.CONDUIT_CHANNEL,
 //                ItemConduitConnectionConfig::extractChannel, ItemConduitConnectionConfig::withOutputChannel))
 //        .addComponent(new ConduitMenuComponent.RedstoneControlPicker<>(22, 112, EIOLang.REDSTONE_MODE,
-//                ItemConduitConnectionConfig::redstoneControl, ItemConduitConnectionConfig::withRedstoneControl))
+//                ItemConduitConnectionConfig::receiveRedstoneControl, ItemConduitConnectionConfig::withRedstoneControl))
 //        .build();
 
     private <T extends ConnectionConfig> void addComponents(ConduitMenuType<T> menuType) {
@@ -221,15 +257,153 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
 
-        if (menu.connectionConfigType().supportsIO()) {
-            // TODO: Test for a signal type -or- adopt input/output as the standard.
-            guiGraphics.drawString(this.font, ConduitLang.CONDUIT_INSERT, 22 + 16 + 2, 7 + 4, 4210752, false);
-            guiGraphics.drawString(this.font, ConduitLang.CONDUIT_EXTRACT, 112 + 16 + 2, 7 + 4, 4210752, false);
-
-//            guiGraphics.drawString(this.font, ConduitLang.CONDUIT_INPUT, 22 + 16 + 2, 7 + 4, 4210752, false);
-//            guiGraphics.drawString(this.font, ConduitLang.CONDUIT_OUTPUT, 112 + 16 + 2, 7 + 4, 4210752, false);
+        if (screenTypeContainer.hasScreenType()) {
+            screenTypeContainer.renderLabels(guiGraphics, mouseX, mouseY);
         } else {
-            guiGraphics.drawString(this.font, ConduitLang.CONDUIT_ENABLED, 22 + 16 + 2, 7 + 4, 4210752, false);
+            if (menu.connectionConfigType().supportsIO()) {
+                // TODO: Test for a signal type -or- adopt input/output as the standard.
+                guiGraphics.drawString(this.font, ConduitLang.CONDUIT_INSERT, 22 + 16 + 2, 7 + 4, 4210752, false);
+                guiGraphics.drawString(this.font, ConduitLang.CONDUIT_EXTRACT, 112 + 16 + 2, 7 + 4, 4210752, false);
+
+                //            guiGraphics.drawString(this.font, ConduitLang.CONDUIT_INPUT, 22 + 16 + 2, 7 + 4, 4210752, false);
+                //            guiGraphics.drawString(this.font, ConduitLang.CONDUIT_OUTPUT, 112 + 16 + 2, 7 + 4, 4210752, false);
+            } else {
+                guiGraphics.drawString(this.font, ConduitLang.CONDUIT_ENABLED, 22 + 16 + 2, 7 + 4, 4210752, false);
+            }
+        }
+    }
+
+//    private <T extends Conduit<T, U>, U extends ConnectionConfig> ConduitScreenHelper<U> createHelper() {
+//
+//    }
+
+    // Due to the generics, the menu data access and screen type need to be contained here.
+    private class ConduitScreenTypeContainer<U extends ConnectionConfig> {
+        private final ConduitMenuDataAccess<U> dataAccess;
+
+        @Nullable
+        private final ConduitScreenType<U> screenType;
+
+        public ConduitScreenTypeContainer(Conduit<?, U> conduit) {
+            this.dataAccess = createDataAccess(conduit);
+            this.screenType = ConduitScreenTypes.get(conduit.type());
+        }
+
+        public boolean hasScreenType() {
+            return screenType != null;
+        }
+
+        public void addWidgets(ScreenHelper screenHelper) {
+            if (screenType != null) {
+                screenType.createWidgets(screenHelper, dataAccess);
+            }
+        }
+
+        public void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+            if (screenType != null) {
+                screenType.renderLabels(guiGraphics, font, mouseX, mouseY);
+            }
+        }
+
+        private <T extends Conduit<T, U>, U extends ConnectionConfig> ConduitMenuDataAccess<U> createDataAccess(Conduit<T, U> conduit) {
+            return new ConduitMenuDataAccess<>() {
+                @Override
+                public U getConnectionConfig() {
+                    return menu.connectionConfig(conduit.connectionConfigType());
+                }
+
+                @Override
+                public void updateConnectionConfig(java.util.function.Function<U, U> configModifier) {
+                    var newConfig = configModifier.apply(menu.connectionConfig(conduit.connectionConfigType()));
+
+                    PacketDistributor.sendToServer(new SetConduitConnectionConfigPacket(menu.containerId, newConfig));
+
+                    // Update on the client so UI is immediately in sync
+                    menu.setConnectionConfig(newConfig);
+                }
+
+                @Override
+                public CompoundTag getClientDataTag() {
+                    return menu.getClientDataTag();
+                }
+            };
+        }
+    }
+
+    private class ScreenHelper implements ConduitScreenHelper {
+
+        @Override
+        public int getAreaLeft() {
+            return getGuiLeft() + 22;
+        }
+
+        @Override
+        public int getAreaTop() {
+            return getGuiTop() + 7;
+        }
+
+        @Override
+        public int getUsableWidth() {
+            // TODO
+            return 0;
+        }
+
+        @Override
+        public int getUsableHeight() {
+            // TODO
+            return 0;
+        }
+
+        // TODO: would be cool to make these relative?
+
+        @Override
+        public AbstractWidget addCheckbox(int x, int y, Supplier<Boolean> getter, Consumer<Boolean> setter) {
+            var widget = ToggleIconButton.createCheckbox(getAreaLeft() + x, getAreaTop() + y, getter, setter);
+            addRenderableWidget(widget);
+            return widget;
+        }
+
+        @Override
+        public AbstractWidget addColorPicker(int x, int y, Component title, Supplier<DyeColor> getter, Consumer<DyeColor> setter) {
+            var widget = new DyeColorPickerWidget(getAreaLeft() + x, getAreaTop() + y, getter, setter, title);
+            addRenderableWidget(widget);
+            return widget;
+        }
+
+        @Override
+        public AbstractWidget addRedstoneControlPicker(int x, int y, Component title, Supplier<RedstoneControl> getter, Consumer<RedstoneControl> setter) {
+            var widget = new RedstoneControlPickerWidget(getAreaLeft() + x, getAreaTop() + y, getter, setter, title);
+            addRenderableWidget(widget);
+            return widget;
+        }
+
+        // Dynamic UI utilities
+
+        @Override
+        public void addPreRenderAction(Runnable runnable) {
+            preRenderActions.add(runnable);
+        }
+
+        // Custom widgets
+
+        @Override
+        public <W extends GuiEventListener & NarratableEntry> W addWidget(W listener) {
+            return NewConduitScreen.this.addWidget(listener);
+        }
+
+        @Override
+        public <W extends Renderable> W addRenderableOnly(W renderable) {
+            return NewConduitScreen.this.addRenderableOnly(renderable);
+        }
+
+        @Override
+        public <W extends GuiEventListener & Renderable & NarratableEntry> W addRenderableWidget(W widget) {
+            return NewConduitScreen.this.addRenderableWidget(widget);
+        }
+
+        @Override
+        public void removeWidget(GuiEventListener listener) {
+            NewConduitScreen.this.removeWidget(listener);
         }
     }
 }

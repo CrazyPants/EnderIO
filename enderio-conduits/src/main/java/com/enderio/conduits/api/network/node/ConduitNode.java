@@ -5,6 +5,7 @@ import com.enderio.conduits.api.connection.config.ConnectionConfigAccessor;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
 public interface ConduitNode extends NodeDataAccessor, ConnectionConfigAccessor {
@@ -29,6 +30,13 @@ public interface ConduitNode extends NodeDataAccessor, ConnectionConfigAccessor 
      * @return whether this node's bundle is loaded and ticking in the world
      */
     boolean isLoaded();
+
+    /**
+     * Check whether there is a redstone signal to this node's bundle.
+     * @param channelColor
+     * @return
+     */
+    boolean hasRedstoneSignal(@Nullable DyeColor channelColor);
 
     /**
      * Mark the node as dirty, causing the owning bundle to save and sync.

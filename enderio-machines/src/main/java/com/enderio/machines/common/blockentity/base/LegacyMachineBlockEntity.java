@@ -38,6 +38,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -535,7 +536,8 @@ public abstract class LegacyMachineBlockEntity extends EnderBlockEntity
 
     @EnsureSide(EnsureSide.Side.CLIENT)
     @Override
-    public ItemInteractionResult onWrenched(@Nullable Player player, @Nullable Direction side) {
+    public ItemInteractionResult onWrenched(UseOnContext context) {
+        var player = context.getPlayer();
         if (player == null || level == null) {
             return ItemInteractionResult.SUCCESS;
         }
@@ -561,8 +563,8 @@ public abstract class LegacyMachineBlockEntity extends EnderBlockEntity
         } else {
             // Cycle side config
             if (level.isClientSide()) {
-                if (side != null && isIOConfigMutable()) {
-                    cycleIOMode(side);
+                if (isIOConfigMutable()) {
+                    cycleIOMode(context.getClickedFace());
                 }
             }
         }

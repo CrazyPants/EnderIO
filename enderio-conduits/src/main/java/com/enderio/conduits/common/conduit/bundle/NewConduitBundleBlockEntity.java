@@ -1,8 +1,10 @@
 package com.enderio.conduits.common.conduit.bundle;
 
+import com.enderio.base.common.blockentity.Wrenchable;
 import com.enderio.conduits.ConduitNBTKeys;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
+import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.ConduitInventory;
 import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.bundle.ConduitBundleAccessor;
@@ -15,7 +17,6 @@ import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.common.conduit.ConduitSavedData;
 import com.enderio.conduits.common.conduit.ConduitSorter;
 import com.enderio.conduits.api.bundle.AddConduitResult;
-import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.conduit.connection.ConnectionState;
 import com.enderio.conduits.common.conduit.connection.DynamicConnectionState;
 import com.enderio.conduits.common.conduit.connection.StaticConnectionStates;
@@ -26,6 +27,7 @@ import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphUtility;
 import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
+import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.blockentity.EnderBlockEntity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -59,12 +61,16 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -74,10 +80,9 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
-public final class NewConduitBundleBlockEntity extends EnderBlockEntity implements ConduitBundleAccessor, Clearable {
+public final class NewConduitBundleBlockEntity extends EnderBlockEntity implements ConduitBundleAccessor, Clearable, Wrenchable, NewConduitMenu.ConnectionAccessor {
 
     public static final int MAX_CONDUITS = 9;
 
@@ -105,7 +110,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
     private boolean hasDirtyNodes = false;
 
     // Deferred connection check
-    private ConduitBundleBlockEntity.UpdateState checkConnection = ConduitBundleBlockEntity.UpdateState.NONE;
+    private UpdateState checkConnection = UpdateState.NONE;
 
     public NewConduitBundleBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(ConduitBlockEntities.CONDUIT.get(), worldPosition, blockState);
@@ -128,7 +133,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
                 updateConnections(level, getBlockPos(), null, false);
             }
 
-            if (this.level.getGameTime() % 5 == 0) {
+//            if (this.level.getGameTime() % 5 == 0) {
                 if (hasDirtyNodes) {
                     // This is for sending updates to clients when the nodes are dirty
                     // as such we only fire a block update
@@ -137,7 +142,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
                     setChanged();
                     hasDirtyNodes = false;
                 }
-            }
+//            }
         }
     }
 
@@ -146,6 +151,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         super.onLoad();
 
         updateShape();
+        updateNeighborRedstone();
 
         if (level instanceof ServerLevel serverLevel) {
             // Fire on-created events
@@ -216,8 +222,6 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     // region Menu
 
-    // TODO
-
     public boolean canBeOrIsConnection(Direction side, Holder<Conduit<?, ?>> conduit) {
         if (level == null) {
             return false;
@@ -242,6 +246,74 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         return new ConduitMenuProvider(side, conduit);
     }
 
+    @Override
+    public ItemInteractionResult onWrenched(UseOnContext context) {
+        if (level == null) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
+        // Get hit conduit
+        var side = context.getClickedFace();
+        var conduit = shape.getConduit(context.getClickedPos(), context.getHitResult());
+        if (conduit == null) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
+        var player = context.getPlayer();
+        if (player != null && player.isSteppingCarefully()) {
+            removeConduit(conduit, player);
+            if (isEmpty()) {
+                level.setBlock(getBlockPos(), getBlockState().getFluidState().createLegacyBlock(),
+                    level.isClientSide ? Block.UPDATE_ALL_IMMEDIATE : Block.UPDATE_ALL);
+            }
+
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
+
+        // Get connection
+        var conduitConnection = shape.getConnectionFromHit(context.getClickedPos(), context.getHitResult());
+        if (conduitConnection != null) {
+
+            // Disable the connection
+            setConnectionStatus(conduitConnection.getFirst(), conduitConnection.getSecond(), ConnectionStatus.DISABLED);
+            onConnectionsUpdated(conduitConnection.getSecond());
+
+            // If we were connected to another bundle, we need to sever the graph
+            if (level.getBlockEntity(getBlockPos().relative(conduitConnection.getFirst())) instanceof NewConduitBundleBlockEntity neighborBundle) {
+                neighborBundle.setConnectionStatus(conduitConnection.getFirst().getOpposite(), conduitConnection.getSecond(), ConnectionStatus.DISABLED);
+                neighborBundle.onConnectionsUpdated(conduitConnection.getSecond());
+
+                if (level instanceof ServerLevel serverLevel) {
+                    ConduitGraphObject thisNode = getConduitNode(conduitConnection.getSecond());
+                    ConduitGraphObject otherNode = neighborBundle.getConduitNode(conduitConnection.getSecond());
+
+                    if (thisNode.getGraph() != null && otherNode.getGraph() != null) {
+                        if (thisNode.getGraph() == otherNode.getGraph()) {
+                            thisNode.getGraph().removeSingleEdge(thisNode, otherNode);
+                            thisNode.getGraph().removeSingleEdge(otherNode, thisNode);
+                        }
+
+                        ConduitSavedData.addPotentialGraph(conduitConnection.getSecond(), thisNode.getGraph(), serverLevel);
+                        ConduitSavedData.addPotentialGraph(conduitConnection.getSecond(), otherNode.getGraph(), serverLevel);
+                    } else {
+                        // TODO: Warn, this is a bad place to be.
+                    }
+                }
+            }
+
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
+
+        // Attempt to make a new forced connection
+        var status = getConnectionStatus(side, conduit);
+        if (!status.isConnected()) {
+            tryConnectTo(side, conduit, true);
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
+
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
     private class ConduitMenuProvider implements MenuProvider {
 
         private final Direction side;
@@ -261,6 +333,49 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
             return new NewConduitMenu(containerId, inventory, NewConduitBundleBlockEntity.this, side, conduit);
         }
+    }
+
+    // endregion
+
+    // region Redstone Cache
+
+    private boolean hasRedstoneSignal;
+
+    public void updateNeighborRedstone() {
+        if (level == null) {
+            hasRedstoneSignal = false;
+        } else {
+            hasRedstoneSignal = level.hasNeighborSignal(getBlockPos());
+        }
+    }
+
+    private boolean hasRedstoneSignal(@Nullable DyeColor signalColor) {
+        if (hasRedstoneSignal) {
+            return true;
+        }
+
+        // If we have no signal color, do not attempt to query a redstone conduit
+        if (signalColor == null) {
+            return false;
+        }
+
+        var redstoneConduit = getConduitByType(ConduitTypes.REDSTONE.get());
+        if (redstoneConduit == null) {
+            return false;
+        }
+
+        var conduitNode = getConduitNode(redstoneConduit);
+        var network = conduitNode.getNetwork();
+        if (network == null) {
+            return false;
+        }
+
+        var context = network.getContext(ConduitTypes.ContextTypes.REDSTONE.get());
+        if (context == null) {
+            return false;
+        }
+
+        return context.isActive(signalColor);
     }
 
     // endregion
@@ -308,6 +423,11 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
     @Override
     public boolean hasConduitByType(Holder<Conduit<?, ?>> conduit) {
         return conduits.stream().anyMatch(c -> c.value().canConnectToConduit(conduit));
+    }
+
+    @Nullable
+    public Holder<Conduit<?, ?>> getConduitByType(ConduitType<?> conduitType) {
+        return conduits.stream().filter(c -> c.value().type() == conduitType).findFirst().orElse(null);
     }
 
     @Override
@@ -362,6 +482,11 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
             return true;
         }
 
+        // If there are no replacement opportunities, we cannot have a conduit of this type.
+        if (hasConduitByType(conduit)) {
+            return false;
+        }
+
         return isConduitCompatibleWithExisting(conduit);
     }
 
@@ -409,6 +534,11 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
             result = new AddConduitResult.Upgrade(replacementCandidate.get());
         } else {
+            // If there are no replacement opportunities, we cannot have a conduit of this type.
+            if (hasConduitByType(conduit)) {
+                return new AddConduitResult.Blocked();
+            }
+
             // Ensure there are no incompatible conduits.
             if (!isConduitCompatibleWithExisting(conduit)) {
                 return new AddConduitResult.Blocked();
@@ -529,22 +659,27 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
      */
     public void removeNeighborConnections(Holder<Conduit<?, ?>> conduit) {
         for (Direction dir : Direction.values()) {
-            if (level.getBlockEntity(
-                    getBlockPos().relative(dir)) instanceof NewConduitBundleBlockEntity neighborBlockEntity) {
-                neighborBlockEntity.disconnect(dir.getOpposite(), conduit);
-            }
+            removeNeighborConnection(dir, conduit);
+        }
+    }
+
+    private void removeNeighborConnection(Direction side, Holder<Conduit<?, ?>> conduit) {
+        if (level == null) {
+            return;
         }
 
+        if (!(level.getBlockEntity(getBlockPos().relative(side)) instanceof NewConduitBundleBlockEntity neighborBundle)) {
+            return;
+        }
+
+        neighborBundle.disconnect(side.getOpposite(), conduit);
+
         if (level instanceof ServerLevel serverLevel) {
-            for (Direction dir : Direction.values()) {
-                BlockEntity blockEntity = level.getBlockEntity(getBlockPos().relative(dir));
-                if (blockEntity instanceof NewConduitBundleBlockEntity neighborBlockEntity
-                        && neighborBlockEntity.hasConduitByType(conduit)) {
-                    Optional.of(neighborBlockEntity.getConduitNode(conduit))
-                            .map(ConduitGraphObject::getGraph)
-                            .filter(Objects::nonNull)
-                            .ifPresent(graph -> ConduitSavedData.addPotentialGraph(conduit, graph, serverLevel));
-                }
+            if (neighborBundle.hasConduitByType(conduit)) {
+                Optional.of(neighborBundle.getConduitNode(conduit))
+                    .map(ConduitGraphObject::getGraph)
+                    .filter(Objects::nonNull)
+                    .ifPresent(graph -> ConduitSavedData.addPotentialGraph(conduit, graph, serverLevel));
             }
         }
     }
@@ -630,8 +765,6 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         bundleChanged();
     }
 
-    // Intended for use by the menu, might need a better interface?
-    @EnsureSide(EnsureSide.Side.SERVER)
     public void setConnectionStatus(Direction side, Holder<Conduit<?, ?>> conduit, ConnectionStatus status) {
         if (!hasConduitStrict(conduit)) {
             throw new IllegalArgumentException("Conduit is not present in this bundle.");
@@ -1313,7 +1446,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
         @Override
         public void setConnectionConfig(Direction side, ConnectionConfig connectionConfig) {
-            throw new NotImplementedException();
+            conduitBundle.setConnectionConfig(side, conduit, connectionConfig);
         }
 
         @Override
@@ -1329,6 +1462,31 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         @Override
         public boolean isLoaded() {
             return conduitBundle.level != null && conduitBundle.level.isLoaded(pos()) && conduitBundle.level.shouldTickBlocksAt(pos());
+        }
+
+        @Override
+        public boolean hasRedstoneSignal(@Nullable DyeColor signalColor) {
+            return conduitBundle.hasRedstoneSignal(signalColor);
+        }
+    }
+
+    public enum UpdateState {
+        NONE, NEXT_NEXT, NEXT, INITIALIZED;
+
+        public boolean isInitialized() {
+            return this == INITIALIZED;
+        }
+
+        public UpdateState next() {
+            return switch (this) {
+                case NONE, INITIALIZED -> NONE;
+                case NEXT_NEXT -> NEXT;
+                case NEXT -> INITIALIZED;
+            };
+        }
+
+        public UpdateState activate() {
+            return NEXT_NEXT;
         }
     }
 

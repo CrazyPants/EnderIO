@@ -6,6 +6,8 @@ import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.world.item.DyeColor;
+import org.jetbrains.annotations.Nullable;
 
 // TODO: Did the interface for now but honestly maybe this should just be an object because its not API public.
 public interface ConduitConnectionHost {
@@ -17,4 +19,6 @@ public interface ConduitConnectionHost {
     ConduitInventory inventory();
     void onNodeDirty();
     boolean isLoaded();
+
+    boolean hasRedstoneSignal(@Nullable DyeColor signalColor);
 }

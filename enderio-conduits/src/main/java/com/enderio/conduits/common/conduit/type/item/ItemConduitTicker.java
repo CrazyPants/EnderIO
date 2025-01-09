@@ -5,8 +5,11 @@ import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.ChannelIOAwareConduitTicker;
+import com.enderio.conduits.api.ticker.NewIOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitTypes;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import net.minecraft.core.Direction;
@@ -19,7 +22,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemConduitTicker extends ChannelIOAwareConduitTicker<ItemConduit, ItemConduitTicker.Connection> {
+public class ItemConduitTicker extends NewIOAwareConduitTicker<ItemConduit, ItemConduitConnectionConfig, ItemConduitTicker.Connection> {
 
     @Override
     protected void tickColoredGraph(ServerLevel level, ItemConduit conduit, List<Connection> inserts, List<Connection> extracts, DyeColor color,
@@ -101,21 +104,26 @@ public class ItemConduitTicker extends ChannelIOAwareConduitTicker<ItemConduit, 
     }
 
     @Override
+    protected void preProcessReceivers(List<Connection> receivers) {
+        receivers.sort(Comparator.comparingInt((Connection n) -> n.config().priority()).reversed());
+    }
+
+    @Override
     @Nullable
     protected Connection createConnection(Level level, ConduitNode node, Direction side) {
         IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, node.getPos().relative(side), side.getOpposite());
         if (itemHandler != null) {
-            return new Connection(node, side, itemHandler);
+            return new Connection(node, side, node.getConnectionConfig(side, ItemConduitConnectionConfig.TYPE), itemHandler);
         }
 
         return null;
     }
 
-    protected static class Connection extends SimpleConnection {
+    protected static class Connection extends SimpleConnection<ItemConduitConnectionConfig> {
         private final IItemHandler itemHandler;
 
-        public Connection(ConduitNode node, Direction side, IItemHandler itemHandler) {
-            super(node, side);
+        public Connection(ConduitNode node, Direction side, ItemConduitConnectionConfig config, IItemHandler itemHandler) {
+            super(node, side, config);
             this.itemHandler = itemHandler;
         }
 

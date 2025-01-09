@@ -10,6 +10,9 @@ import com.enderio.conduits.common.init.ConduitTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 
 public record FluidConduitConnectionConfig(
@@ -35,8 +38,24 @@ public record FluidConduitConnectionConfig(
         ).apply(instance, FluidConduitConnectionConfig::new)
     );
 
+    public static StreamCodec<ByteBuf, FluidConduitConnectionConfig> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.BOOL,
+        FluidConduitConnectionConfig::canInsert,
+        DyeColor.STREAM_CODEC,
+        FluidConduitConnectionConfig::insertChannel,
+        ByteBufCodecs.BOOL,
+        FluidConduitConnectionConfig::canExtract,
+        DyeColor.STREAM_CODEC,
+        FluidConduitConnectionConfig::extractChannel,
+        RedstoneControl.STREAM_CODEC,
+        FluidConduitConnectionConfig::redstoneControl,
+        DyeColor.STREAM_CODEC,
+        FluidConduitConnectionConfig::redstoneChannel,
+        FluidConduitConnectionConfig::new
+    );
+
     public static ConnectionConfigType<FluidConduitConnectionConfig> TYPE = new ConnectionConfigType<>(
-            FluidConduitConnectionConfig.class, CODEC, () -> DEFAULT);
+            FluidConduitConnectionConfig.class, CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {

@@ -3,6 +3,7 @@ package com.enderio.conduits.client.model.conduit.bundle;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
@@ -20,6 +21,10 @@ public record ConduitConnectionRenderState(
     RedstoneControl redstoneControl,
     DyeColor redstoneChannel
 ) {
+
+    public static ConduitConnectionRenderState fake() {
+        return new ConduitConnectionRenderState(false, DyeColor.GREEN, false, DyeColor.GREEN, RedstoneControl.ALWAYS_ACTIVE, DyeColor.RED);
+    }
 
     @EnsureSide(EnsureSide.Side.CLIENT)
     public static ConduitConnectionRenderState of(Holder<Conduit<?, ?>> conduit, ConnectionConfig connectionConfig) {
@@ -43,6 +48,14 @@ public record ConduitConnectionRenderState(
                     outputChannel = conduitModelModifier.getDefaultArrowColor();
                 }
             }
+        } else if (connectionConfig instanceof NewIOConnectionConfig ioConnectionConfig) {
+            // TODO: Tidy the language here.
+            canInput = ioConnectionConfig.isSend();
+            canOutput = ioConnectionConfig.isReceive();
+            inputChannel = ioConnectionConfig.receiveColor();
+            outputChannel = ioConnectionConfig.sendColor();
+
+            // TODO: Need support for the new redstone control system.
         }
 
         RedstoneControl redstoneControl = RedstoneControl.ALWAYS_ACTIVE;

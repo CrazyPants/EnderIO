@@ -31,9 +31,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.SingleThreadedRandomSource;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.IQuadTransformer;
@@ -140,12 +142,34 @@ public class ConduitBundleModel implements IDynamicBakedModel {
                                         color.process(model.getQuads(state, preRotation, rand, extraData, renderType)));
                             }
 
+                            // TODO: Need support for dual-color redstone control.
                             if (connectionState.redstoneControl() == RedstoneControl.ACTIVE_WITH_SIGNAL
                                     || connectionState.redstoneControl() == RedstoneControl.ACTIVE_WITHOUT_SIGNAL) {
                                 quads.addAll(rotationTranslation
                                         .andThen(new ColorQuadTransformer(null, connectionState.redstoneChannel()))
                                         .process(modelOf(CONDUIT_IO_REDSTONE).getQuads(state, preRotation, rand,
                                                 extraData, renderType)));
+
+                                // TODO: Use this to render two redstone signal colours?
+//                                // Shrink the size
+//                                var scale = new Vector3f(1, 0.5f, 1);
+//
+//                                // move into position
+//                                var transformation = new Transformation(new Vector3f(0, 4 / 32f, 0), null, scale, null);
+//                                var transformation1 = new Transformation(new Vector3f(0, 5 / 32f, 0), null, scale, null);
+//
+//                                quads.addAll(QuadTransformers.applying(transformation)
+//                                    .andThen(rotationTranslation)
+//                                    .andThen(new ColorQuadTransformer(null, connectionState.redstoneChannel()))
+//                                    .process(modelOf(CONDUIT_IO_REDSTONE).getQuads(state, preRotation, rand,
+//                                        extraData, renderType)));
+//
+//                                quads.addAll(QuadTransformers.applying(transformation1)
+//                                        .andThen(rotationTranslation)
+////                                        .andThen(QuadTransformers.applying(translateTransformation(normal.mul(-1 / 16f))))
+//                                        .andThen(new ColorQuadTransformer(null, DyeColor.GREEN))
+//                                        .process(modelOf(CONDUIT_IO_REDSTONE).getQuads(state, preRotation, rand,
+//                                                extraData, renderType)));
                             }
                         }
                     }
@@ -268,6 +292,10 @@ public class ConduitBundleModel implements IDynamicBakedModel {
 
     private static Transformation translateTransformation(Vec3i offset) {
         return new Transformation(scale(offset, 3 / 16f), null, null, null);
+    }
+
+    private static Transformation translateTransformation(Vector3f offset) {
+        return new Transformation(offset, null, null, null);
     }
 
     private static Vector3f scale(Vec3i vector, float scaler) {

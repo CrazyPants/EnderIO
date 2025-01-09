@@ -60,6 +60,7 @@ public class RedstoneConduitTicker extends ChannelIOAwareConduitTicker<RedstoneC
             }
         }
 
+        // TODO: This would be slow as heck. Need to optimise this
         for (SimpleConnection insert : inserts) {
             level.neighborChanged(insert.neighborPos(), ConduitBlocks.CONDUIT.get(), insert.pos());
         }

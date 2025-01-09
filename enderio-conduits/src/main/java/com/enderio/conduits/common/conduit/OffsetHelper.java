@@ -113,23 +113,6 @@ public class OffsetHelper {
         };
     }
 
-    @Deprecated
-    public static Direction.Axis findMainAxis(ConduitBundle bundle) {
-        List<Direction> connectedDirs = new ArrayList<>();
-        for (Direction dir : Direction.values()) {
-            if (!bundle.getConnectedConduits(dir).isEmpty()) {
-                connectedDirs.add(dir);
-            }
-        }
-
-        if (connectedDirs.isEmpty()) {
-            return Direction.Axis.Z;
-        }
-
-        // get Last as MainAxis, because those are the horizontal ones
-        return connectedDirs.get(connectedDirs.size() - 1).getAxis();
-    }
-
     public static Direction.Axis findMainAxis(ConduitBundleReader bundle) {
         List<Direction> connectedDirs = new ArrayList<>();
         for (Direction dir : Direction.values()) {

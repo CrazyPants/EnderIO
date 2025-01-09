@@ -2,8 +2,9 @@ package com.enderio.conduits.client;
 
 import com.enderio.base.common.init.EIODataComponents;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
-import com.enderio.conduits.common.conduit.block.ConduitBundleBlockEntity;
 import java.util.Optional;
+
+import com.enderio.conduits.common.conduit.bundle.NewConduitBundleBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
@@ -25,16 +26,18 @@ public class ConduitFacadeColor implements BlockColor, ItemColor {
         tintIndex = unmoveTintIndex(tintIndex);
         if (level != null && pos != null) {
             BlockEntity entity = level.getBlockEntity(pos);
-            if (entity instanceof ConduitBundleBlockEntity conduitBundleBlock) {
+            if (entity instanceof NewConduitBundleBlockEntity conduitBundleBlock) {
 
-                Optional<Block> facade = conduitBundleBlock.getBundle().facade();
+                if (conduitBundleBlock.hasFacade()) {
+                    var facade = conduitBundleBlock.getFacadeBlock();
 
-                if (facade.isPresent() && FacadeHelper.areFacadesVisible()) {
-                    int color = Minecraft.getInstance()
+                    if (FacadeHelper.areFacadesVisible()) {
+                        int color = Minecraft.getInstance()
                             .getBlockColors()
-                            .getColor(facade.get().defaultBlockState(), level, pos, tintIndex);
-                    if (color != -1) {
-                        return color;
+                            .getColor(facade.defaultBlockState(), level, pos, tintIndex);
+                        if (color != -1) {
+                            return color;
+                        }
                     }
                 }
             }

@@ -6,6 +6,7 @@ import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
+import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
@@ -129,8 +130,8 @@ public record ItemConduit(
                 var currentConfig = node.getConnectionConfig(side, ItemConduitConnectionConfig.TYPE);
 
                 node.setConnectionConfig(side, currentConfig
-                    .withRoundRobin(oldSideConfig.isRoundRobin)
-                    .withSelfFeed(oldSideConfig.isSelfFeed)
+                    .withIsRoundRobin(oldSideConfig.isRoundRobin)
+                    .withIsSelfFeed(oldSideConfig.isSelfFeed)
                     .withPriority(oldSideConfig.priority));
             }
         }

@@ -29,10 +29,6 @@ public class YetaWrenchItem extends Item {
         Level level = pContext.getLevel();
         BlockPos pos = pContext.getClickedPos();
 
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof Wrenchable wrenchable) {
-            return wrenchable.onWrenched(pContext.getPlayer(), pContext.getClickedFace()).result();
-        }
-
         // Check for side config capability
         SideConfig sideConfig = level.getCapability(EIOCapabilities.SideConfig.BLOCK, pos, pContext.getClickedFace());
         if (sideConfig != null) {

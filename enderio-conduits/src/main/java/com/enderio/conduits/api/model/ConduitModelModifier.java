@@ -1,6 +1,7 @@
 package com.enderio.conduits.api.model;
 
 import com.enderio.conduits.api.Conduit;
+import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -19,8 +20,13 @@ public interface ConduitModelModifier {
      * Used when the connection config does not support coloured connections.
      * @return the colour to render arrows if not specified by the connection config.
      */
+    @Deprecated(forRemoval = true)
     default DyeColor getDefaultArrowColor() {
         return DyeColor.GREEN;
+    }
+
+    default boolean shouldShowFakeConnection(ConduitBundleReader reader, Direction side) {
+        return false;
     }
 
     /**

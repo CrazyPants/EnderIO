@@ -1,11 +1,9 @@
 package com.enderio.conduits.api.ticker;
 
 import com.enderio.base.api.filter.ResourceFilter;
-import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
-import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
+import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.google.common.collect.ArrayListMultimap;
@@ -25,15 +23,16 @@ import java.util.List;
  * This will check {@link ConduitNode#isActive(Direction)} for extraction connections to ensure it has a redstone signal.
  *
  * @param <T> The conduit type
- * @param <U> The type of connection for the ticker implementation
+ * @param <V> The type of connection for the ticker implementation
  */
-public abstract class ChannelIOAwareConduitTicker<T extends Conduit<T, ? extends ChanneledIOConnectionConfig>, U extends ChannelIOAwareConduitTicker.SimpleConnection>
+public abstract class NewIOAwareConduitTicker<T extends Conduit<T, U>, U extends NewIOConnectionConfig, V extends NewIOAwareConduitTicker.SimpleConnection<U>>
     implements ConduitTicker<T> {
 
     @Override
     public void tickGraph(ServerLevel level, T conduit, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
-        ListMultimap<DyeColor, U> extracts = ArrayListMultimap.create();
-        ListMultimap<DyeColor, U> inserts = ArrayListMultimap.create();
+        ListMultimap<DyeColor, V> senders = ArrayListMultimap.create();
+        ListMultimap<DyeColor, V> receivers = ArrayListMultimap.create();
+
         for (ConduitNode node : graph.getNodes()) {
             // Ensure the node is loaded
             if (!node.isLoaded()) {
@@ -44,17 +43,17 @@ public abstract class ChannelIOAwareConduitTicker<T extends Conduit<T, ? extends
                 if (node.isConnectedTo(side)) {
                     var config = node.getConnectionConfig(side, conduit.connectionConfigType());
 
-                    if (config.canExtract()) {
+                    if (config.canSend(node::hasRedstoneSignal)) {
                         var connection = createConnection(level, node, side);
                         if (connection != null) {
-                            extracts.get(config.extractChannel()).add(connection);
+                            senders.get(config.sendColor()).add(connection);
                         }
                     }
 
-                    if (config.canInsert()) {
+                    if (config.canReceive(node::hasRedstoneSignal)) {
                         var connection = createConnection(level, node, side);
                         if (connection != null) {
-                            inserts.get(config.extractChannel()).add(connection);
+                            receivers.get(config.receiveColor()).add(connection);
                         }
                     }
                 }
@@ -62,39 +61,45 @@ public abstract class ChannelIOAwareConduitTicker<T extends Conduit<T, ? extends
         }
 
         for (DyeColor color : DyeColor.values()) {
-            List<U> extractList = extracts.get(color);
-            List<U> insertList = inserts.get(color);
-            if (shouldSkipColor(extractList, insertList)) {
+            List<V> colorSenders = senders.get(color);
+            List<V> colorReceivers = receivers.get(color);
+            if (shouldSkipColor(colorSenders, colorReceivers)) {
                 continue;
             }
 
-            tickColoredGraph(level, conduit, insertList, extractList, color, graph, coloredRedstoneProvider);
+            tickColoredGraph(level, conduit, colorSenders, colorReceivers, color, graph, coloredRedstoneProvider);
         }
     }
 
-    protected boolean shouldSkipColor(List<U> extractList, List<U> insertList) {
-        return extractList.isEmpty() || insertList.isEmpty();
+    protected boolean shouldSkipColor(List<V> senders, List<V> receivers) {
+        return senders.isEmpty() || receivers.isEmpty();
+    }
+
+    protected void preProcessReceivers(List<V> receivers) {
+        // Could implement a pre-sort here.
     }
 
     @Nullable
-    protected abstract U createConnection(Level level, ConduitNode node, Direction side);
+    protected abstract V createConnection(Level level, ConduitNode node, Direction side);
 
     protected abstract void tickColoredGraph(
         ServerLevel level,
         T conduit,
-        List<U> inserts,
-        List<U> extracts,
+        List<V> inserts,
+        List<V> extracts,
         DyeColor color,
         ConduitNetwork graph,
         ColoredRedstoneProvider coloredRedstoneProvider);
 
-    public static class SimpleConnection {
+    public static class SimpleConnection<T extends NewIOConnectionConfig> {
         private final ConduitNode node;
         private final Direction side;
+        private final T config;
 
-        public SimpleConnection(ConduitNode node, Direction side) {
+        public SimpleConnection(ConduitNode node, Direction side, T config) {
             this.node = node;
             this.side = side;
+            this.config = config;
         }
 
         public ConduitNode node() {
@@ -107,6 +112,10 @@ public abstract class ChannelIOAwareConduitTicker<T extends Conduit<T, ? extends
 
         public Direction side() {
             return side;
+        }
+
+        public T config() {
+            return config;
         }
 
         public BlockPos neighborPos() {

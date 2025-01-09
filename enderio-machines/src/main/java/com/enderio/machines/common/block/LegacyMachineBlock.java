@@ -108,13 +108,6 @@ public class LegacyMachineBlock extends BaseEntityBlock {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        if (!level.isClientSide && stack.is(EIOTags.Items.WRENCH)) {
-            var res = machineBlockEntity.onWrenched(player, hit.getDirection());
-            if (res != ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
-                return res;
-            }
-        }
-
         var result = machineBlockEntity.onBlockEntityUsed(state, level, pos, player, interactionHand, hit);
         if (result != ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
             return result;

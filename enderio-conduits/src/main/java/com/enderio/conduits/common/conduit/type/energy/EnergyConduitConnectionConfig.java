@@ -8,6 +8,9 @@ import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledCon
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 
 public record EnergyConduitConnectionConfig(
@@ -28,8 +31,20 @@ public record EnergyConduitConnectionConfig(
         ).apply(instance, EnergyConduitConnectionConfig::new)
     );
 
+    public static StreamCodec<ByteBuf, EnergyConduitConnectionConfig> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.BOOL,
+        EnergyConduitConnectionConfig::canInsert,
+        ByteBufCodecs.BOOL,
+        EnergyConduitConnectionConfig::canExtract,
+        RedstoneControl.STREAM_CODEC,
+        EnergyConduitConnectionConfig::redstoneControl,
+        DyeColor.STREAM_CODEC,
+        EnergyConduitConnectionConfig::redstoneChannel,
+        EnergyConduitConnectionConfig::new
+    );
+
     public static final ConnectionConfigType<EnergyConduitConnectionConfig> TYPE =
-        new ConnectionConfigType<>(EnergyConduitConnectionConfig.class, CODEC, () -> DEFAULT);
+        new ConnectionConfigType<>(EnergyConduitConnectionConfig.class, CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {

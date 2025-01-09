@@ -4,7 +4,9 @@ import com.enderio.conduits.EnderIOConduits;
 import com.enderio.conduits.common.network.connections.C2SSetConduitChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneControlPacket;
+import com.enderio.conduits.common.network.connections.SetConduitConnectionConfigPacket;
 import com.enderio.core.EnderCore;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -19,12 +21,6 @@ public class ConduitNetwork {
         final PayloadRegistrar registrar = event
             .registrar(EnderCore.MOD_ID)
             .versioned(PROTOCOL_VERSION);
-
-        registrar.playToServer(C2SSetConduitConnectionState.TYPE, C2SSetConduitConnectionState.STREAM_CODEC,
-            ConduitServerPayloadHandler.getInstance()::handleConduitConnectionState);
-
-        registrar.playToServer(C2SSetConduitExtendedData.TYPE, C2SSetConduitExtendedData.STREAM_CODEC,
-            ConduitServerPayloadHandler.getInstance()::handleConduitExtendedData);
 
         registrar.playToServer(ConduitMenuSelectionPacket.TYPE, ConduitMenuSelectionPacket.STREAM_CODEC,
             ConduitServerPayloadHandler.getInstance()::handleConduitMenuSelection);
@@ -46,6 +42,9 @@ public class ConduitNetwork {
 
         registrar.playToServer(C2SSetConduitRedstoneChannelPacket.TYPE, C2SSetConduitRedstoneChannelPacket.STREAM_CODEC,
             ConduitServerPayloadHandler.getInstance()::handleSetConduitRedstoneChannelPacket);
+
+        registrar.playBidirectional(SetConduitConnectionConfigPacket.TYPE, SetConduitConnectionConfigPacket.STREAM_CODEC,
+            ConduitCommonPayloadHandler.getInstance()::handle);
     }
 
 }

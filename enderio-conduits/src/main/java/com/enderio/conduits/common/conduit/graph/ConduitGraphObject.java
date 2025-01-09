@@ -1,9 +1,11 @@
 package com.enderio.conduits.common.conduit.graph;
 
 import com.enderio.base.api.filter.ResourceFilter;
+import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.base.common.init.EIOCapabilities;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.enderio.conduits.api.network.node.NodeData;
 import com.enderio.conduits.api.network.node.NodeDataType;
 import com.enderio.conduits.api.network.ConduitNetwork;
@@ -20,6 +22,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
 public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, ConduitNode {
@@ -249,6 +252,15 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
         }
 
         return connectionHost.isLoaded();
+    }
+
+    @Override
+    public boolean hasRedstoneSignal(@Nullable DyeColor signalColor) {
+        if (!isLoaded()) {
+            throw new IllegalStateException("Unable to query redstone signals when the node is not loaded.");
+        }
+
+        return connectionHost.hasRedstoneSignal(signalColor);
     }
 
     @Override

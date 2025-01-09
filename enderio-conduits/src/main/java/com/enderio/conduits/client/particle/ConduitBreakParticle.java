@@ -1,7 +1,7 @@
 package com.enderio.conduits.client.particle;
 
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.common.conduit.ConduitShape;
+import com.enderio.conduits.common.conduit.bundle.NewConduitShape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
@@ -64,7 +64,7 @@ public class ConduitBreakParticle extends TextureSheetParticle {
     public static void addDestroyEffects(BlockPos pos, Conduit<?, ?> conduit) {
         Level level = Minecraft.getInstance().level;
         ParticleEngine engine = Minecraft.getInstance().particleEngine;
-        List<AABB> boxes = ConduitShape.CONNECTION.toAabbs();
+        List<AABB> boxes = NewConduitShape.CONNECTION.toAabbs();
         double countMult = 1D / boxes.size();
         boxes.forEach(aabb -> {
             double sizeX = Math.min(1D, aabb.maxX - aabb.minX);

@@ -11,6 +11,7 @@ import com.enderio.conduits.common.conduit.type.energy.EnergyConduit;
 import com.enderio.conduits.common.conduit.type.energy.EnergyConduitConnectionConfig;
 import com.enderio.conduits.common.conduit.type.energy.EnergyConduitNetworkContext;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduit;
+import com.enderio.conduits.common.conduit.type.fluid.FluidConduitConnectionConfig;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduitData;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduitNetworkContext;
 import com.enderio.conduits.common.conduit.type.item.ItemConduit;
@@ -18,6 +19,7 @@ import com.enderio.conduits.common.conduit.type.item.ItemConduitConnectionConfig
 import com.enderio.conduits.common.conduit.type.item.ItemConduitData;
 import com.enderio.conduits.common.conduit.type.item.ItemConduitNodeData;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduit;
+import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitConnectionConfig;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitData;
 import java.util.function.Supplier;
 
@@ -67,6 +69,12 @@ public class ConduitTypes {
 
         public static final Supplier<ConnectionConfigType<EnergyConduitConnectionConfig>> ENERGY = CONNECTION_TYPES.register("energy",
                 () -> EnergyConduitConnectionConfig.TYPE);
+
+        public static final Supplier<ConnectionConfigType<RedstoneConduitConnectionConfig>> REDSTONE = CONNECTION_TYPES.register("redstone",
+                () -> RedstoneConduitConnectionConfig.TYPE);
+
+        public static final Supplier<ConnectionConfigType<FluidConduitConnectionConfig>> FLUID = CONNECTION_TYPES.register("fluid",
+                () -> FluidConduitConnectionConfig.TYPE);
     }
 
     public static class NodeData {

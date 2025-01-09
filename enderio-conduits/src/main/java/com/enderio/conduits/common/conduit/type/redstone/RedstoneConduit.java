@@ -3,6 +3,7 @@ package com.enderio.conduits.common.conduit.type.redstone;
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
+import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.api.menu.ConduitMenuExtension;

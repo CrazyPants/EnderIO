@@ -1,14 +1,15 @@
 package com.enderio.conduits.common.conduit.type.redstone;
 
-import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
-import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 
 public record RedstoneConduitConnectionConfig(
@@ -29,8 +30,20 @@ public record RedstoneConduitConnectionConfig(
         ).apply(instance, RedstoneConduitConnectionConfig::new)
     );
 
+    public static StreamCodec<ByteBuf, RedstoneConduitConnectionConfig> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.BOOL,
+        RedstoneConduitConnectionConfig::canInsert,
+        DyeColor.STREAM_CODEC,
+        RedstoneConduitConnectionConfig::insertChannel,
+        ByteBufCodecs.BOOL,
+        RedstoneConduitConnectionConfig::canExtract,
+        DyeColor.STREAM_CODEC,
+        RedstoneConduitConnectionConfig::extractChannel,
+        RedstoneConduitConnectionConfig::new
+    );
+
     public static ConnectionConfigType<RedstoneConduitConnectionConfig> TYPE = new ConnectionConfigType<>(
-            RedstoneConduitConnectionConfig.class, CODEC, () -> DEFAULT);
+            RedstoneConduitConnectionConfig.class, CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {

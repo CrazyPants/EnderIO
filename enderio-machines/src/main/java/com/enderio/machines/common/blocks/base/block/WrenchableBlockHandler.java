@@ -19,8 +19,7 @@ public class WrenchableBlockHandler {
         }
 
         if (level.getBlockEntity(event.getPos()) instanceof Wrenchable blockEntity) {
-            var direction = event.getUseOnContext().getHitResult().getDirection();
-            var result = blockEntity.onWrenched(event.getPlayer(), direction);
+            var result = blockEntity.onWrenched(event.getUseOnContext());
             if (result != ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
                 event.cancelWithResult(result);
             }

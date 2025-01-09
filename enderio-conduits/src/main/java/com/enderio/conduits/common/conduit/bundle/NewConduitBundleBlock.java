@@ -2,14 +2,20 @@ package com.enderio.conduits.common.conduit.bundle;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
+import com.enderio.conduits.api.connection.ConnectionStatus;
+import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.api.bundle.AddConduitResult;
+import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitConnectionConfig;
+import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
 import com.enderio.conduits.common.init.ConduitComponents;
 import java.util.Optional;
 
+import com.enderio.conduits.common.init.ConduitTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -91,6 +97,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        // TODO: Revert these changes for showing individual parts here. do it in ConduitHighlightEvent!
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduit) {
             if (conduit.hasFacade() && FacadeHelper.areFacadesVisible()) {
                 return Shapes.block();
@@ -234,11 +241,14 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             BlockPos neighborPos, boolean movedByPiston) {
 
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduit) {
+            conduit.updateNeighborRedstone();
             conduit.updateConnections(level, pos, neighborPos, true);
-        }
 
-        // Invalidate caps in case of redstone update or something else.
-        level.invalidateCapabilities(pos);
+            // Invalidate caps in case of redstone update or something else.
+            level.invalidateCapabilities(pos);
+
+            // TODO: If redstone conduit, trigger a neighbour update for connections.
+        }
 
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
     }
@@ -400,17 +410,20 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             // TODO: The connection shouldn't include the plate.. if we hit the plate open the first conduit?
             var conduitConnection = conduitBundle.getShape().getConnectionFromHit(pos, hitResult);
 
-            if (conduitConnection != null && conduitBundle.isEndpoint(conduitConnection.getFirst())) {
-                if (player instanceof ServerPlayer serverPlayer) {
-                    serverPlayer.openMenu(conduitBundle.getMenuProvider(conduitConnection.getFirst(), conduitConnection.getSecond()),
-                        buf -> {
-                            buf.writeBlockPos(pos);
-                            buf.writeEnum(conduitConnection.getFirst());
-                            Conduit.STREAM_CODEC.encode(buf, conduitConnection.getSecond());
-                        });
-                }
+            if (conduitConnection != null) {
+                if (conduitBundle.getConnectionStatus(conduitConnection.getFirst(), conduitConnection.getSecond()) == ConnectionStatus.CONNECTED_BLOCK) {
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        serverPlayer.openMenu(conduitBundle.getMenuProvider(conduitConnection.getFirst(), conduitConnection.getSecond()),
+                            buf -> {
+                                buf.writeBlockPos(pos);
+                                buf.writeEnum(conduitConnection.getFirst());
+                                Conduit.STREAM_CODEC.encode(buf, conduitConnection.getSecond());
+                                ConnectionConfig.STREAM_CODEC.encode(buf, conduitBundle.getConnectionConfig(conduitConnection.getFirst(), conduitConnection.getSecond()));
+                            });
+                    }
 
-                return InteractionResult.sidedSuccess(level.isClientSide());
+                    return InteractionResult.sidedSuccess(level.isClientSide());
+                }
             }
         }
 
@@ -535,20 +548,83 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         }
 
         if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
-            // TODO
+            // Get the redstone conduit
+            var redstoneConduit = conduitBundle.getConduitByType(ConduitTypes.REDSTONE.get());
+            if (redstoneConduit == null) {
+                return false;
+            }
+
+            var status = conduitBundle.getConnectionStatus(direction, redstoneConduit);
+            if (status != ConnectionStatus.CONNECTED_BLOCK) {
+                return false;
+            }
+
+            if (!(conduitBundle.getConnectionConfig(direction, redstoneConduit) instanceof RedstoneConduitConnectionConfig config)) {
+                return false;
+            }
+
+            return config.canInsert();
         }
 
-        return super.canConnectRedstone(state, level, pos, direction);
+        return false;
     }
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return super.getSignal(state, level, pos, direction);
+        return getNetworkSignal(level, pos, direction, false);
     }
 
     @Override
     protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return super.getDirectSignal(state, level, pos, direction);
+        return getNetworkSignal(level, pos, direction, true);
+    }
+
+    private int getNetworkSignal(BlockGetter level, BlockPos pos, Direction direction, boolean isDirectSignal) {
+        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+            // TODO: Do we need to have signals on client side? If so we need to put this into the client NBT.
+            if (conduitBundle.getLevel().isClientSide()) {
+                return 0;
+            }
+
+            // Get the redstone conduit
+            var redstoneConduit = conduitBundle.getConduitByType(ConduitTypes.REDSTONE.get());
+            if (redstoneConduit == null) {
+                return 0;
+            }
+
+            var status = conduitBundle.getConnectionStatus(direction.getOpposite(), redstoneConduit);
+            if (status != ConnectionStatus.CONNECTED_BLOCK) {
+                return 0;
+            }
+
+            if (!(conduitBundle.getConnectionConfig(direction.getOpposite(), redstoneConduit) instanceof RedstoneConduitConnectionConfig config)) {
+                return 0;
+            }
+
+            if (!config.canInsert()) {
+                return 0;
+            }
+
+            // TODO: Check for strong signal in config.
+            if (isDirectSignal) {
+                return 0;
+            }
+
+            var node = conduitBundle.getConduitNode(redstoneConduit);
+            var network = node.getNetwork();
+            if (network == null) {
+                return 0;
+            }
+
+            var context = network.getContext(RedstoneConduitNetworkContext.TYPE);
+            if (context == null) {
+                return 0;
+            }
+
+            return context.getSignal(config.insertChannel());
+        }
+
+        return 0;
     }
 
     // endregion
