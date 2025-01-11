@@ -2,7 +2,7 @@ package com.enderio.conduits.common.init;
 
 import com.enderio.conduits.EnderIOConduits;
 import com.enderio.conduits.api.EnderIOConduitsRegistries;
-import com.enderio.conduits.common.conduit.bundle.NewConduitBundleBlockEntity;
+import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
 import com.enderio.regilite.holder.RegiliteBlockEntity;
 import com.enderio.regilite.registry.BlockEntityRegistry;
 import net.neoforged.bus.api.IEventBus;
@@ -15,8 +15,8 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 public class ConduitBlockEntities {
     private static final BlockEntityRegistry BLOCK_ENTITY_REGISTRY = EnderIOConduits.REGILITE.blockEntityRegistry();
 
-    public static final RegiliteBlockEntity<NewConduitBundleBlockEntity> CONDUIT = BLOCK_ENTITY_REGISTRY
-            .registerBlockEntity("conduit", NewConduitBundleBlockEntity::new, ConduitBlocks.CONDUIT);
+    public static final RegiliteBlockEntity<ConduitBundleBlockEntity> CONDUIT = BLOCK_ENTITY_REGISTRY
+            .registerBlockEntity("conduit", ConduitBundleBlockEntity::new, ConduitBlocks.CONDUIT);
 
     @SubscribeEvent
     public static void registerConduitCapabilities(RegisterCapabilitiesEvent event) {
@@ -29,7 +29,7 @@ public class ConduitBlockEntities {
     private static <TCap, TContext> void registerConduitCapability(RegisterCapabilitiesEvent event,
             BlockCapability<TCap, TContext> capability) {
         event.registerBlockEntity(capability, CONDUIT.get(),
-                NewConduitBundleBlockEntity.createCapabilityProvider(capability));
+                ConduitBundleBlockEntity.createCapabilityProvider(capability));
     }
 
     public static void register(IEventBus bus) {

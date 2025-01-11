@@ -16,7 +16,8 @@ public class ConduitScreenTypes {
     @EnsureSide(EnsureSide.Side.CLIENT)
     public static void init() {
         SCREEN_TYPES = Map.of(
-            ConduitTypes.ITEM.get(), new ItemConduitScreenType()
+            ConduitTypes.ITEM.get(), new ItemConduitScreenType(),
+            ConduitTypes.REDSTONE.get(), new RedstoneConduitScreenType()
         );
     }
 

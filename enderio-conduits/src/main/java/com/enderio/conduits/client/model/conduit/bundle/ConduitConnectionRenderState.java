@@ -52,8 +52,8 @@ public record ConduitConnectionRenderState(
             // TODO: Tidy the language here.
             canInput = ioConnectionConfig.isSend();
             canOutput = ioConnectionConfig.isReceive();
-            inputChannel = ioConnectionConfig.receiveColor();
-            outputChannel = ioConnectionConfig.sendColor();
+            inputChannel = ioConnectionConfig.sendColor();
+            outputChannel = ioConnectionConfig.receiveColor();
 
             // TODO: Need support for the new redstone control system.
         }

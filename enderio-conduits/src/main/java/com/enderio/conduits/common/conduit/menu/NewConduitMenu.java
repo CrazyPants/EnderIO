@@ -5,10 +5,8 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
-import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.common.conduit.bundle.NewConduitBundleBlockEntity;
+import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
 import com.enderio.conduits.common.init.ConduitMenus;
 import com.enderio.conduits.common.network.connections.SetConduitConnectionConfigPacket;
@@ -28,12 +26,12 @@ import net.neoforged.neoforge.network.PacketDistributor;
 // This means server menu should get/set connections direct from the BE but the client should have a standalone config store.
 // Need to work out what this means for the client sync tag - it might need to be synced separately to the client from this GUI too.
 // Possibly create an NBT sync slot and then use it for that?
-public class NewConduitMenu extends BaseBlockEntityMenu<NewConduitBundleBlockEntity> {
+public class NewConduitMenu extends BaseBlockEntityMenu<ConduitBundleBlockEntity> {
 
     public static final int BUTTON_TOGGLE_0_ID = 0;
     public static final int BUTTON_TOGGLE_1_ID = 1;
     public static final int BUTTON_SELECT_CONDUIT_START_ID = 2;
-    public static final int BUTTON_SELECT_CONDUIT_ID_COUNT = NewConduitBundleBlockEntity.MAX_CONDUITS;
+    public static final int BUTTON_SELECT_CONDUIT_ID_COUNT = ConduitBundleBlockEntity.MAX_CONDUITS;
 
     private static final int RESERVED_BUTTON_ID_COUNT = BUTTON_SELECT_CONDUIT_START_ID + BUTTON_SELECT_CONDUIT_ID_COUNT + 1;
 
@@ -45,7 +43,7 @@ public class NewConduitMenu extends BaseBlockEntityMenu<NewConduitBundleBlockEnt
     @UseOnly(LogicalSide.SERVER)
     private ConnectionConfig remoteConnectionConfig;
 
-    public NewConduitMenu(int containerId, Inventory playerInventory, NewConduitBundleBlockEntity blockEntity, Direction side, Holder<Conduit<?, ?>> selectedConduit) {
+    public NewConduitMenu(int containerId, Inventory playerInventory, ConduitBundleBlockEntity blockEntity, Direction side, Holder<Conduit<?, ?>> selectedConduit) {
         super(ConduitMenus.CONDUIT_MENU.get(), containerId, playerInventory, blockEntity);
 
         this.side = side;

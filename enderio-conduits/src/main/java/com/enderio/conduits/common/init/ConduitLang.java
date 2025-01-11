@@ -84,6 +84,12 @@ public class ConduitLang {
     public static final Component CONDUIT_OUTPUT = addTranslation("gui", EnderIO.loc("conduit.output"),
             "Output");
 
+    // Redstone Conduit
+    public static final Component CONDUIT_REDSTONE_SIGNAL_COLOR = addTranslation("gui", EnderIO.loc("conduit.redstone.signal_color"),
+            "Signal Color");
+    public static final Component CONDUIT_REDSTONE_STRONG_SIGNAL = addTranslation("gui", EnderIO.loc("conduit.redstone.strong_signal"),
+            "Strong Signal");
+
     public static final MutableComponent TRANSPARENT_FACADE_TOOLTIP = addTranslation("tooltip",
             EnderIO.loc("conduit_facade.transparent"),
             "Transparent: Hides conduits when painted with a translucent block");

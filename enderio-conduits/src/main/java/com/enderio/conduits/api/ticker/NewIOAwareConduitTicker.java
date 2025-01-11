@@ -85,8 +85,8 @@ public abstract class NewIOAwareConduitTicker<T extends Conduit<T, U>, U extends
     protected abstract void tickColoredGraph(
         ServerLevel level,
         T conduit,
-        List<V> inserts,
-        List<V> extracts,
+        List<V> senders,
+        List<V> receivers,
         DyeColor color,
         ConduitNetwork graph,
         ColoredRedstoneProvider coloredRedstoneProvider);

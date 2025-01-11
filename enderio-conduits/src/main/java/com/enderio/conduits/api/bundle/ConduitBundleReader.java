@@ -3,6 +3,7 @@ package com.enderio.conduits.api.bundle;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.api.facade.FacadeType;
 
 import java.util.List;
@@ -88,6 +89,13 @@ public interface ConduitBundleReader {
      * @return
      */
     ConnectionConfig getConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit);
+
+    /**
+     * @param side
+     * @param conduit
+     * @return
+     */
+    <T extends ConnectionConfig> T getConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit, ConnectionConfigType<T> type);
 
     /**
      * An endpoint is a side which has a "connection plate" to another block, rather than to continued line of bundles.

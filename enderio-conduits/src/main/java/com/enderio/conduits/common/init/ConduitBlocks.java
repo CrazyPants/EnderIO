@@ -4,7 +4,7 @@ import com.enderio.base.common.tag.EIOTags;
 import com.enderio.conduits.EnderIOConduits;
 import com.enderio.conduits.client.ConduitFacadeColor;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
-import com.enderio.conduits.common.conduit.bundle.NewConduitBundleBlock;
+import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlock;
 import com.enderio.conduits.data.model.ConduitBlockState;
 import com.enderio.regilite.holder.RegiliteBlock;
 import com.enderio.regilite.registry.BlockRegistry;
@@ -19,8 +19,8 @@ public class ConduitBlocks {
     private static final ItemRegistry ITEM_REGISTRY = EnderIOConduits.REGILITE.itemRegistry();
     private static final BlockRegistry BLOCK_REGISTRY = EnderIOConduits.REGILITE.blockRegistry();
 
-    public static final RegiliteBlock<NewConduitBundleBlock> CONDUIT = BLOCK_REGISTRY
-            .registerBlock("conduit", NewConduitBundleBlock::new,
+    public static final RegiliteBlock<ConduitBundleBlock> CONDUIT = BLOCK_REGISTRY
+            .registerBlock("conduit", ConduitBundleBlock::new,
                     BlockBehaviour.Properties.of()
                             .strength(1.5f, 10)
                             .noLootTable()

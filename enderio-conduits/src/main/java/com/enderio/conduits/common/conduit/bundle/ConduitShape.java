@@ -21,7 +21,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class NewConduitShape {
+public class ConduitShape {
 
     private final Map<Pair<Direction, Holder<Conduit<?, ?>>>, VoxelShape> conduitConnections = new HashMap<>();
     private final Map<Holder<Conduit<?, ?>>, VoxelShape> conduitShapes = new HashMap<>();
@@ -33,7 +33,7 @@ public class NewConduitShape {
     private static final VoxelShape CORE = Block.box(6.5f, 6.5f, 6.5f, 9.5f, 9.5f, 9.5f);
     private VoxelShape totalShape = CORE;
 
-    public NewConduitShape() {
+    public ConduitShape() {
 
     }
 

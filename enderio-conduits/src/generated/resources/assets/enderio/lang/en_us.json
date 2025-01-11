@@ -5,6 +5,8 @@
   "gui.enderio.conduit.input": "Input",
   "gui.enderio.conduit.insert": "Insert",
   "gui.enderio.conduit.output": "Output",
+  "gui.enderio.conduit.redstone.signal_color": "Signal Color",
+  "gui.enderio.conduit.redstone.strong_signal": "Strong Signal",
   "gui.enderio.conduit_channel": "Channel",
   "gui.enderio.fluid_conduit.change_fluid1": "Locked Fluid:",
   "gui.enderio.fluid_conduit.change_fluid2": "Click to reset!",

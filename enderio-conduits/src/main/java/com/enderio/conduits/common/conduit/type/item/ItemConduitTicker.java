@@ -25,10 +25,10 @@ import org.jetbrains.annotations.Nullable;
 public class ItemConduitTicker extends NewIOAwareConduitTicker<ItemConduit, ItemConduitConnectionConfig, ItemConduitTicker.Connection> {
 
     @Override
-    protected void tickColoredGraph(ServerLevel level, ItemConduit conduit, List<Connection> inserts, List<Connection> extracts, DyeColor color,
+    protected void tickColoredGraph(ServerLevel level, ItemConduit conduit, List<Connection> senders, List<Connection> receivers, DyeColor color,
         ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
 
-        toNextExtract: for (Connection extract : extracts) {
+        toNextExtract: for (Connection extract : receivers) {
             ItemConduitNodeData nodeData = extract.node().getOrCreateNodeData(ConduitTypes.NodeData.ITEM.get());
 
             IItemHandler extractHandler = extract.itemHandler();
@@ -53,14 +53,14 @@ public class ItemConduitTicker extends NewIOAwareConduitTicker<ItemConduit, Item
                 int startingIndex = 0;
                 if (connectionConfig.isRoundRobin()) {
                     startingIndex = nodeData.getIndex(extract.side());
-                    if (inserts.size() <= startingIndex) {
+                    if (senders.size() <= startingIndex) {
                         startingIndex = 0;
                     }
                 }
 
-                for (int j = startingIndex; j < startingIndex + inserts.size(); j++) {
-                    int insertIndex = j % inserts.size();
-                    Connection insert = inserts.get(insertIndex);
+                for (int j = startingIndex; j < startingIndex + senders.size(); j++) {
+                    int insertIndex = j % senders.size();
+                    Connection insert = senders.get(insertIndex);
 
                     if (!connectionConfig.isSelfFeed() && extract.side() == insert.side()
                             && extract.node().getPos().equals(insert.node().getPos())) {

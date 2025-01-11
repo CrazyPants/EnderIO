@@ -107,7 +107,7 @@ public record RedstoneConduit(
     @Override
     public RedstoneConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
         RedstoneControl redstoneControl, DyeColor redstoneChannel) {
-        return new RedstoneConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel);
+        return new RedstoneConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel, false);
     }
 
     @Override

@@ -4,12 +4,14 @@ import com.enderio.base.common.blockentity.Wrenchable;
 import com.enderio.conduits.ConduitNBTKeys;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
+import com.enderio.conduits.api.ConduitRedstoneSignalAware;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.ConduitInventory;
 import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.bundle.ConduitBundleAccessor;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.api.facade.FacadeType;
 import com.enderio.conduits.api.network.node.NodeData;
 import com.enderio.conduits.client.model.conduit.bundle.ConduitBundleRenderState;
@@ -26,6 +28,7 @@ import com.enderio.conduits.common.conduit.graph.ConduitGraphContext;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphUtility;
 import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
+import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitConnectionConfig;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.blockentity.EnderBlockEntity;
@@ -68,13 +71,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.capabilities.BlockCapability;
@@ -82,7 +83,7 @@ import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
-public final class NewConduitBundleBlockEntity extends EnderBlockEntity implements ConduitBundleAccessor, Clearable, Wrenchable, NewConduitMenu.ConnectionAccessor {
+public final class ConduitBundleBlockEntity extends EnderBlockEntity implements ConduitBundleAccessor, Clearable, Wrenchable, NewConduitMenu.ConnectionAccessor {
 
     public static final int MAX_CONDUITS = 9;
 
@@ -92,7 +93,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     private Map<Holder<Conduit<?, ?>>, ConnectionContainer> conduitConnections = new HashMap<>();
 
-    private final NewConduitBundleInventory inventory;
+    private final ConduitBundleInventory inventory;
 
     // Map of all conduit nodes for this bundle.
     private final Map<Holder<Conduit<?, ?>>, ConduitGraphObject> conduitNodes = new HashMap<>();
@@ -105,17 +106,17 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
     // The client has no nodes, so we hold the data like this.
     private final Map<Holder<Conduit<?, ?>>, CompoundTag> clientConduitDataTags = new HashMap<>();
 
-    private final NewConduitShape shape = new NewConduitShape();
+    private final ConduitShape shape = new ConduitShape();
 
     private boolean hasDirtyNodes = false;
 
     // Deferred connection check
     private UpdateState checkConnection = UpdateState.NONE;
 
-    public NewConduitBundleBlockEntity(BlockPos worldPosition, BlockState blockState) {
+    public ConduitBundleBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(ConduitBlockEntities.CONDUIT.get(), worldPosition, blockState);
 
-        inventory = new NewConduitBundleInventory(this) {
+        inventory = new ConduitBundleInventory(this) {
             @Override
             protected void onChanged() {
                 setChanged();
@@ -186,6 +187,16 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
     private void bundleChanged() {
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
         level.updateNeighborsAt(getBlockPos(), getBlockState().getBlock());
+
+        // Redstone conduits also need to update the neighbours they point to (for strong connections)
+        // TODO: This could wind up being sub-optimal? Maybe add some more specific hooks for when the config/connections are changed?
+        var redstoneConduit = getConduitByType(ConduitTypes.REDSTONE.get());
+        if (redstoneConduit != null) {
+            for (Direction side : Direction.values()) {
+                level.updateNeighborsAt(getBlockPos().relative(side), getBlockState().getBlock());
+            }
+        }
+
         level.invalidateCapabilities(getBlockPos());
         setChanged();
         updateShape();
@@ -197,7 +208,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     // region Shape and Model
 
-    public NewConduitShape getShape() {
+    public ConduitShape getShape() {
         return shape;
     }
 
@@ -233,7 +244,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         }
 
         // Cannot create a connection to a bundle
-        if (level.getBlockEntity(getBlockPos().relative(side)) instanceof NewConduitBundleBlockEntity) {
+        if (level.getBlockEntity(getBlockPos().relative(side)) instanceof ConduitBundleBlockEntity) {
             return false;
         }
 
@@ -279,7 +290,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
             onConnectionsUpdated(conduitConnection.getSecond());
 
             // If we were connected to another bundle, we need to sever the graph
-            if (level.getBlockEntity(getBlockPos().relative(conduitConnection.getFirst())) instanceof NewConduitBundleBlockEntity neighborBundle) {
+            if (level.getBlockEntity(getBlockPos().relative(conduitConnection.getFirst())) instanceof ConduitBundleBlockEntity neighborBundle) {
                 neighborBundle.setConnectionStatus(conduitConnection.getFirst().getOpposite(), conduitConnection.getSecond(), ConnectionStatus.DISABLED);
                 neighborBundle.onConnectionsUpdated(conduitConnection.getSecond());
 
@@ -331,7 +342,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
         @Override
         public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-            return new NewConduitMenu(containerId, inventory, NewConduitBundleBlockEntity.this, side, conduit);
+            return new NewConduitMenu(containerId, inventory, ConduitBundleBlockEntity.this, side, conduit);
         }
     }
 
@@ -382,7 +393,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     // region Capability Proxies
 
-    public static <TCap, TContext> ICapabilityProvider<NewConduitBundleBlockEntity, TContext, TCap> createCapabilityProvider(
+    public static <TCap, TContext> ICapabilityProvider<ConduitBundleBlockEntity, TContext, TCap> createCapabilityProvider(
             BlockCapability<TCap, TContext> cap) {
         return (be, context) -> {
             for (Holder<Conduit<?, ?>> conduit : be.getConduits()) {
@@ -398,7 +409,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     @Nullable
     private static <TCap, TContext> TCap getProxiedCapability(BlockCapability<TCap, TContext> capability,
-            NewConduitBundleBlockEntity blockEntity, Holder<Conduit<?, ?>> conduit, @Nullable TContext context) {
+            ConduitBundleBlockEntity blockEntity, Holder<Conduit<?, ?>> conduit, @Nullable TContext context) {
 
         if (blockEntity.level == null) {
             return null;
@@ -668,7 +679,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
             return;
         }
 
-        if (!(level.getBlockEntity(getBlockPos().relative(side)) instanceof NewConduitBundleBlockEntity neighborBundle)) {
+        if (!(level.getBlockEntity(getBlockPos().relative(side)) instanceof ConduitBundleBlockEntity neighborBundle)) {
             return;
         }
 
@@ -756,6 +767,17 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
     }
 
     @Override
+    public <T extends ConnectionConfig> T getConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit, ConnectionConfigType<T> type) {
+        var config = conduitConnections.get(conduit).getConfig(side);
+        if (config.type() != type) {
+            throw new IllegalStateException("Connection config type mismatch.");
+        }
+
+        //noinspection unchecked
+        return (T)config;
+    }
+
+    @Override
     public void setConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit, ConnectionConfig config) {
         if (config.type() != conduit.value().connectionConfigType()) {
             throw new IllegalArgumentException("Connection config is not the right type for this conduit.");
@@ -828,7 +850,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         var node = conduitNodes.get(conduit);
 
         if (level.getBlockEntity(
-                getBlockPos().relative(side)) instanceof NewConduitBundleBlockEntity neighbourConduitBundle) {
+                getBlockPos().relative(side)) instanceof ConduitBundleBlockEntity neighbourConduitBundle) {
             // Connect to another bundle which has a compatible conduit.
             if (neighbourConduitBundle.canConnectTo(side.getOpposite(), conduit, node, isForcedConnection)) {
                 // Make connections to both sides
@@ -873,18 +895,16 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         conduitConnections.computeIfAbsent(conduit, ConnectionContainer::new)
             .setStatus(side, ConnectionStatus.CONNECTED_CONDUIT);
         onConnectionsUpdated(conduit);
-        setChanged();
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        updateShape();
+
+        bundleChanged();
     }
 
     private void connectBlock(Direction side, Holder<Conduit<?, ?>> conduit) {
         conduitConnections.computeIfAbsent(conduit, ConnectionContainer::new)
             .setStatus(side, ConnectionStatus.CONNECTED_BLOCK);
         onConnectionsUpdated(conduit);
-        setChanged();
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        updateShape();
+
+        bundleChanged();
     }
 
     // TODO: poorly named, we're disconnecting from another conduit on the given
@@ -901,9 +921,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         }
 
         if (hasChanged) {
-            setChanged();
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
-            updateShape();
+            bundleChanged();
         }
     }
 
@@ -919,7 +937,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
 
     // TODO: I've not properly reviewed this method.
     public void updateConnections(Level level, BlockPos pos, @Nullable BlockPos fromPos, boolean shouldActivate) {
-        if (fromPos != null && level.getBlockEntity(fromPos) instanceof NewConduitBundleBlockEntity) {
+        if (fromPos != null && level.getBlockEntity(fromPos) instanceof ConduitBundleBlockEntity) {
             return;
         }
 
@@ -1427,7 +1445,7 @@ public final class NewConduitBundleBlockEntity extends EnderBlockEntity implemen
         }
     }
 
-    private record ConnectionHost(NewConduitBundleBlockEntity conduitBundle, Holder<Conduit<?, ?>> conduit) implements ConduitConnectionHost {
+    private record ConnectionHost(ConduitBundleBlockEntity conduitBundle, Holder<Conduit<?, ?>> conduit) implements ConduitConnectionHost {
 
         @Override
         public BlockPos pos() {

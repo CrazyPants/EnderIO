@@ -15,6 +15,7 @@ public class RedstoneConduitNetworkContext implements ConduitNetworkContext<Reds
     public static ConduitNetworkContextType<RedstoneConduitNetworkContext> TYPE = new ConduitNetworkContextType<>(null, RedstoneConduitNetworkContext::new);
 
     private boolean isActive;
+    private Map<DyeColor, Integer> previousChannelSignals = new HashMap<>();
     private Map<DyeColor, Integer> channelSignals = new HashMap<>();
 
     public RedstoneConduitNetworkContext() {
@@ -37,13 +38,26 @@ public class RedstoneConduitNetworkContext implements ConduitNetworkContext<Reds
         return channelSignals.getOrDefault(color, 0);
     }
 
+    // Used for change detection in the ticker.
+    public int getSignalLastTick(DyeColor color) {
+        return previousChannelSignals.getOrDefault(color, 0);
+    }
+
     public void clear() {
+        // Save for change detection
+        for (DyeColor color : DyeColor.values()) {
+            previousChannelSignals.put(color, getSignal(color));
+        }
+
         channelSignals.clear();
         isActive = false;
     }
 
     public void setSignal(DyeColor color, int signal) {
-        channelSignals.put(color, signal);
+        if (getSignal(color) < signal) {
+            channelSignals.put(color, signal);
+        }
+
         isActive = channelSignals.values().stream().anyMatch(i -> i > 0);
     }
 

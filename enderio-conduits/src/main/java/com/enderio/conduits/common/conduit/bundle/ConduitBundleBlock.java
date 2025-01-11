@@ -2,9 +2,9 @@ package com.enderio.conduits.common.conduit.bundle;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
+import com.enderio.conduits.api.ConduitRedstoneSignalAware;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
-import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
@@ -62,11 +62,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.fml.loading.FMLLoader;
 import org.jetbrains.annotations.Nullable;
 
-public class NewConduitBundleBlock extends Block implements EntityBlock {
+public class ConduitBundleBlock extends Block implements EntityBlock {
 
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public NewConduitBundleBlock(Properties properties) {
+    public ConduitBundleBlock(Properties properties) {
         super(properties);
         registerDefaultState(getStateDefinition().any().setValue(WATERLOGGED, false));
     }
@@ -82,7 +82,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
         // return createTickerHelper(blockEntityType, typeSupplier.get(),
         // EIOBlockEntity::tick);
         return (level1, pos, state1, blockEntity) -> {
-            if (blockEntity instanceof NewConduitBundleBlockEntity conduitBundleBlockEntity) {
+            if (blockEntity instanceof ConduitBundleBlockEntity conduitBundleBlockEntity) {
                 if (level.isClientSide) {
                     conduitBundleBlockEntity.clientTick();
                 } else {
@@ -98,7 +98,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // TODO: Revert these changes for showing individual parts here. do it in ConduitHighlightEvent!
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduit) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduit) {
             if (conduit.hasFacade() && FacadeHelper.areFacadesVisible()) {
                 return Shapes.block();
             }
@@ -169,7 +169,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     }
 
     private VoxelShape getBundleShape(BlockGetter level, BlockPos pos, boolean canHideFacade) {
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduit) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduit) {
             if (conduit.hasFacade() && (!canHideFacade || FacadeHelper.areFacadesVisible())) {
                 return Shapes.block();
             }
@@ -206,7 +206,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             }
         }
 
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity blockEntity) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity blockEntity) {
             if (blockEntity.hasFacade() && FacadeHelper.areFacadesVisible()) {
                 return blockEntity.getFacadeBlock().asItem().getDefaultInstance();
             }
@@ -240,7 +240,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock,
             BlockPos neighborPos, boolean movedByPiston) {
 
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduit) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduit) {
             conduit.updateNeighborRedstone();
             conduit.updateConnections(level, pos, neighborPos, true);
 
@@ -273,7 +273,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
-        if (level.getBlockEntity(currentPos) instanceof NewConduitBundleBlockEntity conduit) {
+        if (level.getBlockEntity(currentPos) instanceof ConduitBundleBlockEntity conduit) {
              conduit.updateShape();
         }
 
@@ -296,7 +296,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             return;
         }
 
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             Holder<Conduit<?, ?>> conduit = stack.get(ConduitComponents.CONDUIT);
             if (conduit != null) {
                 conduitBundle.addConduit(conduit, player);
@@ -318,7 +318,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
 
         HitResult hit = visualPick(player);
 
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             if (conduitBundle.hasFacade() && FacadeHelper.areFacadesVisible()) {
                 SoundType soundtype = state.getSoundType(level, pos, player);
                 level.playSound(player, pos, soundtype.getBreakSound(), SoundSource.BLOCKS,
@@ -406,7 +406,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             // TODO: The connection shouldn't include the plate.. if we hit the plate open the first conduit?
             var conduitConnection = conduitBundle.getShape().getConnectionFromHit(pos, hitResult);
 
@@ -438,7 +438,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hitResult) {
 
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             var result = addConduit(stack, level, pos, player, conduitBundle);
             if (result != ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
                 return result;
@@ -456,7 +456,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     }
 
     private ItemInteractionResult addConduit(ItemStack stack, Level level, BlockPos pos, Player player,
-            NewConduitBundleBlockEntity conduitBundle) {
+            ConduitBundleBlockEntity conduitBundle) {
         // Get the conduit from the item
         Holder<Conduit<?, ?>> conduit = stack.get(ConduitComponents.CONDUIT);
         if (conduit == null) {
@@ -502,7 +502,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     }
 
     private ItemInteractionResult addFacade(ItemStack stack, Level level, BlockPos pos, Player player,
-            NewConduitBundleBlockEntity conduitBundle) {
+            ConduitBundleBlockEntity conduitBundle) {
         var facadeProvider = stack.getCapability(ConduitCapabilities.CONDUIT_FACADE_PROVIDER);
         if (facadeProvider == null || !facadeProvider.isValid()) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -547,7 +547,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
             return false;
         }
 
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             // Get the redstone conduit
             var redstoneConduit = conduitBundle.getConduitByType(ConduitTypes.REDSTONE.get());
             if (redstoneConduit == null) {
@@ -559,11 +559,8 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 return false;
             }
 
-            if (!(conduitBundle.getConnectionConfig(direction, redstoneConduit) instanceof RedstoneConduitConnectionConfig config)) {
-                return false;
-            }
-
-            return config.canInsert();
+            var config = conduitBundle.getConnectionConfig(direction, redstoneConduit, RedstoneConduitConnectionConfig.TYPE);
+            return config.canSend(ConduitRedstoneSignalAware.NONE);
         }
 
         return false;
@@ -580,7 +577,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     }
 
     private int getNetworkSignal(BlockGetter level, BlockPos pos, Direction direction, boolean isDirectSignal) {
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             // TODO: Do we need to have signals on client side? If so we need to put this into the client NBT.
             if (conduitBundle.getLevel().isClientSide()) {
                 return 0;
@@ -597,16 +594,12 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 return 0;
             }
 
-            if (!(conduitBundle.getConnectionConfig(direction.getOpposite(), redstoneConduit) instanceof RedstoneConduitConnectionConfig config)) {
+            var config = conduitBundle.getConnectionConfig(direction.getOpposite(), redstoneConduit, RedstoneConduitConnectionConfig.TYPE);
+            if (!config.canSend(ConduitRedstoneSignalAware.NONE)) {
                 return 0;
             }
 
-            if (!config.canInsert()) {
-                return 0;
-            }
-
-            // TODO: Check for strong signal in config.
-            if (isDirectSignal) {
+            if (isDirectSignal && !config.isStrongOutputSignal()) {
                 return 0;
             }
 
@@ -621,7 +614,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
                 return 0;
             }
 
-            return context.getSignal(config.insertChannel());
+            return context.getSignal(config.sendColor());
         }
 
         return 0;
@@ -632,7 +625,7 @@ public class NewConduitBundleBlock extends Block implements EntityBlock {
     // region Facade Behaviours
 
     private Optional<Block> getFacadeBlock(BlockGetter level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle) {
+        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             if (conduitBundle.hasFacade()) {
                 return Optional.of(conduitBundle.getFacadeBlock());
             }

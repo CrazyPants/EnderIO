@@ -2,8 +2,7 @@ package com.enderio.conduits.common.conduit.type.redstone;
 
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
-import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
+import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,32 +12,36 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 
 public record RedstoneConduitConnectionConfig(
-    boolean canInsert,
-    DyeColor insertChannel,
-    boolean canExtract,
-    DyeColor extractChannel
-) implements ChanneledIOConnectionConfig {
+    boolean isSend,
+    DyeColor sendColor,
+    boolean isReceive,
+    DyeColor receiveColor,
+    boolean isStrongOutputSignal
+) implements NewIOConnectionConfig {
 
-    public static RedstoneConduitConnectionConfig DEFAULT = new RedstoneConduitConnectionConfig(false, DyeColor.GREEN, true, DyeColor.RED);
+    public static RedstoneConduitConnectionConfig DEFAULT = new RedstoneConduitConnectionConfig(false, DyeColor.GREEN, true, DyeColor.RED, false);
 
     public static MapCodec<RedstoneConduitConnectionConfig> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
-            Codec.BOOL.fieldOf("can_insert").forGetter(RedstoneConduitConnectionConfig::canInsert),
-            DyeColor.CODEC.fieldOf("insert_channel").forGetter(RedstoneConduitConnectionConfig::insertChannel),
-            Codec.BOOL.fieldOf("can_extract").forGetter(RedstoneConduitConnectionConfig::canExtract),
-            DyeColor.CODEC.fieldOf("extract_channel").forGetter(RedstoneConduitConnectionConfig::extractChannel)
+            Codec.BOOL.fieldOf("is_send").forGetter(RedstoneConduitConnectionConfig::isSend),
+            DyeColor.CODEC.fieldOf("send_color").forGetter(RedstoneConduitConnectionConfig::sendColor),
+            Codec.BOOL.fieldOf("is_receive").forGetter(RedstoneConduitConnectionConfig::isReceive),
+            DyeColor.CODEC.fieldOf("receive_color").forGetter(RedstoneConduitConnectionConfig::receiveColor),
+            Codec.BOOL.fieldOf("is_strong_output_signal").forGetter(RedstoneConduitConnectionConfig::isStrongOutputSignal)
         ).apply(instance, RedstoneConduitConnectionConfig::new)
     );
 
     public static StreamCodec<ByteBuf, RedstoneConduitConnectionConfig> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.BOOL,
-        RedstoneConduitConnectionConfig::canInsert,
+        RedstoneConduitConnectionConfig::isSend,
         DyeColor.STREAM_CODEC,
-        RedstoneConduitConnectionConfig::insertChannel,
+        RedstoneConduitConnectionConfig::sendColor,
         ByteBufCodecs.BOOL,
-        RedstoneConduitConnectionConfig::canExtract,
+        RedstoneConduitConnectionConfig::isReceive,
         DyeColor.STREAM_CODEC,
-        RedstoneConduitConnectionConfig::extractChannel,
+        RedstoneConduitConnectionConfig::receiveColor,
+        ByteBufCodecs.BOOL,
+        RedstoneConduitConnectionConfig::isStrongOutputSignal,
         RedstoneConduitConnectionConfig::new
     );
 
@@ -47,27 +50,27 @@ public record RedstoneConduitConnectionConfig(
 
     @Override
     public ConnectionConfig reconnected() {
-        return new RedstoneConduitConnectionConfig(DEFAULT.canInsert, DEFAULT.insertChannel, DEFAULT.canExtract, DEFAULT.extractChannel);
+        return new RedstoneConduitConnectionConfig(DEFAULT.isSend, sendColor, DEFAULT.isReceive, receiveColor, isStrongOutputSignal);
     }
 
-    @Override
-    public IOConnectionConfig withInsert(boolean canInsert) {
-        return new RedstoneConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel);
+    public RedstoneConduitConnectionConfig withIsSend(boolean isSend) {
+        return new RedstoneConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, isStrongOutputSignal);
     }
 
-    @Override
-    public IOConnectionConfig withExtract(boolean canExtract) {
-        return new RedstoneConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel);
+    public RedstoneConduitConnectionConfig withSendColor(DyeColor sendColor) {
+        return new RedstoneConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, isStrongOutputSignal);
     }
 
-    @Override
-    public RedstoneConduitConnectionConfig withInputChannel(DyeColor inputChannel) {
-        return new RedstoneConduitConnectionConfig(canInsert, inputChannel, canExtract, extractChannel);
+    public RedstoneConduitConnectionConfig withIsReceive(boolean isReceive) {
+        return new RedstoneConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, isStrongOutputSignal);
     }
 
-    @Override
-    public RedstoneConduitConnectionConfig withOutputChannel(DyeColor outputChannel) {
-        return new RedstoneConduitConnectionConfig(canInsert, insertChannel, canExtract, outputChannel);
+    public RedstoneConduitConnectionConfig withReceiveColor(DyeColor receiveColor) {
+        return new RedstoneConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, isStrongOutputSignal);
+    }
+
+    public RedstoneConduitConnectionConfig withIsStrongOutputSignal(boolean isStrongOutputSignal) {
+        return new RedstoneConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, isStrongOutputSignal);
     }
 
     @Override

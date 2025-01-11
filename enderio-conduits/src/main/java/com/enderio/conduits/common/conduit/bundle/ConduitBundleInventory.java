@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
-public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSerializable<CompoundTag> {
+public class ConduitBundleInventory implements IItemHandlerModifiable, INBTSerializable<CompoundTag> {
 
     // TODO: Currently conduit inventories are fairly strict - we might be able to
     // improve this in the future?
@@ -35,7 +35,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
 
     private Map<Holder<Conduit<?, ?>>, Map<Direction, NonNullList<ItemStack>>> conduitSlots = new HashMap<>();
 
-    public NewConduitBundleInventory(ConduitBundleReader conduitBundle) {
+    public ConduitBundleInventory(ConduitBundleReader conduitBundle) {
         this.conduitBundle = conduitBundle;
     }
 
@@ -52,7 +52,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
 
     @Override
     public int getSlots() {
-        return MAX_SLOTS_PER_CONDUIT * NewConduitBundleBlockEntity.MAX_CONDUITS * MAX_CONNECTIONS;
+        return MAX_SLOTS_PER_CONDUIT * ConduitBundleBlockEntity.MAX_CONDUITS * MAX_CONNECTIONS;
     }
 
     @Override
@@ -189,7 +189,7 @@ public class NewConduitBundleInventory implements IItemHandlerModifiable, INBTSe
         }
     }
 
-    private record InventoryReference(NewConduitBundleInventory inventory, Holder<Conduit<?, ?>> conduit)
+    private record InventoryReference(ConduitBundleInventory inventory, Holder<Conduit<?, ?>> conduit)
             implements ConduitInventory {
         @Override
         public ItemStack getStackInSlot(Direction side, SlotType slotType) {

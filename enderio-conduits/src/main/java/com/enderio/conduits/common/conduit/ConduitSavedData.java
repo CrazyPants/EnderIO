@@ -4,7 +4,7 @@ import com.enderio.conduits.EnderIOConduits;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import com.enderio.conduits.api.ticker.ConduitTicker;
-import com.enderio.conduits.common.conduit.bundle.NewConduitBundleBlockEntity;
+import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphContext;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphUtility;
@@ -356,7 +356,7 @@ public class ConduitSavedData extends SavedData {
             return false;
         }
 
-        if (!(level.getBlockEntity(pos) instanceof NewConduitBundleBlockEntity conduitBundle)) {
+        if (!(level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle)) {
             return false;
         }
 

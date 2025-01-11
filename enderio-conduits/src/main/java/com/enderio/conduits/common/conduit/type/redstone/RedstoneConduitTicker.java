@@ -4,6 +4,7 @@ import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.ChannelIOAwareConduitTicker;
+import com.enderio.conduits.api.ticker.NewIOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.redstone.RedstoneExtractFilter;
 
@@ -17,9 +18,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class RedstoneConduitTicker extends ChannelIOAwareConduitTicker<RedstoneConduit, ChannelIOAwareConduitTicker.SimpleConnection> {
-
-    private final Map<DyeColor, Integer> activeColors = new EnumMap<>(DyeColor.class);
+public class RedstoneConduitTicker extends NewIOAwareConduitTicker<RedstoneConduit, RedstoneConduitConnectionConfig, RedstoneConduitTicker.Connection> {
 
     @Override
     public void tickGraph(ServerLevel level, RedstoneConduit conduit, ConduitNetwork graph,
@@ -29,7 +28,6 @@ public class RedstoneConduitTicker extends ChannelIOAwareConduitTicker<RedstoneC
         boolean isActiveBeforeTick = context.isActive();
         context.clear();
 
-        activeColors.clear();
         super.tickGraph(level, conduit, graph, coloredRedstoneProvider);
 
         // If active changed, nodes need to be synced.
@@ -41,18 +39,17 @@ public class RedstoneConduitTicker extends ChannelIOAwareConduitTicker<RedstoneC
     }
 
     @Override
-    public void tickColoredGraph(ServerLevel level, RedstoneConduit conduit, List<SimpleConnection> inserts,
-            List<SimpleConnection> extracts, DyeColor color, ConduitNetwork graph,
-            ColoredRedstoneProvider coloredRedstoneProvider) {
+    protected void tickColoredGraph(ServerLevel level, RedstoneConduit conduit, List<Connection> senders,
+        List<Connection> receivers, DyeColor color, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
 
         RedstoneConduitNetworkContext networkContext = graph.getOrCreateContext(RedstoneConduitNetworkContext.TYPE);
 
-        for (SimpleConnection extract : extracts) {
+        for (Connection receiver : receivers) {
             int signal;
-            if (extract.extractFilter() instanceof RedstoneExtractFilter filter) {
-                signal = filter.getInputSignal(level, extract.neighborPos(), extract.neighborSide());
+            if (receiver.extractFilter() instanceof RedstoneExtractFilter filter) {
+                signal = filter.getInputSignal(level, receiver.neighborPos(), receiver.neighborSide());
             } else {
-                signal = level.getSignal(extract.neighborPos(), extract.neighborSide());
+                signal = level.getSignal(receiver.neighborPos(), receiver.neighborSide());
             }
 
             if (signal > 0) {
@@ -60,20 +57,32 @@ public class RedstoneConduitTicker extends ChannelIOAwareConduitTicker<RedstoneC
             }
         }
 
-        // TODO: This would be slow as heck. Need to optimise this
-        for (SimpleConnection insert : inserts) {
-            level.neighborChanged(insert.neighborPos(), ConduitBlocks.CONDUIT.get(), insert.pos());
+        // Only update neighbours if the signal strength changed this time.
+        if (networkContext.getSignal(color) != networkContext.getSignalLastTick(color)) {
+            for (Connection sender : senders) {
+                level.updateNeighborsAt(sender.pos(), ConduitBlocks.CONDUIT.get());
+
+                // Update blocks connected to strong signals too.
+                if (sender.config().isStrongOutputSignal()) {
+                    level.updateNeighborsAt(sender.neighborPos(), ConduitBlocks.CONDUIT.get());
+                }
+            }
         }
     }
 
     @Override
-    protected @Nullable ChannelIOAwareConduitTicker.SimpleConnection createConnection(Level level, ConduitNode node, Direction side) {
-        return new SimpleConnection(node, side);
+    protected boolean shouldSkipColor(List<Connection> senders, List<Connection> receivers) {
+        return senders.isEmpty() && receivers.isEmpty();
     }
 
     @Override
-    protected boolean shouldSkipColor(List<SimpleConnection> extractList, List<SimpleConnection> insertList) {
-        // Skip if the channel is completely un-utilised.
-        return extractList.isEmpty() && insertList.isEmpty();
+    protected @Nullable Connection createConnection(Level level, ConduitNode node, Direction side) {
+        return new Connection(node, side, node.getConnectionConfig(side, RedstoneConduitConnectionConfig.TYPE));
+    }
+
+    protected static class Connection extends SimpleConnection<RedstoneConduitConnectionConfig> {
+        public Connection(ConduitNode node, Direction side, RedstoneConduitConnectionConfig config) {
+            super(node, side, config);
+        }
     }
 }

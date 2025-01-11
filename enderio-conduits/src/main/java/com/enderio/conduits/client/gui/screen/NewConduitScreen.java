@@ -20,6 +20,7 @@ import com.enderio.conduits.api.screen.ConduitScreenType;
 import com.enderio.conduits.client.gui.screen.types.ConduitScreenTypes;
 import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
 import com.enderio.conduits.common.init.ConduitLang;
+import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.network.connections.C2SSetConduitChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneControlPacket;
@@ -301,7 +302,10 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
 
         public void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
             if (screenType != null) {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(22, 7, 0);
                 screenType.renderLabels(guiGraphics, font, mouseX, mouseY);
+                guiGraphics.pose().popPose();
             }
         }
 
@@ -373,6 +377,15 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
         @Override
         public AbstractWidget addRedstoneControlPicker(int x, int y, Component title, Supplier<RedstoneControl> getter, Consumer<RedstoneControl> setter) {
             var widget = new RedstoneControlPickerWidget(getAreaLeft() + x, getAreaTop() + y, getter, setter, title);
+            addRenderableWidget(widget);
+            return widget;
+        }
+
+        @Override
+        public AbstractWidget addToggleButton(int x, int y, int width, int height, Component enabledTitle, Component disabledTitle, ResourceLocation enabledSprite,
+            ResourceLocation disabledSprite, Supplier<Boolean> getter, Consumer<Boolean> setter) {
+
+            var widget = ToggleIconButton.of(getAreaLeft() + x, getAreaTop() + y, width, height, enabledSprite, disabledSprite, enabledTitle, disabledTitle, getter, setter);
             addRenderableWidget(widget);
             return widget;
         }

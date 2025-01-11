@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -27,6 +28,9 @@ public interface ConduitScreenHelper {
     AbstractWidget addColorPicker(int x, int y, Component title, Supplier<DyeColor> getter, Consumer<DyeColor> setter);
 
     AbstractWidget addRedstoneControlPicker(int x, int y, Component title, Supplier<RedstoneControl> getter, Consumer<RedstoneControl> setter);
+
+    AbstractWidget addToggleButton(int x, int y, int width, int height, Component enabledTitle, Component disabledTitle, ResourceLocation enabledSprite,
+        ResourceLocation disabledSprite, Supplier<Boolean> getter, Consumer<Boolean> setter);
 
     // TODO: Create icon button
 
