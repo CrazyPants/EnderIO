@@ -5,7 +5,7 @@ import com.enderio.conduits.client.gui.RedstoneCountFilterScreen;
 import com.enderio.conduits.client.gui.RedstoneDoubleChannelFilterScreen;
 import com.enderio.conduits.client.gui.RedstoneTimerFilterScreen;
 import com.enderio.conduits.client.gui.screen.NewConduitScreen;
-import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
+import com.enderio.conduits.common.conduit.menu.ConduitMenu;
 import com.enderio.conduits.common.menu.RedstoneCountFilterMenu;
 import com.enderio.conduits.common.menu.RedstoneDoubleChannelFilterMenu;
 import com.enderio.conduits.common.menu.RedstoneTimerFilterMenu;
@@ -16,8 +16,8 @@ import net.neoforged.bus.api.IEventBus;
 public class ConduitMenus {
     private static final MenuRegistry MENU_REGISTRY = EnderIOConduits.REGILITE.menuRegistry();
 
-    public static final RegiliteMenu<NewConduitMenu> CONDUIT_MENU = MENU_REGISTRY
-        .registerMenu("conduit", NewConduitMenu::new, () -> NewConduitScreen::new);
+    public static final RegiliteMenu<ConduitMenu> CONDUIT_MENU = MENU_REGISTRY
+        .registerMenu("conduit", ConduitMenu::new, () -> NewConduitScreen::new);
 
     public static final RegiliteMenu<RedstoneDoubleChannelFilterMenu> REDSTONE_DOUBLE_CHANNEL_FILTER = MENU_REGISTRY
         .registerMenu("redstone_and_filter", RedstoneDoubleChannelFilterMenu::factory, () -> RedstoneDoubleChannelFilterScreen::new);

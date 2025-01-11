@@ -18,9 +18,8 @@ import com.enderio.conduits.api.menu.ConduitMenuType;
 import com.enderio.conduits.api.screen.ConduitScreenHelper;
 import com.enderio.conduits.api.screen.ConduitScreenType;
 import com.enderio.conduits.client.gui.screen.types.ConduitScreenTypes;
-import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
+import com.enderio.conduits.common.conduit.menu.ConduitMenu;
 import com.enderio.conduits.common.init.ConduitLang;
-import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.network.connections.C2SSetConduitChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneChannelPacket;
 import com.enderio.conduits.common.network.connections.C2SSetConduitRedstoneControlPacket;
@@ -46,7 +45,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
+public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
     public static final ResourceLocation TEXTURE = EnderIO.loc("textures/gui/conduit.png");
     private static final int WIDTH = 206;
     private static final int HEIGHT = 195;
@@ -57,7 +56,7 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
 
     private final List<Runnable> preRenderActions = new ArrayList<>();
 
-    public NewConduitScreen(NewConduitMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public NewConduitScreen(ConduitMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
 
 //        this.shouldRenderLabels = true;
@@ -89,15 +88,15 @@ public class NewConduitScreen extends EnderContainerScreen<NewConduitMenu> {
         // Add enable checkboxes
         if (menu.connectionConfigType().supportsIO()) {
             addRenderableWidget(ToggleIconButton.createCheckbox(leftX, leftY, () -> getIOConnectionConfig().canInsert(),
-                newVal -> handleButtonPress(NewConduitMenu.BUTTON_TOGGLE_0_ID)));
+                newVal -> handleButtonPress(ConduitMenu.BUTTON_TOGGLE_0_ID)));
             addRenderableWidget(ToggleIconButton.createCheckbox(rightX, rightY, () -> getIOConnectionConfig().canExtract(),
-                newVal -> handleButtonPress(NewConduitMenu.BUTTON_TOGGLE_1_ID)));
+                newVal -> handleButtonPress(ConduitMenu.BUTTON_TOGGLE_1_ID)));
 
             leftY += 20;
             rightY += 20;
         } else {
             addRenderableWidget(ToggleIconButton.createCheckbox(leftX, leftY, this::isConnected,
-                newVal -> handleButtonPress(NewConduitMenu.BUTTON_TOGGLE_0_ID)));
+                newVal -> handleButtonPress(ConduitMenu.BUTTON_TOGGLE_0_ID)));
 
             leftY += 20;
         }

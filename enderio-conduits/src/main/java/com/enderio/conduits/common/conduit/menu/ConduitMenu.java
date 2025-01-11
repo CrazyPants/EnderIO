@@ -26,7 +26,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 // This means server menu should get/set connections direct from the BE but the client should have a standalone config store.
 // Need to work out what this means for the client sync tag - it might need to be synced separately to the client from this GUI too.
 // Possibly create an NBT sync slot and then use it for that?
-public class NewConduitMenu extends BaseBlockEntityMenu<ConduitBundleBlockEntity> {
+public class ConduitMenu extends BaseBlockEntityMenu<ConduitBundleBlockEntity> {
 
     public static final int BUTTON_TOGGLE_0_ID = 0;
     public static final int BUTTON_TOGGLE_1_ID = 1;
@@ -43,7 +43,7 @@ public class NewConduitMenu extends BaseBlockEntityMenu<ConduitBundleBlockEntity
     @UseOnly(LogicalSide.SERVER)
     private ConnectionConfig remoteConnectionConfig;
 
-    public NewConduitMenu(int containerId, Inventory playerInventory, ConduitBundleBlockEntity blockEntity, Direction side, Holder<Conduit<?, ?>> selectedConduit) {
+    public ConduitMenu(int containerId, Inventory playerInventory, ConduitBundleBlockEntity blockEntity, Direction side, Holder<Conduit<?, ?>> selectedConduit) {
         super(ConduitMenus.CONDUIT_MENU.get(), containerId, playerInventory, blockEntity);
 
         this.side = side;
@@ -56,7 +56,7 @@ public class NewConduitMenu extends BaseBlockEntityMenu<ConduitBundleBlockEntity
         addPlayerInventorySlots(23, 113);
     }
 
-    public NewConduitMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buf) {
+    public ConduitMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buf) {
         super(ConduitMenus.CONDUIT_MENU.get(), containerId, playerInventory, buf, ConduitBlockEntities.CONDUIT.get());
 
         side = buf.readEnum(Direction.class);

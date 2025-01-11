@@ -97,63 +97,6 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        // TODO: Revert these changes for showing individual parts here. do it in ConduitHighlightEvent!
-        if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduit) {
-            if (conduit.hasFacade() && FacadeHelper.areFacadesVisible()) {
-                return Shapes.block();
-            }
-
-            // Ensure if a bundle is bugged with 0 conduits that it can be broken.
-            if (!conduit.getConduits().isEmpty()) {
-                // Only show the conduit that is being aimed at if this is a player.
-                if (context instanceof EntityCollisionContext entityCollisionContext) {
-                    if (entityCollisionContext.getEntity() instanceof Player player) {
-
-                        // TODO: Config for this accessibility feature
-//                        if (true) {
-//                            var heldConduit = ConduitA11yManager.getHeldConduit();
-//
-//                            // Option 1: always full
-//                            // Return a full shape if the player is holding a conduit so they don't have to aim
-////                            if (heldConduit != null) {
-////                                return Shapes.block();
-////                                return conduit.getShape().getEncompassingShape();
-////                            }
-//
-//                            // Option 2: Full when present
-//                            if (conduit.hasConduitStrict(heldConduit)) {
-//                                return Shapes.block();
-//                            }
-//                        }
-
-                        HitResult hit = visualPick(player);
-                        if (hit.getType() == HitResult.Type.BLOCK) {
-                            return conduit.getShape().getShapeFromHit(pos, hit);
-                        }
-                    }
-                }
-
-                return conduit.getShape().getTotalShape();
-            }
-        }
-
-        // If there's no block entity, no shape - this will stop a bounding box flash
-        // when the bundle is first placed
-        return Shapes.empty();
-    }
-
-    private HitResult visualPick(Player player) {
-        double hitDistance = player.blockInteractionRange() + 5;
-        Vec3 from = player.getEyePosition(1);
-
-        Vec3 viewVec = player.getViewVector(1);
-        Vec3 to = from.add(viewVec.scale(hitDistance));
-        return player.level().clip(new ClipContext(from, to, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, player));
-    }
-
-    @Override
-    protected VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        // Needs separate handling so that the stock getShape can filter by VISUAL for player hit detection.
         return getBundleShape(level, pos, true);
     }
 
@@ -316,7 +259,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         // TODO: Destroying the last conduit in the block has a laggy disconnect for the
         // neighbours...
 
-        HitResult hit = visualPick(player);
+        HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);;
 
         if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             if (conduitBundle.hasFacade() && FacadeHelper.areFacadesVisible()) {

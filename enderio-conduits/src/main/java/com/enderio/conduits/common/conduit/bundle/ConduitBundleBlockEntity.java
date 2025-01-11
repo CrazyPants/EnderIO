@@ -1,10 +1,10 @@
 package com.enderio.conduits.common.conduit.bundle;
 
+import com.enderio.base.api.UseOnly;
 import com.enderio.base.common.blockentity.Wrenchable;
 import com.enderio.conduits.ConduitNBTKeys;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
-import com.enderio.conduits.api.ConduitRedstoneSignalAware;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.ConduitInventory;
 import com.enderio.conduits.api.bundle.SlotType;
@@ -27,8 +27,7 @@ import com.enderio.conduits.common.conduit.graph.ConduitDataContainer;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphContext;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphObject;
 import com.enderio.conduits.common.conduit.graph.ConduitGraphUtility;
-import com.enderio.conduits.common.conduit.menu.NewConduitMenu;
-import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitConnectionConfig;
+import com.enderio.conduits.common.conduit.menu.ConduitMenu;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.blockentity.EnderBlockEntity;
@@ -77,15 +76,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
-public final class ConduitBundleBlockEntity extends EnderBlockEntity implements ConduitBundleAccessor, Clearable, Wrenchable, NewConduitMenu.ConnectionAccessor {
+public final class ConduitBundleBlockEntity extends EnderBlockEntity implements ConduitBundleAccessor, Clearable, Wrenchable, ConduitMenu.ConnectionAccessor {
 
     public static final int MAX_CONDUITS = 9;
+
+    @UseOnly(LogicalSide.CLIENT)
+    public static final Map<BlockPos, BlockState> FACADES = new HashMap<>();
 
     private ItemStack facadeProvider = ItemStack.EMPTY;
 
@@ -222,6 +225,12 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
+
+        if (hasFacade()) {
+            FACADES.put(worldPosition, getFacadeBlock().defaultBlockState());
+        } else {
+            FACADES.remove(worldPosition);
+        }
     }
 
     @Override
@@ -342,7 +351,7 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
 
         @Override
         public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-            return new NewConduitMenu(containerId, inventory, ConduitBundleBlockEntity.this, side, conduit);
+            return new ConduitMenu(containerId, inventory, ConduitBundleBlockEntity.this, side, conduit);
         }
     }
 
@@ -1119,6 +1128,10 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
 
+        if (level == null) {
+            return;
+        }
+
         if (level instanceof ServerLevel serverLevel) {
             var savedData = ConduitSavedData.get(serverLevel);
 
@@ -1128,6 +1141,8 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
                 node.detach();
                 savedData.putUnloadedNodeIdentifier(conduit, this.worldPosition, node);
             }
+        } else if (level.isClientSide()) {
+            FACADES.remove(worldPosition);
         }
     }
 
@@ -1135,7 +1150,9 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
     public void setRemoved() {
         super.setRemoved();
 
-        // TODO: Remove from facade map.
+        if (level != null && level.isClientSide()) {
+            FACADES.remove(worldPosition);
+        }
     }
 
     private static final String FACADE_PROVIDER_KEY = "FacadeProvider";
