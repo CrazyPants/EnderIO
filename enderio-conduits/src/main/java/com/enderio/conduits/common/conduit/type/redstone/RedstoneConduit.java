@@ -3,10 +3,7 @@ package com.enderio.conduits.common.conduit.type.redstone;
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.bundle.ConduitBundleReader;
-import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.menu.ConduitMenuExtension;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
@@ -28,6 +25,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Set;
 
 public record RedstoneConduit(
     ResourceLocation texture,
@@ -82,6 +81,11 @@ public record RedstoneConduit(
         }
 
         return texture();
+    }
+
+    @Override
+    public void onConnectionsUpdated(ConduitNode node, Level level, BlockPos pos, Set<Direction> connectedSides) {
+        node.markDirty();
     }
 
     @Override

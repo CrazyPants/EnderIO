@@ -2,8 +2,6 @@ package com.enderio.conduits.common.conduit.type.redstone;
 
 import com.enderio.conduits.api.network.ConduitNetworkContext;
 import com.enderio.conduits.api.network.ConduitNetworkContextType;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.item.DyeColor;
 
 import java.util.HashMap;
@@ -18,12 +16,18 @@ public class RedstoneConduitNetworkContext implements ConduitNetworkContext<Reds
     private Map<DyeColor, Integer> previousChannelSignals = new HashMap<>();
     private Map<DyeColor, Integer> channelSignals = new HashMap<>();
 
+    private NewNetworkDelay newNetworkDelay = NewNetworkDelay.NEW;
+
     public RedstoneConduitNetworkContext() {
     }
 
     private RedstoneConduitNetworkContext(boolean isActive, HashMap<DyeColor, Integer> channelSignals) {
         this.isActive = isActive;
         this.channelSignals = channelSignals;
+    }
+
+    public boolean isNew() {
+        return newNetworkDelay != NewNetworkDelay.OLD;
     }
 
     public boolean isActive() {
@@ -43,7 +47,13 @@ public class RedstoneConduitNetworkContext implements ConduitNetworkContext<Reds
         return previousChannelSignals.getOrDefault(color, 0);
     }
 
-    public void clear() {
+    public void nextTick() {
+        if (newNetworkDelay == NewNetworkDelay.NEW) {
+            newNetworkDelay = NewNetworkDelay.NEW_DECAY;
+        } else if (newNetworkDelay == NewNetworkDelay.NEW_DECAY) {
+            newNetworkDelay = NewNetworkDelay.OLD;
+        }
+
         // Save for change detection
         for (DyeColor color : DyeColor.values()) {
             previousChannelSignals.put(color, getSignal(color));
@@ -76,5 +86,10 @@ public class RedstoneConduitNetworkContext implements ConduitNetworkContext<Reds
     @Override
     public ConduitNetworkContextType<RedstoneConduitNetworkContext> type() {
         return TYPE;
+    }
+
+    // Because the context is cleared before the graph ticks, we need to represent "newness" as three states.
+    private enum NewNetworkDelay {
+        NEW, NEW_DECAY, OLD
     }
 }

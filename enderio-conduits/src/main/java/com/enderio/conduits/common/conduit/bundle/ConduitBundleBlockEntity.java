@@ -190,16 +190,6 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
     private void bundleChanged() {
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
         level.updateNeighborsAt(getBlockPos(), getBlockState().getBlock());
-
-        // Redstone conduits also need to update the neighbours they point to (for strong connections)
-        // TODO: This could wind up being sub-optimal? Maybe add some more specific hooks for when the config/connections are changed?
-        var redstoneConduit = getConduitByType(ConduitTypes.REDSTONE.get());
-        if (redstoneConduit != null) {
-            for (Direction side : Direction.values()) {
-                level.updateNeighborsAt(getBlockPos().relative(side), getBlockState().getBlock());
-            }
-        }
-
         level.invalidateCapabilities(getBlockPos());
         setChanged();
         updateShape();
@@ -315,6 +305,8 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
 
                         ConduitSavedData.addPotentialGraph(conduitConnection.getSecond(), thisNode.getGraph(), serverLevel);
                         ConduitSavedData.addPotentialGraph(conduitConnection.getSecond(), otherNode.getGraph(), serverLevel);
+
+                        bundleChanged();
                     } else {
                         // TODO: Warn, this is a bad place to be.
                     }
@@ -647,9 +639,6 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
             }
         }
 
-        // Remove neighbour connections
-        removeNeighborConnections(conduit);
-
         // Node remove event
         if (!level.isClientSide()) {
             var node = getConduitNode(conduit);
@@ -669,6 +658,16 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
         conduits.remove(conduit);
         conduitConnections.remove(conduit);
         conduitNodes.remove(conduit);
+
+        // Remove neighbour connections
+        removeNeighborConnections(conduit);
+
+        // Fire redstone updates, if applicable.
+        if (conduit.value().type() == ConduitTypes.REDSTONE.get()) {
+            for (Direction side : Direction.values()) {
+                redstoneConduitChanged(side);
+            }
+        }
 
         bundleChanged();
     }
@@ -1398,6 +1397,13 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
 
     // endregion
 
+    private void redstoneConduitChanged(Direction side) {
+        BlockPos neighborPos = getBlockPos().relative(side);
+        if (!level.getBlockState(neighborPos).is(getBlockState().getBlock())) {
+            level.updateNeighborsAt(getBlockPos().relative(side), getBlockState().getBlock());
+        }
+    }
+
     private class ConnectionContainer {
         private final Holder<Conduit<?, ?>> conduit;
         private final Map<Direction, ConnectionStatus> statuses = new EnumMap<>(Direction.class);
@@ -1436,6 +1442,10 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
                     }
                 }
             }
+
+            if (conduit.value().type() == ConduitTypes.REDSTONE.get()) {
+                redstoneConduitChanged(side);
+            }
         }
 
         public ConnectionConfig getConfig(Direction side) {
@@ -1455,6 +1465,10 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
 
         public void setConfig(Direction side, ConnectionConfig config) {
             configs.put(side, config);
+
+            if (conduit.value().type() == ConduitTypes.REDSTONE.get()) {
+                redstoneConduitChanged(side);
+            }
         }
 
         public boolean hasEndpoint(Direction side) {

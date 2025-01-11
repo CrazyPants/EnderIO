@@ -189,8 +189,6 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
 
             // Invalidate caps in case of redstone update or something else.
             level.invalidateCapabilities(pos);
-
-            // TODO: If redstone conduit, trigger a neighbour update for connections.
         }
 
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
