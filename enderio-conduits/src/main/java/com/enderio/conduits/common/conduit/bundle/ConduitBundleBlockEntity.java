@@ -1398,9 +1398,11 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity implements 
     // endregion
 
     private void redstoneConduitChanged(Direction side) {
-        BlockPos neighborPos = getBlockPos().relative(side);
-        if (!level.getBlockState(neighborPos).is(getBlockState().getBlock())) {
-            level.updateNeighborsAt(getBlockPos().relative(side), getBlockState().getBlock());
+        if (level != null) {
+            BlockPos neighborPos = getBlockPos().relative(side);
+            if (!level.getBlockState(neighborPos).is(getBlockState().getBlock())) {
+                level.updateNeighborsAt(getBlockPos().relative(side), getBlockState().getBlock());
+            }
         }
     }
 
