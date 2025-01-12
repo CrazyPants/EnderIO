@@ -16,6 +16,10 @@ import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.network.SetConduitConnectionConfigPacket;
 import com.enderio.core.client.gui.screen.EnderContainerScreen;
 import com.enderio.core.client.gui.widgets.ToggleIconButton;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
@@ -28,11 +32,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
     public static final ResourceLocation TEXTURE = EnderIO.loc("textures/gui/conduit.png");
@@ -101,7 +100,8 @@ public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
         }
     }
 
-    // Due to the generics, the menu data access and screen type need to be contained here.
+    // Due to the generics, the menu data access and screen type need to be
+    // contained here.
     private class ConduitScreenTypeContainer<U extends ConnectionConfig> {
         private final ConduitMenuDataAccess<U> dataAccess;
 
@@ -132,7 +132,8 @@ public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
             }
         }
 
-        private <T extends Conduit<T, U>, U extends ConnectionConfig> ConduitMenuDataAccess<U> createDataAccess(Conduit<T, U> conduit) {
+        private <T extends Conduit<T, U>, U extends ConnectionConfig> ConduitMenuDataAccess<U> createDataAccess(
+                Conduit<T, U> conduit) {
             return new ConduitMenuDataAccess<>() {
                 @Override
                 public U getConnectionConfig() {
@@ -189,24 +190,28 @@ public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
         }
 
         @Override
-        public AbstractWidget addColorPicker(int x, int y, Component title, Supplier<DyeColor> getter, Consumer<DyeColor> setter) {
+        public AbstractWidget addColorPicker(int x, int y, Component title, Supplier<DyeColor> getter,
+                Consumer<DyeColor> setter) {
             var widget = new DyeColorPickerWidget(getAreaLeft() + x, getAreaTop() + y, getter, setter, title);
             addRenderableWidget(widget);
             return widget;
         }
 
         @Override
-        public AbstractWidget addRedstoneControlPicker(int x, int y, Component title, Supplier<RedstoneControl> getter, Consumer<RedstoneControl> setter) {
+        public AbstractWidget addRedstoneControlPicker(int x, int y, Component title, Supplier<RedstoneControl> getter,
+                Consumer<RedstoneControl> setter) {
             var widget = new RedstoneControlPickerWidget(getAreaLeft() + x, getAreaTop() + y, getter, setter, title);
             addRenderableWidget(widget);
             return widget;
         }
 
         @Override
-        public AbstractWidget addToggleButton(int x, int y, int width, int height, Component enabledTitle, Component disabledTitle, ResourceLocation enabledSprite,
-            ResourceLocation disabledSprite, Supplier<Boolean> getter, Consumer<Boolean> setter) {
+        public AbstractWidget addToggleButton(int x, int y, int width, int height, Component enabledTitle,
+                Component disabledTitle, ResourceLocation enabledSprite, ResourceLocation disabledSprite,
+                Supplier<Boolean> getter, Consumer<Boolean> setter) {
 
-            var widget = ToggleIconButton.of(getAreaLeft() + x, getAreaTop() + y, width, height, enabledSprite, disabledSprite, enabledTitle, disabledTitle, getter, setter);
+            var widget = ToggleIconButton.of(getAreaLeft() + x, getAreaTop() + y, width, height, enabledSprite,
+                    disabledSprite, enabledTitle, disabledTitle, getter, setter);
             addRenderableWidget(widget);
             return widget;
         }

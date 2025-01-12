@@ -11,15 +11,14 @@ import net.minecraft.world.level.material.Fluids;
 // TODO: packet to clear the fluid lock.
 public class FluidConduitNetworkContext implements ConduitNetworkContext<FluidConduitNetworkContext> {
 
-    public static Codec<FluidConduitNetworkContext> CODEC = RecordCodecBuilder.create(
-        instance -> instance.group(
-            BuiltInRegistries.FLUID.byNameCodec()
-                .optionalFieldOf("locked_fluid", Fluids.EMPTY)
-                .forGetter(FluidConduitNetworkContext::lockedFluid)
-        ).apply(instance, FluidConduitNetworkContext::new)
-    );
+    public static Codec<FluidConduitNetworkContext> CODEC = RecordCodecBuilder.create(instance -> instance
+            .group(BuiltInRegistries.FLUID.byNameCodec()
+                    .optionalFieldOf("locked_fluid", Fluids.EMPTY)
+                    .forGetter(FluidConduitNetworkContext::lockedFluid))
+            .apply(instance, FluidConduitNetworkContext::new));
 
-    public static ConduitNetworkContextType<FluidConduitNetworkContext> TYPE = new ConduitNetworkContextType<>(CODEC, FluidConduitNetworkContext::new);
+    public static ConduitNetworkContextType<FluidConduitNetworkContext> TYPE = new ConduitNetworkContextType<>(CODEC,
+            FluidConduitNetworkContext::new);
 
     private Fluid lockedFluid;
 
@@ -41,7 +40,8 @@ public class FluidConduitNetworkContext implements ConduitNetworkContext<FluidCo
 
     @Override
     public FluidConduitNetworkContext mergeWith(FluidConduitNetworkContext other) {
-        // Not doing anything here because these graph's should not merge unless the locked fluid is the same.
+        // Not doing anything here because these graph's should not merge unless the
+        // locked fluid is the same.
         return this;
     }
 

@@ -6,8 +6,10 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Experimental
 public interface ChanneledIOConnectionConfig extends IOConnectionConfig {
     DyeColor insertChannel();
+
     DyeColor extractChannel();
 
     ChanneledIOConnectionConfig withInputChannel(DyeColor inputChannel);
+
     ChanneledIOConnectionConfig withOutputChannel(DyeColor outputChannel);
 }

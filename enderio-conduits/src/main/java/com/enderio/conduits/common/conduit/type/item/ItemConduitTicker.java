@@ -6,10 +6,8 @@ import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.NewIOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitTypes;
-
 import java.util.Comparator;
 import java.util.List;
-
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
@@ -20,11 +18,13 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemConduitTicker extends NewIOAwareConduitTicker<ItemConduit, ItemConduitConnectionConfig, ItemConduitTicker.Connection> {
+public class ItemConduitTicker
+        extends NewIOAwareConduitTicker<ItemConduit, ItemConduitConnectionConfig, ItemConduitTicker.Connection> {
 
     @Override
-    protected void tickColoredGraph(ServerLevel level, ItemConduit conduit, List<Connection> senders, List<Connection> receivers, DyeColor color,
-        ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
+    protected void tickColoredGraph(ServerLevel level, ItemConduit conduit, List<Connection> senders,
+            List<Connection> receivers, DyeColor color, ConduitNetwork graph,
+            ColoredRedstoneProvider coloredRedstoneProvider) {
 
         toNextExtract: for (Connection extract : receivers) {
             ItemConduitNodeData nodeData = extract.node().getOrCreateNodeData(ConduitTypes.NodeData.ITEM.get());
@@ -46,7 +46,8 @@ public class ItemConduitTicker extends NewIOAwareConduitTicker<ItemConduit, Item
                     }
                 }
 
-                var connectionConfig = extract.node().getConnectionConfig(extract.side(), ConduitTypes.ConnectionTypes.ITEM.get());
+                var connectionConfig = extract.node()
+                        .getConnectionConfig(extract.side(), ConduitTypes.ConnectionTypes.ITEM.get());
 
                 int startingIndex = 0;
                 if (connectionConfig.isRoundRobin()) {
@@ -109,9 +110,11 @@ public class ItemConduitTicker extends NewIOAwareConduitTicker<ItemConduit, Item
     @Override
     @Nullable
     protected Connection createConnection(Level level, ConduitNode node, Direction side) {
-        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, node.getPos().relative(side), side.getOpposite());
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, node.getPos().relative(side),
+                side.getOpposite());
         if (itemHandler != null) {
-            return new Connection(node, side, node.getConnectionConfig(side, ItemConduitConnectionConfig.TYPE), itemHandler);
+            return new Connection(node, side, node.getConnectionConfig(side, ItemConduitConnectionConfig.TYPE),
+                    itemHandler);
         }
 
         return null;
@@ -120,7 +123,8 @@ public class ItemConduitTicker extends NewIOAwareConduitTicker<ItemConduit, Item
     protected static class Connection extends SimpleConnection<ItemConduitConnectionConfig> {
         private final IItemHandler itemHandler;
 
-        public Connection(ConduitNode node, Direction side, ItemConduitConnectionConfig config, IItemHandler itemHandler) {
+        public Connection(ConduitNode node, Direction side, ItemConduitConnectionConfig config,
+                IItemHandler itemHandler) {
             super(node, side, config);
             this.itemHandler = itemHandler;
         }

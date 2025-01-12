@@ -1,7 +1,6 @@
 package com.enderio.base.common.item.tool;
 
 import com.enderio.base.api.capability.SideConfig;
-import com.enderio.base.common.blockentity.Wrenchable;
 import com.enderio.base.common.init.EIOCapabilities;
 import com.mojang.datafixers.util.Either;
 import java.util.Optional;

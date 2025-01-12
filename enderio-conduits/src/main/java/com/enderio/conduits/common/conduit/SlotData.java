@@ -10,6 +10,6 @@ public record SlotData(Direction direction, int conduitIndex, SlotType slotType)
     }
 
     public int slotIndex() {
-        return direction.ordinal()*3*9 + conduitIndex * 3 + slotType.ordinal();
+        return direction.ordinal() * 3 * 9 + conduitIndex * 3 + slotType.ordinal();
     }
 }

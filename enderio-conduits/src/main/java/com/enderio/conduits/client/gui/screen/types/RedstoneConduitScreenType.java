@@ -10,24 +10,25 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public class RedstoneConduitScreenType extends ConduitScreenType<RedstoneConduitConnectionConfig> {
     @Override
-    public void createWidgets(ConduitScreenHelper screen, ConduitMenuDataAccess<RedstoneConduitConnectionConfig> dataAccess) {
+    public void createWidgets(ConduitScreenHelper screen,
+            ConduitMenuDataAccess<RedstoneConduitConnectionConfig> dataAccess) {
         // Add insert/extract checkboxes.
         screen.addCheckbox(0, 0, () -> dataAccess.getConnectionConfig().isReceive(),
-            value -> dataAccess.updateConnectionConfig(config -> config.withIsReceive(value)));
+                value -> dataAccess.updateConnectionConfig(config -> config.withIsReceive(value)));
 
         screen.addCheckbox(90, 0, () -> dataAccess.getConnectionConfig().isSend(),
-            value -> dataAccess.updateConnectionConfig(config -> config.withIsSend(value)));
+                value -> dataAccess.updateConnectionConfig(config -> config.withIsSend(value)));
 
         // Channel colors
         screen.addColorPicker(0, 20, ConduitLang.CONDUIT_CHANNEL, () -> dataAccess.getConnectionConfig().receiveColor(),
-            value -> dataAccess.updateConnectionConfig(config -> config.withReceiveColor(value)));
+                value -> dataAccess.updateConnectionConfig(config -> config.withReceiveColor(value)));
 
         screen.addColorPicker(90, 20, ConduitLang.CONDUIT_CHANNEL, () -> dataAccess.getConnectionConfig().sendColor(),
-            value -> dataAccess.updateConnectionConfig(config -> config.withSendColor(value)));
+                value -> dataAccess.updateConnectionConfig(config -> config.withSendColor(value)));
 
         // Strong signal
         screen.addCheckbox(90, 40, () -> dataAccess.getConnectionConfig().isStrongOutputSignal(),
-            value -> dataAccess.updateConnectionConfig(config -> config.withIsStrongOutputSignal(value)));
+                value -> dataAccess.updateConnectionConfig(config -> config.withIsStrongOutputSignal(value)));
     }
 
     @Override

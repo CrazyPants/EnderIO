@@ -1,8 +1,8 @@
 package com.enderio.conduits.client.particle;
 
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.conduit.bundle.ConduitShape;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
@@ -18,17 +18,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.List;
-
 public class ConduitBreakParticle extends TextureSheetParticle {
     private final BlockPos pos;
     private final float uo;
     private final float vo;
 
-    public ConduitBreakParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, BlockPos pos, ResourceLocation texture) {
+    public ConduitBreakParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed,
+            double zSpeed, BlockPos pos, ResourceLocation texture) {
         super(level, x, y, z, xSpeed, ySpeed, zSpeed);
         this.pos = pos;
-        this.setSprite(Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(texture));
+        this.setSprite(
+                Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(texture));
         this.gravity = 1.0F;
         this.rCol = 0.6F;
         this.gCol = 0.6F;
@@ -91,7 +91,8 @@ public class ConduitBreakParticle extends TextureSheetParticle {
                         double x = pos.getX() + offX * sizeX + minX;
                         double y = pos.getY() + offY * sizeY + minY;
                         double z = pos.getZ() + offZ * sizeZ + minZ;
-                        engine.add(new ConduitBreakParticle(level, x, y, z, offX - 0.5D, offY - 0.5D, offZ - 0.5D, pos, conduit.texture()));
+                        engine.add(new ConduitBreakParticle(level, x, y, z, offX - 0.5D, offY - 0.5D, offZ - 0.5D, pos,
+                                conduit.texture()));
                     }
                 }
             }
@@ -113,33 +114,34 @@ public class ConduitBreakParticle extends TextureSheetParticle {
         int k = pos.getZ();
         float f = 0.1F;
         AABB aabb = state.getShape(level, pos).bounds();
-        double x = (double)i + level.getRandom().nextDouble() * (aabb.maxX - aabb.minX - 0.2F) + 0.1F + aabb.minX;
-        double y = (double)j + level.getRandom().nextDouble() * (aabb.maxY - aabb.minY - 0.2F) + 0.1F + aabb.minY;
-        double z = (double)k + level.getRandom().nextDouble() * (aabb.maxZ - aabb.minZ - 0.2F) + 0.1F + aabb.minZ;
+        double x = (double) i + level.getRandom().nextDouble() * (aabb.maxX - aabb.minX - 0.2F) + 0.1F + aabb.minX;
+        double y = (double) j + level.getRandom().nextDouble() * (aabb.maxY - aabb.minY - 0.2F) + 0.1F + aabb.minY;
+        double z = (double) k + level.getRandom().nextDouble() * (aabb.maxZ - aabb.minZ - 0.2F) + 0.1F + aabb.minZ;
         if (side == Direction.DOWN) {
-            y = (double)j + aabb.minY - 0.1F;
+            y = (double) j + aabb.minY - 0.1F;
         }
 
         if (side == Direction.UP) {
-            y = (double)j + aabb.maxY + 0.1F;
+            y = (double) j + aabb.maxY + 0.1F;
         }
 
         if (side == Direction.NORTH) {
-            z = (double)k + aabb.minZ - 0.1F;
+            z = (double) k + aabb.minZ - 0.1F;
         }
 
         if (side == Direction.SOUTH) {
-            z = (double)k + aabb.maxZ + 0.1F;
+            z = (double) k + aabb.maxZ + 0.1F;
         }
 
         if (side == Direction.WEST) {
-            x = (double)i + aabb.minX - 0.1F;
+            x = (double) i + aabb.minX - 0.1F;
         }
 
         if (side == Direction.EAST) {
-            x = (double)i + aabb.maxX + 0.1F;
+            x = (double) i + aabb.maxX + 0.1F;
         }
 
-        engine.add(new ConduitBreakParticle(level, x, y, z, 0.0D, 0.0D, 0.0D, pos, conduit.texture()).setPower(0.2F).scale(0.6F));
+        engine.add(new ConduitBreakParticle(level, x, y, z, 0.0D, 0.0D, 0.0D, pos, conduit.texture()).setPower(0.2F)
+                .scale(0.6F));
     }
 }

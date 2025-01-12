@@ -45,7 +45,7 @@ subprojects {
             encoding("UTF-8")
 
             java {
-                cleanthat()
+                cleanthat().version("2.8")
 
                 eclipse().configFile("$rootDir/config/codeformat/codeformat.xml")
 

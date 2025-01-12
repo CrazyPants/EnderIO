@@ -3,7 +3,9 @@ package com.enderio.conduits.api;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Direction;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.BiFunction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -12,17 +14,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.BiFunction;
-
 // TODO: Change this from an interface to a record + builder?
 //       No point in having an interface imo.
 public interface ConduitType<T extends Conduit<T, ?>> {
     Codec<ConduitType<?>> CODEC = Codec.lazyInitialized(EnderIOConduitsRegistries.CONDUIT_TYPE::byNameCodec);
-    StreamCodec<RegistryFriendlyByteBuf, ConduitType<?>> STREAM_CODEC = StreamCodec.recursive(
-        streamCodec -> ByteBufCodecs.registry(EnderIOConduitsRegistries.Keys.CONDUIT_TYPE)
-    );
+    StreamCodec<RegistryFriendlyByteBuf, ConduitType<?>> STREAM_CODEC = StreamCodec
+            .recursive(streamCodec -> ByteBufCodecs.registry(EnderIOConduitsRegistries.Keys.CONDUIT_TYPE));
 
     /**
      * @return The codec used for datapack read and sync.
@@ -47,12 +44,10 @@ public interface ConduitType<T extends Conduit<T, ?>> {
     }
 
     static <T extends Conduit<T, ?>> Builder<T> builder(BiFunction<ResourceLocation, Component, T> factory) {
-        return new Builder<T>(RecordCodecBuilder.mapCodec(
-            builder -> builder.group(
-                ResourceLocation.CODEC.fieldOf("texture").forGetter(Conduit::texture),
-                ComponentSerialization.CODEC.fieldOf("description").forGetter(Conduit::description)
-            ).apply(builder, factory)
-        ));
+        return new Builder<T>(RecordCodecBuilder.mapCodec(builder -> builder
+                .group(ResourceLocation.CODEC.fieldOf("texture").forGetter(Conduit::texture),
+                        ComponentSerialization.CODEC.fieldOf("description").forGetter(Conduit::description))
+                .apply(builder, factory)));
     }
 
     class Builder<T extends Conduit<T, ?>> {
@@ -73,9 +68,8 @@ public interface ConduitType<T extends Conduit<T, ?>> {
             return new SimpleType<>(codec, exposedCapabilities);
         }
 
-        record SimpleType<T extends Conduit<T, ?>>(
-            MapCodec<T> codec,
-            Set<BlockCapability<?, ?>> exposedCapabilities
-        ) implements ConduitType<T> {}
+        record SimpleType<T extends Conduit<T, ?>>(MapCodec<T> codec, Set<BlockCapability<?, ?>> exposedCapabilities)
+                implements ConduitType<T> {
+        }
     }
 }

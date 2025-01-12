@@ -3,20 +3,19 @@ package com.enderio.conduits.common.conduit.bundle;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.api.ConduitRedstoneSignalAware;
+import com.enderio.conduits.api.bundle.AddConduitResult;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
-import com.enderio.conduits.api.bundle.AddConduitResult;
 import com.enderio.conduits.common.conduit.menu.ConduitMenu;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitConnectionConfig;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
 import com.enderio.conduits.common.init.ConduitComponents;
-import java.util.Optional;
-
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.redstone.RedstoneInsertFilter;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -214,7 +213,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         }
 
         if (level.getBlockEntity(currentPos) instanceof ConduitBundleBlockEntity conduit) {
-             conduit.updateShape();
+            conduit.updateShape();
         }
 
         return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
@@ -305,8 +304,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
 //                }
 
                 if (conduit == null) {
-                    conduit = conduitBundle.getShape()
-                            .getConduit(((BlockHitResult) hit).getBlockPos(), hit);
+                    conduit = conduitBundle.getShape().getConduit(((BlockHitResult) hit).getBlockPos(), hit);
                 }
 
                 if (conduit == null) {
@@ -346,16 +344,20 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
     // region Open Menu
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
+            BlockHitResult hitResult) {
 
         if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
-            // TODO: The connection shouldn't include the plate.. if we hit the plate open the first conduit?
+            // TODO: The connection shouldn't include the plate.. if we hit the plate open
+            // the first conduit?
             var conduitConnection = conduitBundle.getShape().getConnectionFromHit(pos, hitResult);
 
             if (conduitConnection != null) {
-                if (conduitBundle.getConnectionStatus(conduitConnection.getFirst(), conduitConnection.getSecond()) == ConnectionStatus.CONNECTED_BLOCK) {
+                if (conduitBundle.getConnectionStatus(conduitConnection.getFirst(),
+                        conduitConnection.getSecond()) == ConnectionStatus.CONNECTED_BLOCK) {
                     if (player instanceof ServerPlayer serverPlayer) {
-                        ConduitMenu.openConduitMenu(serverPlayer, pos, conduitBundle, conduitConnection.getFirst(), conduitConnection.getSecond());
+                        ConduitMenu.openConduitMenu(serverPlayer, pos, conduitBundle, conduitConnection.getFirst(),
+                                conduitConnection.getSecond());
                     }
 
                     return InteractionResult.sidedSuccess(level.isClientSide());
@@ -409,8 +411,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         if (addResult instanceof AddConduitResult.Upgrade(Holder<Conduit<?, ?>> replacedConduit)) {
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);
-                player.getInventory()
-                    .placeItemBackInInventory(ConduitBlockItem.getStackFor(replacedConduit, 1));
+                player.getInventory().placeItemBackInInventory(ConduitBlockItem.getStackFor(replacedConduit, 1));
             }
         } else if (addResult instanceof AddConduitResult.Insert) {
             if (!player.getAbilities().instabuild) {
@@ -419,7 +420,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         } else {
             if (!FMLLoader.isProduction()) {
                 throw new IllegalStateException(
-                    "ConduitBundleAccessor#canAddConduit returned true, but addConduit returned BLOCKED");
+                        "ConduitBundleAccessor#canAddConduit returned true, but addConduit returned BLOCKED");
             }
 
             return ItemInteractionResult.FAIL;
@@ -428,7 +429,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         BlockState blockState = level.getBlockState(pos);
         SoundType soundtype = blockState.getSoundType(level, pos, player);
         level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
-            (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
         level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, blockState));
 
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
@@ -461,7 +462,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         BlockState blockState = level.getBlockState(pos);
         SoundType soundtype = blockState.getSoundType(level, pos, player);
         level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
-            (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
         level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, blockState));
 
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
@@ -490,7 +491,8 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
                 return false;
             }
 
-            var config = conduitBundle.getConnectionConfig(direction, redstoneConduit, RedstoneConduitConnectionConfig.TYPE);
+            var config = conduitBundle.getConnectionConfig(direction, redstoneConduit,
+                    RedstoneConduitConnectionConfig.TYPE);
             return config.canSend(ConduitRedstoneSignalAware.NONE);
         }
 
@@ -525,7 +527,8 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
                 return 0;
             }
 
-            var config = conduitBundle.getConnectionConfig(direction.getOpposite(), redstoneConduit, RedstoneConduitConnectionConfig.TYPE);
+            var config = conduitBundle.getConnectionConfig(direction.getOpposite(), redstoneConduit,
+                    RedstoneConduitConnectionConfig.TYPE);
             if (!config.canSend(ConduitRedstoneSignalAware.NONE)) {
                 return 0;
             }

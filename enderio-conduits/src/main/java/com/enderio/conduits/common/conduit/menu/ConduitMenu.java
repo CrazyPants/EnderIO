@@ -5,12 +5,12 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
-import com.enderio.conduits.common.init.ConduitBlockEntities;
 import com.enderio.conduits.common.init.ConduitMenus;
 import com.enderio.conduits.common.network.S2CConduitExtraGuiDataPacket;
 import com.enderio.conduits.common.network.SetConduitConnectionConfigPacket;
-import com.enderio.core.common.menu.BaseBlockEntityMenu;
 import com.enderio.core.common.menu.BaseEnderMenu;
+import java.util.Objects;
+import java.util.Optional;
 import me.liliandev.ensure.ensures.EnsureSide;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,30 +27,25 @@ import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.Optional;
-
 // TODO: Make this not connect to the block entity at all, that way when the screen desyncs, the client world isn't desynced too.
 // This means server menu should get/set connections direct from the BE but the client should have a standalone config store.
 // Need to work out what this means for the client sync tag - it might need to be synced separately to the client from this GUI too.
 // Possibly create an NBT sync slot and then use it for that?
 public class ConduitMenu extends BaseEnderMenu {
 
-    public static void openConduitMenu(ServerPlayer serverPlayer, BlockPos pos, ConduitBundleBlockEntity conduitBundle, Direction side,
-        Holder<Conduit<?, ?>> conduit) {
-        serverPlayer.openMenu(new SimpleMenuProvider((containerId, inventory, player) ->
-                new ConduitMenu(containerId, inventory, conduitBundle, side, conduit),
-                conduit.value().description()),
-            buf -> {
-                buf.writeEnum(side);
-                Conduit.STREAM_CODEC.encode(buf, conduit);
-                ConnectionConfig.STREAM_CODEC.encode(buf, conduitBundle.getConnectionConfig(side, conduit));
+    public static void openConduitMenu(ServerPlayer serverPlayer, BlockPos pos, ConduitBundleBlockEntity conduitBundle,
+            Direction side, Holder<Conduit<?, ?>> conduit) {
+        serverPlayer.openMenu(new SimpleMenuProvider((containerId, inventory, player) -> new ConduitMenu(containerId,
+                inventory, conduitBundle, side, conduit), conduit.value().description()), buf -> {
+                    buf.writeEnum(side);
+                    Conduit.STREAM_CODEC.encode(buf, conduit);
+                    ConnectionConfig.STREAM_CODEC.encode(buf, conduitBundle.getConnectionConfig(side, conduit));
 
-                //noinspection DataFlowIssue
-                ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG)
-                    .map(opt -> opt.orElse(null), Optional::ofNullable)
-                    .encode(buf, conduitBundle.getConduitExtraGuiData(side, conduit));
-            });
+                    // noinspection DataFlowIssue
+                    ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG)
+                            .map(opt -> opt.orElse(null), Optional::ofNullable)
+                            .encode(buf, conduitBundle.getConduitExtraGuiData(side, conduit));
+                });
     }
 
     public static final int BUTTON_CHANGE_CONDUIT_START_ID = 0;
@@ -67,7 +62,8 @@ public class ConduitMenu extends BaseEnderMenu {
     @UseOnly(LogicalSide.SERVER)
     private CompoundTag remoteExtraGuiData;
 
-    public ConduitMenu(int containerId, Inventory playerInventory, ConduitBundleBlockEntity conduitBundle, Direction side, Holder<Conduit<?, ?>> selectedConduit) {
+    public ConduitMenu(int containerId, Inventory playerInventory, ConduitBundleBlockEntity conduitBundle,
+            Direction side, Holder<Conduit<?, ?>> selectedConduit) {
         super(ConduitMenus.CONDUIT_MENU.get(), containerId, playerInventory);
 
         this.side = side;
@@ -111,7 +107,7 @@ public class ConduitMenu extends BaseEnderMenu {
     public <T extends ConnectionConfig> T connectionConfig(ConnectionConfigType<T> type) {
         var config = connectionConfig();
         if (config.type() == type) {
-            //noinspection unchecked
+            // noinspection unchecked
             return (T) config;
         }
 
@@ -141,12 +137,13 @@ public class ConduitMenu extends BaseEnderMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        //var bundle = getBlockEntity();
-        //var currentConfig = connectionConfig();
+        // var bundle = getBlockEntity();
+        // var currentConfig = connectionConfig();
 
-        if (id >= BUTTON_CHANGE_CONDUIT_START_ID && id <= BUTTON_CHANGE_CONDUIT_ID_COUNT + BUTTON_CHANGE_CONDUIT_ID_COUNT) {
+        if (id >= BUTTON_CHANGE_CONDUIT_START_ID
+                && id <= BUTTON_CHANGE_CONDUIT_ID_COUNT + BUTTON_CHANGE_CONDUIT_ID_COUNT) {
             // TODO: attempt to change to a different conduit on the same face.
-            //var conduitList = getBlockEntity().getConduits();
+            // var conduitList = getBlockEntity().getConduits();
 
             // TODO Find and switch to conduit and tell the client.
         }
@@ -166,13 +163,15 @@ public class ConduitMenu extends BaseEnderMenu {
 
         if (getPlayerInventory().player instanceof ServerPlayer serverPlayer) {
             if (!Objects.equals(connectionConfig(), remoteConnectionConfig)) {
-                PacketDistributor.sendToPlayer(serverPlayer, new SetConduitConnectionConfigPacket(containerId, connectionConfig()));
+                PacketDistributor.sendToPlayer(serverPlayer,
+                        new SetConduitConnectionConfigPacket(containerId, connectionConfig()));
                 this.remoteConnectionConfig = connectionConfig();
             }
 
             var extraGuiData = extraGuiData();
             if (!Objects.equals(extraGuiData, remoteExtraGuiData)) {
-                PacketDistributor.sendToPlayer(serverPlayer, new S2CConduitExtraGuiDataPacket(containerId, extraGuiData));
+                PacketDistributor.sendToPlayer(serverPlayer,
+                        new S2CConduitExtraGuiDataPacket(containerId, extraGuiData));
                 this.remoteExtraGuiData = extraGuiData;
             }
         }
@@ -182,7 +181,9 @@ public class ConduitMenu extends BaseEnderMenu {
         // TODO: Conduit menu list.
 
         ConnectionConfig getConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit);
+
         void setConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit, ConnectionConfig config);
+
         boolean canBeOrIsConnection(Direction side, Holder<Conduit<?, ?>> conduit);
 
         @Nullable
@@ -201,8 +202,8 @@ public class ConduitMenu extends BaseEnderMenu {
         public ClientConnectionAccessor(RegistryFriendlyByteBuf buf) {
             this.connectionConfig = ConnectionConfig.STREAM_CODEC.decode(buf);
             extraGuiData = ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG)
-                .map(opt -> opt.orElse(null), Optional::ofNullable)
-                .decode(buf);
+                    .map(opt -> opt.orElse(null), Optional::ofNullable)
+                    .decode(buf);
         }
 
         @Override

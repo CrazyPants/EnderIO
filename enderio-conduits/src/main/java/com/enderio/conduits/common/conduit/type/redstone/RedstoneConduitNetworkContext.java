@@ -2,15 +2,16 @@ package com.enderio.conduits.common.conduit.type.redstone;
 
 import com.enderio.conduits.api.network.ConduitNetworkContext;
 import com.enderio.conduits.api.network.ConduitNetworkContextType;
-import net.minecraft.world.item.DyeColor;
-
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.world.item.DyeColor;
 
 public class RedstoneConduitNetworkContext implements ConduitNetworkContext<RedstoneConduitNetworkContext> {
 
-    // Redstone context is not saved as it is recalculated every graph tick if the network is active.
-    public static ConduitNetworkContextType<RedstoneConduitNetworkContext> TYPE = new ConduitNetworkContextType<>(null, RedstoneConduitNetworkContext::new);
+    // Redstone context is not saved as it is recalculated every graph tick if the
+    // network is active.
+    public static ConduitNetworkContextType<RedstoneConduitNetworkContext> TYPE = new ConduitNetworkContextType<>(null,
+            RedstoneConduitNetworkContext::new);
 
     private boolean isActive;
     private Map<DyeColor, Integer> previousChannelSignals = new HashMap<>();
@@ -86,7 +87,8 @@ public class RedstoneConduitNetworkContext implements ConduitNetworkContext<Reds
         return TYPE;
     }
 
-    // Because the context is cleared before the graph ticks, we need to represent "newness" as three states.
+    // Because the context is cleared before the graph ticks, we need to represent
+    // "newness" as three states.
     private enum NewNetworkDelay {
         NEW, NEW_DECAY, OLD
     }

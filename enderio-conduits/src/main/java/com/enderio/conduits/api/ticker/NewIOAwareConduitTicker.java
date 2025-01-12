@@ -8,14 +8,13 @@ import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * A channel IO-aware ticker.
@@ -26,10 +25,11 @@ import java.util.List;
  * @param <V> The type of connection for the ticker implementation
  */
 public abstract class NewIOAwareConduitTicker<T extends Conduit<T, U>, U extends NewIOConnectionConfig, V extends NewIOAwareConduitTicker.SimpleConnection<U>>
-    implements ConduitTicker<T> {
+        implements ConduitTicker<T> {
 
     @Override
-    public void tickGraph(ServerLevel level, T conduit, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
+    public void tickGraph(ServerLevel level, T conduit, ConduitNetwork graph,
+            ColoredRedstoneProvider coloredRedstoneProvider) {
         ListMultimap<DyeColor, V> senders = ArrayListMultimap.create();
         ListMultimap<DyeColor, V> receivers = ArrayListMultimap.create();
 
@@ -82,14 +82,8 @@ public abstract class NewIOAwareConduitTicker<T extends Conduit<T, U>, U extends
     @Nullable
     protected abstract V createConnection(Level level, ConduitNode node, Direction side);
 
-    protected abstract void tickColoredGraph(
-        ServerLevel level,
-        T conduit,
-        List<V> senders,
-        List<V> receivers,
-        DyeColor color,
-        ConduitNetwork graph,
-        ColoredRedstoneProvider coloredRedstoneProvider);
+    protected abstract void tickColoredGraph(ServerLevel level, T conduit, List<V> senders, List<V> receivers,
+            DyeColor color, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider);
 
     public static class SimpleConnection<T extends NewIOConnectionConfig> {
         private final ConduitNode node;

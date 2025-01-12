@@ -91,7 +91,8 @@ public class ConduitSavedData extends SavedData {
         }
     }
 
-    private void deserializeGraphs(HolderLookup.Provider lookupProvider, Holder<Conduit<?, ?>> conduit, ListTag graphs) {
+    private void deserializeGraphs(HolderLookup.Provider lookupProvider, Holder<Conduit<?, ?>> conduit,
+            ListTag graphs) {
         for (Tag tag1 : graphs) {
             CompoundTag graphTag = (CompoundTag) tag1;
 

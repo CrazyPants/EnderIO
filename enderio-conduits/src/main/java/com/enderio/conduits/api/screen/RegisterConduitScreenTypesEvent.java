@@ -2,11 +2,10 @@ package com.enderio.conduits.api.screen;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitType;
-import net.neoforged.bus.api.Event;
-import net.neoforged.fml.event.IModBusEvent;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 
 public class RegisterConduitScreenTypesEvent extends Event implements IModBusEvent {
     private final Map<ConduitType<?>, ConduitScreenType<?>> screenTypes = new ConcurrentHashMap<>();

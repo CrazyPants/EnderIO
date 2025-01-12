@@ -3,11 +3,7 @@ package com.enderio.conduits.common.conduit.type.energy;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
-public record EnergyConduitStorage(
-    boolean isMutable,
-    int transferRate,
-    ConduitNode node
-) implements IEnergyStorage {
+public record EnergyConduitStorage(boolean isMutable, int transferRate, ConduitNode node) implements IEnergyStorage {
 
     private static final int ENERGY_BUFFER_SCALER = 4;
 
@@ -48,7 +44,8 @@ public record EnergyConduitStorage(
     @Override
     public int getMaxEnergyStored() {
         // Capacity is transfer rate + nodeCount * transferRatePerTick / 2 (expanded).
-        // This ensures at least the transfer rate of the cable is available, but capacity doesn't grow outrageously.
+        // This ensures at least the transfer rate of the cable is available, but
+        // capacity doesn't grow outrageously.
         int nodeCount = node.getNetwork().getNodes().size();
 
         // The maximum number of nodes before the network capacity is INT_MAX.
@@ -67,7 +64,8 @@ public record EnergyConduitStorage(
     }
 
     // The block will not expose this capability unless it can be extracted from
-    // This means we don't have to worry about checking if we can extract at this point.
+    // This means we don't have to worry about checking if we can extract at this
+    // point.
     @Override
     public boolean canReceive() {
         return node.getNetwork() != null && isMutable;

@@ -2,11 +2,10 @@ package com.enderio.conduits.api.model;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitType;
-import net.neoforged.bus.api.Event;
-import net.neoforged.fml.event.IModBusEvent;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 
 public class RegisterConduitModelModifiersEvent extends Event implements IModBusEvent {
     public interface ConduitCoreModelModifierFactory {

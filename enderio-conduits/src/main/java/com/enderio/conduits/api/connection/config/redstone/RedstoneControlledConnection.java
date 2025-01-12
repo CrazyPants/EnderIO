@@ -13,8 +13,10 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Experimental
 public interface RedstoneControlledConnection extends ConnectionConfig {
     RedstoneControl redstoneControl();
+
     DyeColor redstoneChannel();
 
     RedstoneControlledConnection withRedstoneControl(RedstoneControl redstoneControl);
+
     RedstoneControlledConnection withRedstoneChannel(DyeColor redstoneChannel);
 }

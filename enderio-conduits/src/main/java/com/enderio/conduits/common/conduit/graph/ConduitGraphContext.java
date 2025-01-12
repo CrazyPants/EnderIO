@@ -1,10 +1,10 @@
 package com.enderio.conduits.common.conduit.graph;
 
 import com.enderio.conduits.api.Conduit;
+import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import com.enderio.conduits.api.network.ConduitNetworkContext;
 import com.enderio.conduits.api.network.ConduitNetworkContextAccessor;
 import com.enderio.conduits.api.network.ConduitNetworkContextType;
-import com.enderio.conduits.api.EnderIOConduitsRegistries;
 import dev.gigaherz.graph3.Mergeable;
 import java.util.Objects;
 import net.minecraft.core.Holder;
@@ -128,8 +128,8 @@ public class ConduitGraphContext implements Mergeable<ConduitGraphContext>, Cond
     }
 
     @Nullable
-    private static ConduitNetworkContext<?> loadNetworkContext(Conduit<?, ?> conduit, HolderLookup.Provider lookupProvider,
-            CompoundTag contextTag) {
+    private static ConduitNetworkContext<?> loadNetworkContext(Conduit<?, ?> conduit,
+            HolderLookup.Provider lookupProvider, CompoundTag contextTag) {
         ResourceLocation serializerKey = ResourceLocation.parse(contextTag.getString("Type"));
         ConduitNetworkContextType<?> contextType = Objects.requireNonNull(
                 EnderIOConduitsRegistries.CONDUIT_NETWORK_CONTEXT_TYPE.get(serializerKey),

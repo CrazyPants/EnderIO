@@ -110,7 +110,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
                                     renderType)));
 
                     ConduitModelModifier conduitModelModifier = ConduitModelModifiers
-                        .getModifier(conduit.value().type());
+                            .getModifier(conduit.value().type());
                     if (conduitModelModifier != null) {
                         quads.addAll(rotationTranslation.process(conduitModelModifier.createConnectionQuads(conduit,
                                 extraWorldData, side, direction, rand, renderType)));

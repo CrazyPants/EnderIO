@@ -3,18 +3,19 @@ package com.enderio.conduits.common.conduit.type.redstone;
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.bundle.ConduitBundleReader;
-import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
+import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.SlotType;
+import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.redstone.RedstoneExtractFilter;
 import com.enderio.conduits.common.redstone.RedstoneInsertFilter;
 import com.enderio.conduits.common.tag.ConduitTags;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -27,21 +28,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
+public record RedstoneConduit(ResourceLocation texture, ResourceLocation activeTexture, Component description)
+        implements Conduit<RedstoneConduit, RedstoneConduitConnectionConfig> {
 
-public record RedstoneConduit(
-    ResourceLocation texture,
-    ResourceLocation activeTexture,
-    Component description
-) implements Conduit<RedstoneConduit, RedstoneConduitConnectionConfig> {
-
-    public static MapCodec<RedstoneConduit> CODEC = RecordCodecBuilder.mapCodec(
-        builder -> builder.group(
-            ResourceLocation.CODEC.fieldOf("texture").forGetter(RedstoneConduit::texture),
-            ResourceLocation.CODEC.fieldOf("active_texture").forGetter(RedstoneConduit::activeTexture),
-            ComponentSerialization.CODEC.fieldOf("description").forGetter(RedstoneConduit::description)
-        ).apply(builder, RedstoneConduit::new)
-    );
+    public static MapCodec<RedstoneConduit> CODEC = RecordCodecBuilder.mapCodec(builder -> builder
+            .group(ResourceLocation.CODEC.fieldOf("texture").forGetter(RedstoneConduit::texture),
+                    ResourceLocation.CODEC.fieldOf("active_texture").forGetter(RedstoneConduit::activeTexture),
+                    ComponentSerialization.CODEC.fieldOf("description").forGetter(RedstoneConduit::description))
+            .apply(builder, RedstoneConduit::new));
 
     private static final RedstoneConduitTicker TICKER = new RedstoneConduitTicker();
     private static final ConduitMenuData MENU_DATA = new ConduitMenuData.Simple(true, true, false, true, true, false);
@@ -69,16 +63,17 @@ public record RedstoneConduit(
     @Override
     public boolean canApplyFilter(SlotType slotType, ResourceFilter resourceFilter) {
         return switch (slotType) {
-            case FILTER_EXTRACT -> resourceFilter instanceof RedstoneExtractFilter;
-            case FILTER_INSERT -> resourceFilter instanceof RedstoneInsertFilter;
-            default -> false;
+        case FILTER_EXTRACT -> resourceFilter instanceof RedstoneExtractFilter;
+        case FILTER_INSERT -> resourceFilter instanceof RedstoneInsertFilter;
+        default -> false;
         };
     }
 
     @Override
     public ResourceLocation getTexture(@Nullable CompoundTag extraWorldData) {
         if (extraWorldData != null) {
-            return extraWorldData.contains("IsActive") && extraWorldData.getBoolean("IsActive") ? activeTexture() : texture();
+            return extraWorldData.contains("IsActive") && extraWorldData.getBoolean("IsActive") ? activeTexture()
+                    : texture();
         }
 
         return texture();
@@ -94,7 +89,7 @@ public record RedstoneConduit(
         BlockPos neighbor = conduitPos.relative(direction);
         BlockState blockState = level.getBlockState(neighbor);
         return blockState.is(ConduitTags.Blocks.REDSTONE_CONNECTABLE)
-            || blockState.canRedstoneConnectTo(level, neighbor, direction.getOpposite());
+                || blockState.canRedstoneConnectTo(level, neighbor, direction.getOpposite());
     }
 
     @Override
@@ -110,8 +105,8 @@ public record RedstoneConduit(
     }
 
     @Override
-    public RedstoneConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
-        RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+    public RedstoneConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
+            DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel) {
         return new RedstoneConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel, false);
     }
 

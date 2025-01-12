@@ -5,11 +5,11 @@ import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
+import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
+import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.ConduitType;
-import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
@@ -17,10 +17,8 @@ import com.enderio.core.common.util.TooltipUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import java.util.Objects;
 import java.util.function.Consumer;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -89,7 +87,8 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
 
     @Override
     public boolean canConnectConduits(@Nullable CompoundTag selfRenderData, @Nullable CompoundTag otherRenderData) {
-        // If there's no data for one of the nodes, the network must be fresh or uninitialized.
+        // If there's no data for one of the nodes, the network must be fresh or
+        // uninitialized.
         if (selfRenderData == null || otherRenderData == null) {
             return true;
         }
@@ -98,8 +97,10 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
             return true;
         }
 
-        var selfLockedFluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
-        var otherLockedFluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
+        var selfLockedFluid = BuiltInRegistries.FLUID
+                .get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
+        var otherLockedFluid = BuiltInRegistries.FLUID
+                .get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
 
         return selfLockedFluid.isSame(otherLockedFluid);
     }
@@ -128,7 +129,8 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
 
     @Override
     public boolean canConnectToBlock(Level level, BlockPos conduitPos, Direction direction) {
-        IFluidHandler capability = level.getCapability(Capabilities.FluidHandler.BLOCK, conduitPos.relative(direction), direction.getOpposite());
+        IFluidHandler capability = level.getCapability(Capabilities.FluidHandler.BLOCK, conduitPos.relative(direction),
+                direction.getOpposite());
         return capability != null;
     }
 
@@ -143,9 +145,10 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
     }
 
     @Override
-    public FluidConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
-        RedstoneControl redstoneControl, DyeColor redstoneChannel) {
-        return new FluidConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel, redstoneControl, redstoneChannel);
+    public FluidConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
+            DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+        return new FluidConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel, redstoneControl,
+                redstoneChannel);
     }
 
     @Override

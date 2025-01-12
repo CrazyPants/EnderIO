@@ -7,34 +7,32 @@ import com.enderio.conduits.common.init.ConduitTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 @Deprecated(forRemoval = true, since = "7.2")
 public class LegacyRedstoneConduitData implements ConduitData<LegacyRedstoneConduitData> {
 
-    public static MapCodec<LegacyRedstoneConduitData> CODEC = RecordCodecBuilder.mapCodec(
-        instance -> instance.group(
-            Codec.BOOL.fieldOf("is_active").forGetter(i -> i.isActive),
-            Codec.unboundedMap(DyeColor.CODEC, Codec.INT).fieldOf("active_colors").forGetter(i -> i.activeColors)
-        ).apply(instance, LegacyRedstoneConduitData::new)
-    );
+    public static MapCodec<LegacyRedstoneConduitData> CODEC = RecordCodecBuilder
+            .mapCodec(
+                    instance -> instance
+                            .group(Codec.BOOL.fieldOf("is_active").forGetter(i -> i.isActive),
+                                    Codec.unboundedMap(DyeColor.CODEC, Codec.INT)
+                                            .fieldOf("active_colors")
+                                            .forGetter(i -> i.activeColors))
+                            .apply(instance, LegacyRedstoneConduitData::new));
 
     public static StreamCodec<RegistryFriendlyByteBuf, LegacyRedstoneConduitData> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.BOOL,
-        r -> r.isActive,
-        ByteBufCodecs.map(HashMap::new, DyeColor.STREAM_CODEC, ByteBufCodecs.INT),
-        r -> r.activeColors,
-        LegacyRedstoneConduitData::new
-    );
+            ByteBufCodecs.BOOL, r -> r.isActive,
+            ByteBufCodecs.map(HashMap::new, DyeColor.STREAM_CODEC, ByteBufCodecs.INT), r -> r.activeColors,
+            LegacyRedstoneConduitData::new);
 
     private boolean isActive = false;
     private final EnumMap<DyeColor, Integer> activeColors = new EnumMap<>(DyeColor.class);

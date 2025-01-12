@@ -1,21 +1,18 @@
 package com.enderio.conduits.common.conduit.graph;
 
 import com.enderio.base.api.filter.ResourceFilter;
-import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.base.common.init.EIOCapabilities;
+import com.enderio.conduits.api.bundle.SlotType;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
-import com.enderio.conduits.api.network.node.NodeData;
-import com.enderio.conduits.api.network.node.NodeDataType;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.bundle.SlotType;
+import com.enderio.conduits.api.network.node.NodeData;
+import com.enderio.conduits.api.network.node.NodeDataType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.graph3.Graph;
 import dev.gigaherz.graph3.GraphObject;
-
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,10 +29,12 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
                     ConduitDataContainer.CODEC.fieldOf("data").forGetter(i -> i.legacyDataContainer))
             .apply(instance, ConduitGraphObject::new));
 
-    private static final Codec<ConduitGraphObject> NEW_CODEC = RecordCodecBuilder.create(instance -> instance
-            .group(BlockPos.CODEC.fieldOf("pos").forGetter(ConduitGraphObject::getPos),
-                NodeData.GENERIC_CODEC.optionalFieldOf("node_data").forGetter(i -> Optional.ofNullable(i.nodeData)))
-            .apply(instance, ConduitGraphObject::new));
+    private static final Codec<ConduitGraphObject> NEW_CODEC = RecordCodecBuilder
+            .create(instance -> instance
+                    .group(BlockPos.CODEC.fieldOf("pos").forGetter(ConduitGraphObject::getPos),
+                            NodeData.GENERIC_CODEC.optionalFieldOf("node_data")
+                                    .forGetter(i -> Optional.ofNullable(i.nodeData)))
+                    .apply(instance, ConduitGraphObject::new));
 
     public static final Codec<ConduitGraphObject> CODEC = Codec.withAlternative(NEW_CODEC, LEGACY_CODEC);
 
@@ -53,7 +52,8 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
     @Nullable
     private NodeData nodeData;
 
-    // TODO: Instead of a special construct, we could just pass the type and bundle in?
+    // TODO: Instead of a special construct, we could just pass the type and bundle
+    // in?
     @Nullable
     private ConduitConnectionHost connectionHost;
 
@@ -134,7 +134,7 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
         }
 
         // Upgrade with old data
-        //noinspection deprecation
+        // noinspection deprecation
         connectionHost.conduit().value().copyLegacyData(this, legacyDataContainer);
         legacyDataContainer = null;
     }
@@ -154,7 +154,7 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
     @Override
     public <T extends NodeData> @Nullable T getNodeData(NodeDataType<T> type) {
         if (nodeData != null && type == nodeData.type()) {
-            //noinspection unchecked
+            // noinspection unchecked
             return (T) nodeData;
         }
 
@@ -164,12 +164,12 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
     @Override
     public <T extends NodeData> T getOrCreateNodeData(NodeDataType<T> type) {
         if (nodeData != null && type == nodeData.type()) {
-            //noinspection unchecked
+            // noinspection unchecked
             return (T) nodeData;
         }
 
         nodeData = type.factory().get();
-        //noinspection unchecked
+        // noinspection unchecked
         return (T) nodeData;
     }
 
@@ -205,11 +205,12 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
         var config = getConnectionConfig(side);
 
         if (config.type() != type) {
-            throw new IllegalStateException("Connection config type mismatch! Conversion failed somewhere in the bundle.");
+            throw new IllegalStateException(
+                    "Connection config type mismatch! Conversion failed somewhere in the bundle.");
         }
 
-        //noinspection unchecked
-        return (T)config;
+        // noinspection unchecked
+        return (T) config;
     }
 
     @Override
@@ -233,7 +234,9 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
             throw new IllegalStateException("No connection host!");
         }
 
-        return connectionHost.inventory().getStackInSlot(direction, SlotType.FILTER_EXTRACT).getCapability(EIOCapabilities.Filter.ITEM);
+        return connectionHost.inventory()
+                .getStackInSlot(direction, SlotType.FILTER_EXTRACT)
+                .getCapability(EIOCapabilities.Filter.ITEM);
     }
 
     @Override
@@ -242,7 +245,9 @@ public class ConduitGraphObject implements GraphObject<ConduitGraphContext>, Con
             throw new IllegalStateException("No connection host!");
         }
 
-        return connectionHost.inventory().getStackInSlot(direction, SlotType.FILTER_INSERT).getCapability(EIOCapabilities.Filter.ITEM);
+        return connectionHost.inventory()
+                .getStackInSlot(direction, SlotType.FILTER_INSERT)
+                .getCapability(EIOCapabilities.Filter.ITEM);
     }
 
     @Override

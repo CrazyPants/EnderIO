@@ -5,9 +5,8 @@ import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.common.Area;
 import com.enderio.conduits.common.conduit.OffsetHelper;
-import java.util.*;
-
 import com.mojang.datafixers.util.Pair;
+import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -47,7 +46,8 @@ public class ConduitShape {
         updateTotalShape();
     }
 
-    // TODO: Looks weird when the connecting boxes arrive, but this at least now matches 1.12 behaviour.
+    // TODO: Looks weird when the connecting boxes arrive, but this at least now
+    // matches 1.12 behaviour.
     public VoxelShape getShapeFromHit(BlockPos pos, HitResult result) {
         var aimedConduit = getConduit(pos, result);
 
@@ -170,7 +170,7 @@ public class ConduitShape {
 
         if (offsetsForConduit != null && (box == null || !box.contains(offsetsForConduit.get(0)))) {
             coreShape = Shapes.joinUnoptimized(
-                coreShape, CORE.move(offsetsForConduit.get(0).getX() * 3f / 16f,
+                    coreShape, CORE.move(offsetsForConduit.get(0).getX() * 3f / 16f,
                             offsetsForConduit.get(0).getY() * 3f / 16f, offsetsForConduit.get(0).getZ() * 3f / 16f),
                     BooleanOp.OR);
         }

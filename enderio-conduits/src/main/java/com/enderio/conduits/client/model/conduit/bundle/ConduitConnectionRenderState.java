@@ -1,6 +1,5 @@
 package com.enderio.conduits.client.model.conduit.bundle;
 
-import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
@@ -8,20 +7,12 @@ import com.enderio.conduits.api.connection.config.RedstoneSensitiveConnectionCon
 import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
-import com.enderio.conduits.api.model.ConduitModelModifier;
-import com.enderio.conduits.client.model.conduit.modifier.ConduitModelModifiers;
 import me.liliandev.ensure.ensures.EnsureSide;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.DyeColor;
 
-public record ConduitConnectionRenderState(
-    boolean canInput,
-    DyeColor inputChannel,
-    boolean canOutput,
-    DyeColor outputChannel,
-    boolean isRedstoneSensitive,
-    DyeColor redstoneChannel
-) {
+public record ConduitConnectionRenderState(boolean canInput, DyeColor inputChannel, boolean canOutput,
+        DyeColor outputChannel, boolean isRedstoneSensitive, DyeColor redstoneChannel) {
 
     public static ConduitConnectionRenderState fake() {
         return new ConduitConnectionRenderState(false, DyeColor.GREEN, false, DyeColor.GREEN, false, DyeColor.RED);
@@ -66,13 +57,7 @@ public record ConduitConnectionRenderState(
             }
         }
 
-        return new ConduitConnectionRenderState(
-            canInput,
-            inputChannel,
-            canOutput,
-            outputChannel,
-            isRedstoneSensitive,
-            redstoneChannel
-        );
+        return new ConduitConnectionRenderState(canInput, inputChannel, canOutput, outputChannel, isRedstoneSensitive,
+                redstoneChannel);
     }
 }

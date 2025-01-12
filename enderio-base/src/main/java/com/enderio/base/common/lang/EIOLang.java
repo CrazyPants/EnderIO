@@ -34,19 +34,19 @@ public class EIOLang {
 
     // region Items
 
-    public static final Component DARK_STEEL_LADDER_FASTER = TooltipUtil.style(
-            addTranslation("tooltip", EnderIO.loc("dark_steel_ladder.faster"), "Faster than regular ladders"));
+    public static final Component DARK_STEEL_LADDER_FASTER = TooltipUtil
+            .style(addTranslation("tooltip", EnderIO.loc("dark_steel_ladder.faster"), "Faster than regular ladders"));
 
     public static final Component SOUL_VIAL_ERROR_PLAYER = addTranslation("message",
             EnderIO.loc("soul_vial.error_player"), "You cannot put player in a bottle!");
-    public static final Component SOUL_VIAL_ERROR_BOSS = addTranslation("message",
-            EnderIO.loc("soul_vial.error_boss"), "Nice try. Bosses don't like bottles.");
+    public static final Component SOUL_VIAL_ERROR_BOSS = addTranslation("message", EnderIO.loc("soul_vial.error_boss"),
+            "Nice try. Bosses don't like bottles.");
     public static final Component SOUL_VIAL_ERROR_BLACKLISTED = addTranslation("message",
             EnderIO.loc("soul_vial.error_blacklisted"), "This entity has been blacklisted.");
     public static final Component SOUL_VIAL_ERROR_FAILED = addTranslation("message",
             EnderIO.loc("soul_vial.error_failed"), "This entity cannot be captured.");
-    public static final Component SOUL_VIAL_ERROR_DEAD = addTranslation("message",
-            EnderIO.loc("soul_vial.error_dead"), "Cannot capture a dead mob!");
+    public static final Component SOUL_VIAL_ERROR_DEAD = addTranslation("message", EnderIO.loc("soul_vial.error_dead"),
+            "Cannot capture a dead mob!");
     public static final MutableComponent SOUL_VIAL_TOOLTIP_HEALTH = addTranslation("tooltip",
             EnderIO.loc("soul_vial.health"), "Health: %s/%s");
 
@@ -57,8 +57,7 @@ public class EIOLang {
     public static final Component TOO_MANY_LEVELS = addTranslation("info", EnderIO.loc("too_many_levels"),
             "You have more than 21862 levels, that's too much XP.");
 
-    public static final Component REDSTONE_MODE = addTranslation("gui", EnderIO.loc("redstone.mode"),
-        "Redstone Mode");
+    public static final Component REDSTONE_MODE = addTranslation("gui", EnderIO.loc("redstone.mode"), "Redstone Mode");
 
     public static final MutableComponent TANK_EMPTY_STRING = addTranslation("tooltip",
             EnderIO.loc("fluid_tank.tank_empty_tooltip"), "Empty tank");
@@ -242,8 +241,8 @@ public class EIOLang {
             "Don't tell the others");
     public static final Component RICH_ADVANCEMENT_DESCRIPTION = addTranslation("advancements",
             EnderIO.loc("rich.description"), "Make others think you are rich");
-    public static final Component RICHER_ADVANCEMENT_TITLE = addTranslation("advancements",
-            EnderIO.loc("richer.title"), "Is this real?");
+    public static final Component RICHER_ADVANCEMENT_TITLE = addTranslation("advancements", EnderIO.loc("richer.title"),
+            "Is this real?");
     public static final Component RICHER_ADVANCEMENT_DESCRIPTION = addTranslation("advancements",
             EnderIO.loc("richer.description"), "Make others think you are richer");
 
@@ -268,10 +267,10 @@ public class EIOLang {
 
     // region JEI
 
-    public static final Component JEI_FIRE_CRAFTING_TITLE = addTranslation("jei", EnderIO.loc("fire_crafting"),
-            "title", "Fire Crafting");
-    public static final Component JEI_FIRE_CRAFTING_VALID_BLOCKS = addTranslation("jei",
-            EnderIO.loc("fire_crafting"), "valid_blocks", "Valid Blocks:");
+    public static final Component JEI_FIRE_CRAFTING_TITLE = addTranslation("jei", EnderIO.loc("fire_crafting"), "title",
+            "Fire Crafting");
+    public static final Component JEI_FIRE_CRAFTING_VALID_BLOCKS = addTranslation("jei", EnderIO.loc("fire_crafting"),
+            "valid_blocks", "Valid Blocks:");
     public static final Component JEI_FIRE_CRAFTING_VALID_DIMENSIONS = addTranslation("jei",
             EnderIO.loc("fire_crafting"), "valid_dimensions", "Valid Dimensions:");
     public static final Component JEI_FIRE_CRAFTING_LOOT_TABLE = addTranslation("jei", EnderIO.loc("fire_crafting"),
@@ -295,12 +294,10 @@ public class EIOLang {
                 String colorName = createEnglishPrefix(color);
 
                 addTranslation("block",
-                        EnderIO
-                                .loc("clear_glass" + lightingKeyName + "_" + color.getName().toLowerCase(Locale.ROOT)),
+                        EnderIO.loc("clear_glass" + lightingKeyName + "_" + color.getName().toLowerCase(Locale.ROOT)),
                         colorName + lightingName + "Clear Glass");
                 addTranslation("block",
-                        EnderIO
-                                .loc("fused_quartz" + lightingKeyName + "_" + color.getName().toLowerCase(Locale.ROOT)),
+                        EnderIO.loc("fused_quartz" + lightingKeyName + "_" + color.getName().toLowerCase(Locale.ROOT)),
                         colorName + lightingName + "Fused Quartz");
             }
         }

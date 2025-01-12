@@ -24,7 +24,8 @@ public interface ConduitNode extends NodeDataAccessor, ConnectionConfigAccessor 
     ResourceFilter getInsertFilter(Direction direction);
 
     // TODO: investigate nullability for this interface?
-    @Nullable ConduitNetwork getNetwork();
+    @Nullable
+    ConduitNetwork getNetwork();
 
     /**
      * @return whether this node's bundle is loaded and ticking in the world

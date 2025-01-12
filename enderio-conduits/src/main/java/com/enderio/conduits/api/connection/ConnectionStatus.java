@@ -2,13 +2,11 @@ package com.enderio.conduits.api.connection;
 
 import io.netty.buffer.ByteBuf;
 import java.util.function.IntFunction;
-
+import javax.annotation.Nullable;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
-
-import javax.annotation.Nullable;
 
 public enum ConnectionStatus implements StringRepresentable {
     /**

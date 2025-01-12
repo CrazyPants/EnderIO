@@ -4,6 +4,9 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -16,14 +19,11 @@ import net.neoforged.neoforge.client.model.ElementsModel;
 import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
 import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 public class ConduitItemModelLoader implements IGeometryLoader<ElementsModel> {
 
     @Override
-    public Geometry read(JsonObject jsonObject, JsonDeserializationContext deserializationContext) throws JsonParseException {
+    public Geometry read(JsonObject jsonObject, JsonDeserializationContext deserializationContext)
+            throws JsonParseException {
         if (!jsonObject.has("elements")) {
             throw new JsonParseException("An element model must have an \"elements\" member.");
         }
@@ -43,8 +43,8 @@ public class ConduitItemModelLoader implements IGeometryLoader<ElementsModel> {
         }
 
         @Override
-        public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState,
-            ItemOverrides overrides) {
+        public BakedModel bake(IGeometryBakingContext context, ModelBaker baker,
+                Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
             return new ConduitItemModel(super.bake(context, baker, spriteGetter, modelState, overrides));
         }
     }

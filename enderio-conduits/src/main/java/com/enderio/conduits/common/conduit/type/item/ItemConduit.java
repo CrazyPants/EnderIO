@@ -17,6 +17,7 @@ import com.enderio.core.common.util.TooltipUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -32,25 +33,16 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Consumer;
+public record ItemConduit(ResourceLocation texture, Component description, int transferRatePerCycle, int graphTickRate)
+        implements Conduit<ItemConduit, ItemConduitConnectionConfig> {
 
-public record ItemConduit(
-    ResourceLocation texture,
-    Component description,
-    int transferRatePerCycle,
-    int graphTickRate
-) implements Conduit<ItemConduit, ItemConduitConnectionConfig> {
-
-    public static final MapCodec<ItemConduit> CODEC = RecordCodecBuilder.mapCodec(
-        builder -> builder
-            .group(
-                ResourceLocation.CODEC.fieldOf("texture").forGetter(ItemConduit::texture),
-                ComponentSerialization.CODEC.fieldOf("description").forGetter(ItemConduit::description),
-                // Using optionals in order to support the old conduit format.
-                Codec.INT.optionalFieldOf("transfer_rate", 4).forGetter(ItemConduit::transferRatePerCycle),
-                Codec.intRange(1, 20).optionalFieldOf("ticks_per_cycle", 20).forGetter(ItemConduit::graphTickRate)
-            ).apply(builder, ItemConduit::new)
-    );
+    public static final MapCodec<ItemConduit> CODEC = RecordCodecBuilder.mapCodec(builder -> builder
+            .group(ResourceLocation.CODEC.fieldOf("texture").forGetter(ItemConduit::texture),
+                    ComponentSerialization.CODEC.fieldOf("description").forGetter(ItemConduit::description),
+                    // Using optionals in order to support the old conduit format.
+                    Codec.INT.optionalFieldOf("transfer_rate", 4).forGetter(ItemConduit::transferRatePerCycle),
+                    Codec.intRange(1, 20).optionalFieldOf("ticks_per_cycle", 20).forGetter(ItemConduit::graphTickRate))
+            .apply(builder, ItemConduit::new));
 
     private static final ConduitMenuData MENU_DATA = new ConduitMenuData.Simple(true, true, true, true, true, true);
 
@@ -77,9 +69,12 @@ public record ItemConduit(
     }
 
     @Override
-    public void addToTooltip(Item.TooltipContext pContext, Consumer<Component> pTooltipAdder, TooltipFlag pTooltipFlag) {
-        String calculatedTransferLimitFormatted = String.format("%,d", (int)Math.floor(transferRatePerCycle() * (20.0 / graphTickRate())));
-        pTooltipAdder.accept(TooltipUtil.styledWithArgs(ConduitLang.ITEM_EFFECTIVE_RATE_TOOLTIP, calculatedTransferLimitFormatted));
+    public void addToTooltip(Item.TooltipContext pContext, Consumer<Component> pTooltipAdder,
+            TooltipFlag pTooltipFlag) {
+        String calculatedTransferLimitFormatted = String.format("%,d",
+                (int) Math.floor(transferRatePerCycle() * (20.0 / graphTickRate())));
+        pTooltipAdder.accept(
+                TooltipUtil.styledWithArgs(ConduitLang.ITEM_EFFECTIVE_RATE_TOOLTIP, calculatedTransferLimitFormatted));
 
         if (pTooltipFlag.hasShiftDown()) {
             String transferLimitFormatted = String.format("%,d", transferRatePerCycle());
@@ -99,7 +94,8 @@ public record ItemConduit(
 
     @Override
     public boolean canConnectToBlock(Level level, BlockPos conduitPos, Direction direction) {
-        IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, conduitPos.relative(direction), direction.getOpposite());
+        IItemHandler capability = level.getCapability(Capabilities.ItemHandler.BLOCK, conduitPos.relative(direction),
+                direction.getOpposite());
         return capability != null;
     }
 
@@ -110,10 +106,10 @@ public record ItemConduit(
 
     // TODO: Move conversions into the connection config type?
     @Override
-    public ItemConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
-        RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+    public ItemConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
+            DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel) {
         return new ItemConduitConnectionConfig(isInsert, inputChannel, isExtract, outputChannel, redstoneControl,
-            redstoneChannel, false, false, 0);
+                redstoneChannel, false, false, 0);
     }
 
     @Override
@@ -129,10 +125,10 @@ public record ItemConduit(
                 var oldSideConfig = legacyData.get(side);
                 var currentConfig = node.getConnectionConfig(side, ItemConduitConnectionConfig.TYPE);
 
-                node.setConnectionConfig(side, currentConfig
-                    .withIsRoundRobin(oldSideConfig.isRoundRobin)
-                    .withIsSelfFeed(oldSideConfig.isSelfFeed)
-                    .withPriority(oldSideConfig.priority));
+                node.setConnectionConfig(side,
+                        currentConfig.withIsRoundRobin(oldSideConfig.isRoundRobin)
+                                .withIsSelfFeed(oldSideConfig.isSelfFeed)
+                                .withPriority(oldSideConfig.priority));
             }
         }
     }

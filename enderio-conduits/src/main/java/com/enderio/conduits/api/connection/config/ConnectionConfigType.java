@@ -4,17 +4,12 @@ import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig
 import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.mojang.serialization.MapCodec;
+import java.util.function.Supplier;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-import java.util.function.Supplier;
-
-public record ConnectionConfigType<T extends ConnectionConfig>(
-    Class<T> clazz,
-    MapCodec<T> codec,
-    StreamCodec<RegistryFriendlyByteBuf, T> streamCodec,
-    Supplier<T> defaultSupplier
-) {
+public record ConnectionConfigType<T extends ConnectionConfig>(Class<T> clazz, MapCodec<T> codec,
+        StreamCodec<RegistryFriendlyByteBuf, T> streamCodec, Supplier<T> defaultSupplier) {
     public T getDefault() {
         return defaultSupplier.get();
     }

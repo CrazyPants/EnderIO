@@ -1,6 +1,5 @@
 package com.enderio.machines.common.block;
 
-import com.enderio.base.common.tag.EIOTags;
 import com.enderio.machines.common.blockentity.base.LegacyMachineBlockEntity;
 import com.enderio.regilite.holder.RegiliteBlockEntity;
 import com.mojang.serialization.Codec;

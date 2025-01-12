@@ -1,38 +1,36 @@
 package com.enderio.conduits.common.conduit.legacy;
 
 import com.enderio.conduits.api.network.node.NodeData;
-import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
 import com.enderio.conduits.api.network.node.legacy.ConduitData;
+import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
 import com.enderio.conduits.common.conduit.type.item.ItemConduitNodeData;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 @Deprecated(forRemoval = true, since = "7.2.0-alpha")
 public class LegacyItemConduitData implements ConduitData<LegacyItemConduitData> {
 
-    public static MapCodec<LegacyItemConduitData> CODEC = RecordCodecBuilder.mapCodec(
-        instance -> instance.group(
-            Codec.unboundedMap(Direction.CODEC, ItemSidedData.CODEC)
-                .fieldOf("item_sided_data").forGetter(i -> i.itemSidedData)
-        ).apply(instance, LegacyItemConduitData::new)
-    );
+    public static MapCodec<LegacyItemConduitData> CODEC = RecordCodecBuilder
+            .mapCodec(instance -> instance.group(Codec.unboundedMap(Direction.CODEC, ItemSidedData.CODEC)
+                    .fieldOf("item_sided_data")
+                    .forGetter(i -> i.itemSidedData)).apply(instance, LegacyItemConduitData::new));
 
-    public static StreamCodec<RegistryFriendlyByteBuf, LegacyItemConduitData> STREAM_CODEC =
-        ByteBufCodecs.map(i -> (Map<Direction, ItemSidedData>) new HashMap<Direction, ItemSidedData>(i),
-                Direction.STREAM_CODEC, ItemSidedData.STREAM_CODEC)
-            .map(LegacyItemConduitData::new, i -> i.itemSidedData).cast();
+    public static StreamCodec<RegistryFriendlyByteBuf, LegacyItemConduitData> STREAM_CODEC = ByteBufCodecs
+            .map(i -> (Map<Direction, ItemSidedData>) new HashMap<Direction, ItemSidedData>(i), Direction.STREAM_CODEC,
+                    ItemSidedData.STREAM_CODEC)
+            .map(LegacyItemConduitData::new, i -> i.itemSidedData)
+            .cast();
 
     public Map<Direction, ItemSidedData> itemSidedData;
 
@@ -50,8 +48,9 @@ public class LegacyItemConduitData implements ConduitData<LegacyItemConduitData>
             compute(direction).applyGuiChanges(guiData.get(direction));
         }
 
-        // TODO: Soon we will swap to records which will mean this will be a new instance.
-        //       This API has been designed with this pending change in mind.
+        // TODO: Soon we will swap to records which will mean this will be a new
+        // instance.
+        // This API has been designed with this pending change in mind.
         return this;
     }
 
@@ -101,24 +100,17 @@ public class LegacyItemConduitData implements ConduitData<LegacyItemConduitData>
 
     public static class ItemSidedData {
 
-        public static Codec<ItemSidedData> CODEC = RecordCodecBuilder.create(
-            instance -> instance.group(
-                Codec.BOOL.fieldOf("is_round_robin").forGetter(i -> i.isRoundRobin),
-                Codec.INT.fieldOf("rotating_index").forGetter(i -> i.rotatingIndex),
-                Codec.BOOL.fieldOf("is_self_feed").forGetter(i -> i.isSelfFeed),
-                Codec.INT.fieldOf("priority").forGetter(i -> i.priority)
-            ).apply(instance, ItemSidedData::new)
-        );
+        public static Codec<ItemSidedData> CODEC = RecordCodecBuilder
+                .create(instance -> instance
+                        .group(Codec.BOOL.fieldOf("is_round_robin").forGetter(i -> i.isRoundRobin),
+                                Codec.INT.fieldOf("rotating_index").forGetter(i -> i.rotatingIndex),
+                                Codec.BOOL.fieldOf("is_self_feed").forGetter(i -> i.isSelfFeed),
+                                Codec.INT.fieldOf("priority").forGetter(i -> i.priority))
+                        .apply(instance, ItemSidedData::new));
 
-        public static StreamCodec<ByteBuf, ItemSidedData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL,
-            i -> i.isRoundRobin,
-            ByteBufCodecs.BOOL,
-            i -> i.isSelfFeed,
-            ByteBufCodecs.INT,
-            i -> i.priority,
-            ItemSidedData::new
-        );
+        public static StreamCodec<ByteBuf, ItemSidedData> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BOOL,
+                i -> i.isRoundRobin, ByteBufCodecs.BOOL, i -> i.isSelfFeed, ByteBufCodecs.INT, i -> i.priority,
+                ItemSidedData::new);
 
         public static ItemSidedData EMPTY = new ItemSidedData(false, 0, false, 0);
 

@@ -1,13 +1,12 @@
 package com.enderio.conduits.api.screen;
 
 import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
+import java.util.List;
+import java.util.function.Supplier;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import org.joml.Vector2i;
-
-import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * Extend the conduit screen with additional widgets.
@@ -28,6 +27,6 @@ public interface ConduitScreenExtension {
      * @param widgetsStart                      the position on which widgets start
      * @return Widgets that manipulate the extended ConduitData, these changes are synced back to the server
      */
-    List<AbstractWidget> createWidgets(Screen screen, ConduitDataAccessor conduitDataAccessor, UpdateDispatcher updateDispatcher,
-        Supplier<Direction> direction, Vector2i widgetsStart);
+    List<AbstractWidget> createWidgets(Screen screen, ConduitDataAccessor conduitDataAccessor,
+            UpdateDispatcher updateDispatcher, Supplier<Direction> direction, Vector2i widgetsStart);
 }

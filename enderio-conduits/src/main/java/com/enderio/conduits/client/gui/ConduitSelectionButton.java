@@ -3,6 +3,8 @@ package com.enderio.conduits.client.gui;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.client.gui.screen.NewConduitScreen;
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -12,15 +14,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 public class ConduitSelectionButton extends AbstractButton {
     private final Holder<Conduit<?, ?>> conduit;
     private final Supplier<Holder<Conduit<?, ?>>> getter;
     private final Consumer<Holder<Conduit<?, ?>>> setter;
 
-    public ConduitSelectionButton(int pX, int pY, Holder<Conduit<?, ?>> conduit, Supplier<Holder<Conduit<?, ?>>> getter, Consumer<Holder<Conduit<?, ?>>> setter) {
+    public ConduitSelectionButton(int pX, int pY, Holder<Conduit<?, ?>> conduit, Supplier<Holder<Conduit<?, ?>>> getter,
+            Consumer<Holder<Conduit<?, ?>>> setter) {
         super(pX, pY, 21, 24, Component.empty());
         this.conduit = conduit;
         this.getter = getter;
@@ -50,7 +50,8 @@ public class ConduitSelectionButton extends AbstractButton {
         ResourceLocation iconLocation = MissingTextureAtlasSprite.getLocation();
         ResourceLocation conduitKey = conduit.unwrapKey().map(ResourceKey::location).orElse(null);
         if (conduitKey != null) {
-            iconLocation = ResourceLocation.fromNamespaceAndPath(conduitKey.getNamespace(), "conduit_icon/" + conduitKey.getPath());
+            iconLocation = ResourceLocation.fromNamespaceAndPath(conduitKey.getNamespace(),
+                    "conduit_icon/" + conduitKey.getPath());
         }
 
         guiGraphics.blitSprite(iconLocation, getX() + 3, getY() + 6, 12, 12);

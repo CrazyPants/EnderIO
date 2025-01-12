@@ -4,11 +4,9 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.common.conduit.OffsetHelper;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import me.liliandev.ensure.ensures.EnsureSide;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;

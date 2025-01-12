@@ -5,6 +5,7 @@ import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.ChannelIOAwareConduitTicker;
+import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
@@ -18,13 +19,12 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 public class FluidConduitTicker extends ChannelIOAwareConduitTicker<FluidConduit, FluidConduitTicker.Connection> {
 
     private int getScaledFluidRate(FluidConduit conduit) {
-        // Adjust for tick rate. Always flow up so we are at minimum meeting the required rate.
-        return (int)Math.ceil(conduit.transferRatePerTick() * (20.0 / conduit.graphTickRate()));
+        // Adjust for tick rate. Always flow up so we are at minimum meeting the
+        // required rate.
+        return (int) Math.ceil(conduit.transferRatePerTick() * (20.0 / conduit.graphTickRate()));
     }
 
     private int doFluidTransfer(FluidStack fluid, Connection extract, List<Connection> inserts) {
@@ -47,7 +47,8 @@ public class FluidConduitTicker extends ChannelIOAwareConduitTicker<FluidConduit
                 }
             }
 
-            FluidStack transferredFluid = FluidUtil.tryFluidTransfer(insert.fluidHandler(), extract.fluidHandler(), fluid, true);
+            FluidStack transferredFluid = FluidUtil.tryFluidTransfer(insert.fluidHandler(), extract.fluidHandler(),
+                    fluid, true);
 
             if (!transferredFluid.isEmpty()) {
                 fluid.shrink(transferredFluid.getAmount());
@@ -62,8 +63,9 @@ public class FluidConduitTicker extends ChannelIOAwareConduitTicker<FluidConduit
     }
 
     @Override
-    protected void tickColoredGraph(ServerLevel level, FluidConduit conduit, List<Connection> inserts, List<Connection> extracts, DyeColor color,
-        ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
+    protected void tickColoredGraph(ServerLevel level, FluidConduit conduit, List<Connection> inserts,
+            List<Connection> extracts, DyeColor color, ConduitNetwork graph,
+            ColoredRedstoneProvider coloredRedstoneProvider) {
 
         final int fluidRate = getScaledFluidRate(conduit);
         var context = graph.getOrCreateContext(FluidConduitNetworkContext.TYPE);
@@ -100,7 +102,8 @@ public class FluidConduitTicker extends ChannelIOAwareConduitTicker<FluidConduit
 
     @Override
     protected @Nullable FluidConduitTicker.Connection createConnection(Level level, ConduitNode node, Direction side) {
-        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, node.getPos().relative(side), side.getOpposite());
+        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, node.getPos().relative(side),
+                side.getOpposite());
         if (fluidHandler != null) {
             return new Connection(node, side, fluidHandler);
         }

@@ -8,18 +8,19 @@ import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public abstract class IOAwareConduitTicker<TConduit extends Conduit<TConduit, ? extends IOConnectionConfig>, TConnection extends IOAwareConduitTicker.SimpleConnection> implements ConduitTicker<TConduit> {
+public abstract class IOAwareConduitTicker<TConduit extends Conduit<TConduit, ? extends IOConnectionConfig>, TConnection extends IOAwareConduitTicker.SimpleConnection>
+        implements ConduitTicker<TConduit> {
     @Override
-    public void tickGraph(ServerLevel level, TConduit conduit, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
+    public void tickGraph(ServerLevel level, TConduit conduit, ConduitNetwork graph,
+            ColoredRedstoneProvider coloredRedstoneProvider) {
         List<TConnection> extracts = new ArrayList<>();
         List<TConnection> inserts = new ArrayList<>();
         for (ConduitNode node : graph.getNodes()) {
@@ -62,16 +63,12 @@ public abstract class IOAwareConduitTicker<TConduit extends Conduit<TConduit, ? 
     @Nullable
     protected abstract TConnection createConnection(Level level, ConduitNode node, Direction side);
 
-    protected abstract void tickGraph(
-        ServerLevel level,
-        TConduit conduit,
-        List<TConnection> inserts,
-        List<TConnection> extracts,
-        ConduitNetwork graph,
-        ColoredRedstoneProvider coloredRedstoneProvider);
+    protected abstract void tickGraph(ServerLevel level, TConduit conduit, List<TConnection> inserts,
+            List<TConnection> extracts, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider);
 
     // TODO: This needs to be factored out...
-    private boolean isActive(ServerLevel level, Direction side, ConduitNode node, ColoredRedstoneProvider coloredRedstoneProvider) {
+    private boolean isActive(ServerLevel level, Direction side, ConduitNode node,
+            ColoredRedstoneProvider coloredRedstoneProvider) {
         var connectionConfig = node.getConnectionConfig(side);
         if (!(connectionConfig instanceof RedstoneControlledConnection redstoneControlledConnection)) {
             return true;
@@ -85,7 +82,8 @@ public abstract class IOAwareConduitTicker<TConduit extends Conduit<TConduit, ? 
             return false;
         }
 
-        boolean hasRedstone = coloredRedstoneProvider.isRedstoneActive(level, node.getPos(), redstoneControlledConnection.redstoneChannel());
+        boolean hasRedstone = coloredRedstoneProvider.isRedstoneActive(level, node.getPos(),
+                redstoneControlledConnection.redstoneChannel());
         if (!hasRedstone) {
             for (Direction direction : Direction.values()) {
                 if (level.getSignal(node.getPos().relative(direction), direction.getOpposite()) > 0) {

@@ -7,14 +7,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public class EnergyConduitNetworkContext implements ConduitNetworkContext<EnergyConduitNetworkContext> {
 
-    public static final Codec<EnergyConduitNetworkContext> CODEC = RecordCodecBuilder.create(
-        builder -> builder.group(
-            Codec.INT.fieldOf("energy_stored").forGetter(i -> i.energyStored),
-            Codec.INT.fieldOf("rotating_index").forGetter(i -> i.rotatingIndex)
-        ).apply(builder, EnergyConduitNetworkContext::new)
-    );
+    public static final Codec<EnergyConduitNetworkContext> CODEC = RecordCodecBuilder.create(builder -> builder
+            .group(Codec.INT.fieldOf("energy_stored").forGetter(i -> i.energyStored),
+                    Codec.INT.fieldOf("rotating_index").forGetter(i -> i.rotatingIndex))
+            .apply(builder, EnergyConduitNetworkContext::new));
 
-    public static ConduitNetworkContextType<EnergyConduitNetworkContext> TYPE = new ConduitNetworkContextType<>(CODEC, EnergyConduitNetworkContext::new);
+    public static ConduitNetworkContextType<EnergyConduitNetworkContext> TYPE = new ConduitNetworkContextType<>(CODEC,
+            EnergyConduitNetworkContext::new);
 
     private int energyStored = 0;
     private int rotatingIndex = 0;

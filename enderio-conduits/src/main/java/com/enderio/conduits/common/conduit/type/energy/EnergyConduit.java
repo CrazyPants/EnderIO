@@ -4,9 +4,9 @@ import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
+import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.util.TooltipUtil;
@@ -86,19 +86,20 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
 
     @Override
     public boolean canConnectToBlock(Level level, BlockPos conduitPos, Direction direction) {
-        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, conduitPos.relative(direction), direction.getOpposite());
+        IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK,
+                conduitPos.relative(direction), direction.getOpposite());
         return capability != null;
     }
 
     @Override
-    public <TCap, TContext> @Nullable TCap proxyCapability(Level level, ColoredRedstoneProvider coloredRedstoneProvider, ConduitNode node, BlockCapability<TCap, TContext> capability,
-        @Nullable TContext context) {
+    public <TCap, TContext> @Nullable TCap proxyCapability(Level level, ColoredRedstoneProvider coloredRedstoneProvider,
+            ConduitNode node, BlockCapability<TCap, TContext> capability, @Nullable TContext context) {
 
         if (Capabilities.EnergyStorage.BLOCK == capability && (context == null || context instanceof Direction)) {
             boolean isMutable = true;
 
             if (context != null) {
-                Direction side = (Direction)context;
+                Direction side = (Direction) context;
 
                 // No connection, no cap.
                 if (!node.isConnectedTo(side)) {
@@ -113,7 +114,8 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
                 if (config.redstoneControl() == RedstoneControl.NEVER_ACTIVE) {
                     isMutable = false;
                 } else if (config.redstoneControl() != RedstoneControl.ALWAYS_ACTIVE) {
-                    boolean hasRedstone = coloredRedstoneProvider.isRedstoneActive(level, node.getPos(), config.redstoneChannel());
+                    boolean hasRedstone = coloredRedstoneProvider.isRedstoneActive(level, node.getPos(),
+                            config.redstoneChannel());
                     if (!hasRedstone) {
                         for (Direction direction : Direction.values()) {
                             if (level.getSignal(node.getPos().relative(direction), direction.getOpposite()) > 0) {
@@ -147,8 +149,8 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
     }
 
     @Override
-    public EnergyConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel, DyeColor outputChannel,
-        RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+    public EnergyConduitConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
+            DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel) {
         return new EnergyConduitConnectionConfig(isInsert, isExtract, redstoneControl, redstoneChannel);
     }
 

@@ -6,7 +6,6 @@ import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.init.ConduitLang;
 import java.util.List;
 import java.util.Map;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -38,9 +37,9 @@ public class ConduitFacadeItem extends BlockItem {
         if (!blockState.canBeReplaced()) {
             // noinspection DataFlowIssue
             return blockState
-                .useItemOn(context.getItemInHand(), level, player, context.getHand(),
-                    context.getHitResult().withPosition(blockpos))
-                .result();
+                    .useItemOn(context.getItemInHand(), level, player, context.getHand(),
+                            context.getHitResult().withPosition(blockpos))
+                    .result();
         }
 
         return super.place(context);

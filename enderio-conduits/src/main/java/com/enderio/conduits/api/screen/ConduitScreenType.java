@@ -9,7 +9,8 @@ import org.jetbrains.annotations.ApiStatus;
 public abstract class ConduitScreenType<U extends ConnectionConfig> {
 
     // TODO: Other built-in behaviours like this.
-    // Could also create IOConduitScreenType with automated helpers for adding the toggles.
+    // Could also create IOConduitScreenType with automated helpers for adding the
+    // toggles.
     private boolean renderSideSeparator = false;
 
     public abstract void createWidgets(ConduitScreenHelper screen, ConduitMenuDataAccess<U> dataAccess);

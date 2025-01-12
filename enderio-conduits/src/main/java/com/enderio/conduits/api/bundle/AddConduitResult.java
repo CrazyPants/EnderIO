@@ -5,13 +5,14 @@ import net.minecraft.core.Holder;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
-public sealed interface AddConduitResult permits AddConduitResult.Upgrade, AddConduitResult.Blocked, AddConduitResult.Insert{
-     record Upgrade(Holder<Conduit<?, ?>> replacedConduit) implements AddConduitResult {
+public sealed interface AddConduitResult
+        permits AddConduitResult.Upgrade, AddConduitResult.Blocked, AddConduitResult.Insert {
+    record Upgrade(Holder<Conduit<?, ?>> replacedConduit) implements AddConduitResult {
         @Override
         public String toString() {
-             return "Upgrade[" + replacedConduit.getRegisteredName() + "]";
-         }
-     }
+            return "Upgrade[" + replacedConduit.getRegisteredName() + "]";
+        }
+    }
 
     final class Insert implements AddConduitResult {
         @Override

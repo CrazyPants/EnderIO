@@ -2,11 +2,10 @@ package com.enderio.conduits.api.screen;
 
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitType;
-import net.neoforged.bus.api.Event;
-import net.neoforged.fml.event.IModBusEvent;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 
 @Deprecated(forRemoval = true)
 public class RegisterConduitScreenExtensionsEvent extends Event implements IModBusEvent {
@@ -16,7 +15,8 @@ public class RegisterConduitScreenExtensionsEvent extends Event implements IModB
 
     private final Map<ConduitType<?>, ConduitScreenExtensionFactory> extensions = new ConcurrentHashMap<>();
 
-    public void register(ConduitType<? extends Conduit<?, ?>> conduitType, ConduitScreenExtensionFactory extensionFactory) {
+    public void register(ConduitType<? extends Conduit<?, ?>> conduitType,
+            ConduitScreenExtensionFactory extensionFactory) {
         extensions.put(conduitType, extensionFactory);
     }
 

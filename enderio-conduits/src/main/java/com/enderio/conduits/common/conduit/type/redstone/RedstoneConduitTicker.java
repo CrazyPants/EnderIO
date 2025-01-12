@@ -6,16 +6,15 @@ import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.NewIOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.redstone.RedstoneExtractFilter;
-
 import java.util.List;
-
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class RedstoneConduitTicker extends NewIOAwareConduitTicker<RedstoneConduit, RedstoneConduitConnectionConfig, RedstoneConduitTicker.Connection> {
+public class RedstoneConduitTicker extends
+        NewIOAwareConduitTicker<RedstoneConduit, RedstoneConduitConnectionConfig, RedstoneConduitTicker.Connection> {
 
     @Override
     public void tickGraph(ServerLevel level, RedstoneConduit conduit, ConduitNetwork graph,
@@ -39,7 +38,8 @@ public class RedstoneConduitTicker extends NewIOAwareConduitTicker<RedstoneCondu
 
     @Override
     protected void tickColoredGraph(ServerLevel level, RedstoneConduit conduit, List<Connection> senders,
-        List<Connection> receivers, DyeColor color, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
+            List<Connection> receivers, DyeColor color, ConduitNetwork graph,
+            ColoredRedstoneProvider coloredRedstoneProvider) {
 
         RedstoneConduitNetworkContext networkContext = graph.getOrCreateContext(RedstoneConduitNetworkContext.TYPE);
 
@@ -56,7 +56,8 @@ public class RedstoneConduitTicker extends NewIOAwareConduitTicker<RedstoneCondu
             }
         }
 
-        // Only update neighbours if this is a new context or the signal strength changed this time.
+        // Only update neighbours if this is a new context or the signal strength
+        // changed this time.
         if (networkContext.isNew() || networkContext.getSignal(color) != networkContext.getSignalLastTick(color)) {
             for (Connection sender : senders) {
                 level.updateNeighborsAt(sender.pos(), ConduitBlocks.CONDUIT.get());

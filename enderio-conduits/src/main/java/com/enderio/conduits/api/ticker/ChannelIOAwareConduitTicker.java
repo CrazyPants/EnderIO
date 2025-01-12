@@ -1,23 +1,20 @@
 package com.enderio.conduits.api.ticker;
 
 import com.enderio.base.api.filter.ResourceFilter;
-import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
-import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * A channel IO-aware ticker.
@@ -28,10 +25,11 @@ import java.util.List;
  * @param <U> The type of connection for the ticker implementation
  */
 public abstract class ChannelIOAwareConduitTicker<T extends Conduit<T, ? extends ChanneledIOConnectionConfig>, U extends ChannelIOAwareConduitTicker.SimpleConnection>
-    implements ConduitTicker<T> {
+        implements ConduitTicker<T> {
 
     @Override
-    public void tickGraph(ServerLevel level, T conduit, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
+    public void tickGraph(ServerLevel level, T conduit, ConduitNetwork graph,
+            ColoredRedstoneProvider coloredRedstoneProvider) {
         ListMultimap<DyeColor, U> extracts = ArrayListMultimap.create();
         ListMultimap<DyeColor, U> inserts = ArrayListMultimap.create();
         for (ConduitNode node : graph.getNodes()) {
@@ -79,14 +77,8 @@ public abstract class ChannelIOAwareConduitTicker<T extends Conduit<T, ? extends
     @Nullable
     protected abstract U createConnection(Level level, ConduitNode node, Direction side);
 
-    protected abstract void tickColoredGraph(
-        ServerLevel level,
-        T conduit,
-        List<U> inserts,
-        List<U> extracts,
-        DyeColor color,
-        ConduitNetwork graph,
-        ColoredRedstoneProvider coloredRedstoneProvider);
+    protected abstract void tickColoredGraph(ServerLevel level, T conduit, List<U> inserts, List<U> extracts,
+            DyeColor color, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider);
 
     public static class SimpleConnection {
         private final ConduitNode node;

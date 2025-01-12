@@ -4,6 +4,8 @@ import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ticker.IOAwareConduitTicker;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -11,22 +13,21 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class EnergyConduitTicker extends IOAwareConduitTicker<EnergyConduit, EnergyConduitTicker.Connection> {
 
     public EnergyConduitTicker() {
     }
 
-    // TODO: Need a way to prevent the extracts list from being built as it is unused.
+    // TODO: Need a way to prevent the extracts list from being built as it is
+    // unused.
 
     @Override
-    protected void tickGraph(ServerLevel level, EnergyConduit conduit, List<Connection> inserts, List<Connection> extracts, ConduitNetwork graph,
-        ColoredRedstoneProvider coloredRedstoneProvider) {
+    protected void tickGraph(ServerLevel level, EnergyConduit conduit, List<Connection> inserts,
+            List<Connection> extracts, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
 
-        // Adjust for tick rate. Always flow up so we are at minimum meeting the required rate.
-        int transferRate = (int)Math.ceil(conduit.transferRatePerTick() * (20.0 / conduit.graphTickRate()));
+        // Adjust for tick rate. Always flow up so we are at minimum meeting the
+        // required rate.
+        int transferRate = (int) Math.ceil(conduit.transferRatePerTick() * (20.0 / conduit.graphTickRate()));
 
         EnergyConduitNetworkContext context = graph.getContext(EnergyConduitNetworkContext.TYPE);
         if (context == null) {
@@ -39,7 +40,8 @@ public class EnergyConduitTicker extends IOAwareConduitTicker<EnergyConduit, Ene
 
         List<IEnergyStorage> storagesForInsert = new ArrayList<>();
         for (var insert : inserts) {
-            IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, insert.neighborPos(), insert.neighborSide());
+            IEnergyStorage capability = level.getCapability(Capabilities.EnergyStorage.BLOCK, insert.neighborPos(),
+                    insert.neighborSide());
             if (capability != null) {
                 storagesForInsert.add(capability);
             }
@@ -74,7 +76,8 @@ public class EnergyConduitTicker extends IOAwareConduitTicker<EnergyConduit, Ene
 
     @Override
     protected @Nullable EnergyConduitTicker.Connection createConnection(Level level, ConduitNode node, Direction side) {
-        IEnergyStorage energyStorage = level.getCapability(Capabilities.EnergyStorage.BLOCK, node.getPos().relative(side), side.getOpposite());
+        IEnergyStorage energyStorage = level.getCapability(Capabilities.EnergyStorage.BLOCK,
+                node.getPos().relative(side), side.getOpposite());
         if (energyStorage != null) {
             return new Connection(node, side, energyStorage);
         }

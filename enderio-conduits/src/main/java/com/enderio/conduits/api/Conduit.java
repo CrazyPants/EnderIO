@@ -31,7 +31,8 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import org.jetbrains.annotations.Nullable;
 
-public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, TConnectionConfig extends ConnectionConfig> extends Comparable<TConduit>, TooltipProvider {
+public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, TConnectionConfig extends ConnectionConfig>
+        extends Comparable<TConduit>, TooltipProvider {
 
     Codec<Conduit<?, ?>> DIRECT_CODEC = EnderIOConduitsRegistries.CONDUIT_TYPE.byNameCodec()
             .dispatch(Conduit::type, ConduitType::codec);
@@ -165,8 +166,9 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
     // endregion
 
     @Nullable
-    default <TCapability, TContext> TCapability proxyCapability(Level level, ColoredRedstoneProvider coloredRedstoneProvider, ConduitNode node, BlockCapability<TCapability, TContext> capability,
-        @Nullable TContext context) {
+    default <TCapability, TContext> TCapability proxyCapability(Level level,
+            ColoredRedstoneProvider coloredRedstoneProvider, ConduitNode node,
+            BlockCapability<TCapability, TContext> capability, @Nullable TContext context) {
         return null;
     }
 
@@ -185,7 +187,7 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
      */
     @Deprecated(since = "7.2")
     TConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
-        DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel);
+            DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel);
 
     /**
      * Copy legacy data from the old conduit data accessor to the new node however you wish.

@@ -13,27 +13,25 @@ public class ConduitNetwork {
 
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event
-            .registrar(EnderCore.MOD_ID)
-            .versioned(PROTOCOL_VERSION);
+        final PayloadRegistrar registrar = event.registrar(EnderCore.MOD_ID).versioned(PROTOCOL_VERSION);
 
         registrar.playToServer(DoubleChannelPacket.TYPE, DoubleChannelPacket.STREAM_CODEC,
-            ConduitServerPayloadHandler.getInstance()::handleDoubleChannelFilter);
+                ConduitServerPayloadHandler.getInstance()::handleDoubleChannelFilter);
 
         registrar.playToServer(TimerFilterPacket.TYPE, TimerFilterPacket.STREAM_CODEC,
-            ConduitServerPayloadHandler.getInstance()::handleTimerFilter);
+                ConduitServerPayloadHandler.getInstance()::handleTimerFilter);
 
         registrar.playToServer(CountFilterPacket.TYPE, CountFilterPacket.STREAM_CODEC,
-            ConduitServerPayloadHandler.getInstance()::handleCountFilter);
+                ConduitServerPayloadHandler.getInstance()::handleCountFilter);
 
         registrar.playToServer(ConduitMenuSelectionPacket.TYPE, ConduitMenuSelectionPacket.STREAM_CODEC,
-            ConduitServerPayloadHandler.getInstance()::handleConduitMenuSelection);
+                ConduitServerPayloadHandler.getInstance()::handleConduitMenuSelection);
 
         registrar.playToClient(S2CConduitExtraGuiDataPacket.TYPE, S2CConduitExtraGuiDataPacket.STREAM_CODEC,
-            ConduitClientPayloadHandler.getInstance()::handle);
+                ConduitClientPayloadHandler.getInstance()::handle);
 
-        registrar.playBidirectional(SetConduitConnectionConfigPacket.TYPE, SetConduitConnectionConfigPacket.STREAM_CODEC,
-            ConduitCommonPayloadHandler.getInstance()::handle);
+        registrar.playBidirectional(SetConduitConnectionConfigPacket.TYPE,
+                SetConduitConnectionConfigPacket.STREAM_CODEC, ConduitCommonPayloadHandler.getInstance()::handle);
     }
 
 }

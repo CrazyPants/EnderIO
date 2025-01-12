@@ -14,6 +14,6 @@ public class RedstoneANDFilter extends DoubleRedstoneChannel implements Redstone
     @Override
     public int getOutputSignal(RedstoneConduitNetworkContext context, DyeColor control) {
         boolean b = context.isActive(getFirstChannel()) && context.isActive(getSecondChannel());
-        return b ? 15 : 0 ;
+        return b ? 15 : 0;
     }
 }

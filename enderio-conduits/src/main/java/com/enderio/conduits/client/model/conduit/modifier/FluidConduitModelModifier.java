@@ -5,6 +5,7 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.model.ConduitModelModifier;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduit;
 import com.enderio.core.client.RenderUtil;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -25,15 +26,14 @@ import net.neoforged.neoforge.client.model.IQuadTransformer;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 public class FluidConduitModelModifier implements ConduitModelModifier {
 
-    private static final ModelResourceLocation FLUID_MODEL = ModelResourceLocation.standalone(EnderIO.loc("block/extra/fluids"));
+    private static final ModelResourceLocation FLUID_MODEL = ModelResourceLocation
+            .standalone(EnderIO.loc("block/extra/fluids"));
 
     @Override
-    public List<BakedQuad> createConnectionQuads(Holder<Conduit<?, ?>> conduit, @Nullable CompoundTag extraWorldData, @Nullable Direction facing, Direction connectionDirection, RandomSource rand,
-        @Nullable RenderType type) {
+    public List<BakedQuad> createConnectionQuads(Holder<Conduit<?, ?>> conduit, @Nullable CompoundTag extraWorldData,
+            @Nullable Direction facing, Direction connectionDirection, RandomSource rand, @Nullable RenderType type) {
         if (!(conduit.value() instanceof FluidConduit fluidConduit && fluidConduit.isMultiFluid())) {
             return List.of();
         }
@@ -46,8 +46,9 @@ public class FluidConduitModelModifier implements ConduitModelModifier {
         Fluid lockedFluid = BuiltInRegistries.FLUID.get(lockedFluidId);
 
         if (!lockedFluid.isSame(Fluids.EMPTY)) {
-            return new FluidPaintQuadTransformer(lockedFluid)
-                .process(Minecraft.getInstance().getModelManager().getModel(FLUID_MODEL)
+            return new FluidPaintQuadTransformer(lockedFluid).process(Minecraft.getInstance()
+                    .getModelManager()
+                    .getModel(FLUID_MODEL)
                     .getQuads(Blocks.COBBLESTONE.defaultBlockState(), facing, rand, ModelData.EMPTY, type));
         }
 
@@ -63,12 +64,15 @@ public class FluidConduitModelModifier implements ConduitModelModifier {
         @Override
         public void processInPlace(BakedQuad quad) {
             IClientFluidTypeExtensions clientExtension = IClientFluidTypeExtensions.of(fluid);
-            TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                .apply(clientExtension.getStillTexture());
+            TextureAtlasSprite sprite = Minecraft.getInstance()
+                    .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                    .apply(clientExtension.getStillTexture());
             for (int i = 0; i < 4; i++) {
                 float[] uv0 = RenderUtil.unpackVertices(quad.getVertices(), i, IQuadTransformer.UV0, 2);
-                uv0[0] = (uv0[0] - quad.getSprite().getU0()) * sprite.contents().width() / quad.getSprite().contents().height() + sprite.getU0();
-                uv0[1] = (uv0[1] - quad.getSprite().getV0()) * sprite.contents().width() / quad.getSprite().contents().height() + sprite.getV0();
+                uv0[0] = (uv0[0] - quad.getSprite().getU0()) * sprite.contents().width()
+                        / quad.getSprite().contents().height() + sprite.getU0();
+                uv0[1] = (uv0[1] - quad.getSprite().getV0()) * sprite.contents().width()
+                        / quad.getSprite().contents().height() + sprite.getV0();
                 int[] packedTextureData = RenderUtil.packUV(uv0[0], uv0[1]);
                 quad.getVertices()[IQuadTransformer.UV0 + i * IQuadTransformer.STRIDE] = packedTextureData[0];
                 quad.getVertices()[IQuadTransformer.UV0 + 1 + i * IQuadTransformer.STRIDE] = packedTextureData[1];

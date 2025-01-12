@@ -3,12 +3,11 @@ package com.enderio.conduits.client.gui.conduit;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.screen.ConduitScreenExtension;
 import com.enderio.conduits.api.screen.RegisterConduitScreenExtensionsEvent;
+import java.util.HashMap;
+import java.util.Map;
 import me.liliandev.ensure.ensures.EnsureSide;
 import net.neoforged.fml.ModLoader;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Deprecated(forRemoval = true)
 public class ConduitScreenExtensions {

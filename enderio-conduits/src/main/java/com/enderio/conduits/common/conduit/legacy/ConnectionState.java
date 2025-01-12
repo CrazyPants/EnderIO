@@ -10,8 +10,7 @@ import org.apache.commons.lang3.NotImplementedException;
 @Deprecated(forRemoval = true, since = "7.2")
 public sealed interface ConnectionState permits StaticConnectionStates, DynamicConnectionState {
 
-    Codec<ConnectionState> CODEC =
-        Codec.either(StaticConnectionStates.CODEC, DynamicConnectionState.CODEC)
+    Codec<ConnectionState> CODEC = Codec.either(StaticConnectionStates.CODEC, DynamicConnectionState.CODEC)
             .xmap(e -> e.left().isPresent() ? e.left().get() : e.right().get(), e -> {
                 if (e instanceof StaticConnectionStates staticConnectionStates) {
                     return Either.left(staticConnectionStates);
@@ -22,8 +21,8 @@ public sealed interface ConnectionState permits StaticConnectionStates, DynamicC
                 throw new NotImplementedException();
             });
 
-    StreamCodec<RegistryFriendlyByteBuf, ConnectionState> STREAM_CODEC =
-        ByteBufCodecs.either(StaticConnectionStates.STREAM_CODEC, DynamicConnectionState.STREAM_CODEC)
+    StreamCodec<RegistryFriendlyByteBuf, ConnectionState> STREAM_CODEC = ByteBufCodecs
+            .either(StaticConnectionStates.STREAM_CODEC, DynamicConnectionState.STREAM_CODEC)
             .map(e -> e.left().isPresent() ? e.left().get() : e.right().get(), e -> {
                 if (e instanceof StaticConnectionStates staticConnectionStates) {
                     return Either.left(staticConnectionStates);

@@ -9,9 +9,11 @@ public interface IOConnectionConfig extends ConnectionConfig {
     // TODO: canSend/canReceive? Might be clearer when used with Redstone signals?
 
     boolean canInsert();
+
     boolean canExtract();
 
     IOConnectionConfig withInsert(boolean canInsert);
+
     IOConnectionConfig withExtract(boolean canExtract);
 
     @Override
