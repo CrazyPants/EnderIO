@@ -356,7 +356,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
                 if (conduitBundle.getConnectionStatus(conduitConnection.getFirst(),
                         conduitConnection.getSecond()) == ConnectionStatus.CONNECTED_BLOCK) {
                     if (player instanceof ServerPlayer serverPlayer) {
-                        ConduitMenu.openConduitMenu(serverPlayer, pos, conduitBundle, conduitConnection.getFirst(),
+                        ConduitMenu.openConduitMenu(serverPlayer, conduitBundle, conduitConnection.getFirst(),
                                 conduitConnection.getSecond());
                     }
 

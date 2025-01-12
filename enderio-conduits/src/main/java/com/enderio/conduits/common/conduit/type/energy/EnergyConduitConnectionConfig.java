@@ -39,17 +39,21 @@ public record EnergyConduitConnectionConfig(boolean canInsert, boolean canExtrac
 
     @Override
     public ConnectionConfig reconnected() {
-        return new EnergyConduitConnectionConfig(DEFAULT.canInsert, DEFAULT.canExtract, redstoneControl,
-                redstoneChannel);
+        return new EnergyConduitConnectionConfig(DEFAULT.canInsert, DEFAULT.canExtract, redstoneControl, redstoneChannel);
     }
 
     @Override
-    public IOConnectionConfig withInsert(boolean canInsert) {
+    public ConnectionConfig disconnected() {
+        return new EnergyConduitConnectionConfig(false, false, redstoneControl, redstoneChannel);
+    }
+
+    @Override
+    public EnergyConduitConnectionConfig withInsert(boolean canInsert) {
         return new EnergyConduitConnectionConfig(canInsert, canExtract, redstoneControl, redstoneChannel);
     }
 
     @Override
-    public IOConnectionConfig withExtract(boolean canExtract) {
+    public EnergyConduitConnectionConfig withExtract(boolean canExtract) {
         return new EnergyConduitConnectionConfig(canInsert, canExtract, redstoneControl, redstoneChannel);
     }
 

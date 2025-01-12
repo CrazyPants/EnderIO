@@ -36,6 +36,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.graph3.Graph;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -252,6 +253,11 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
         return Container.stillValidBlockEntity(this, player);
     }
 
+    @Override
+    public List<Holder<Conduit<?, ?>>> getAllPossibleConnectedCondutis(Direction side) {
+        return conduits.stream().filter(c -> canBeOrIsConnection(side, c)).toList();
+    }
+
     public boolean canBeOrIsConnection(Direction side, Holder<Conduit<?, ?>> conduit) {
         if (level == null) {
             return false;
@@ -267,11 +273,8 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
             return false;
         }
 
-        // If they've managed to open the menu, a connection could already have been
-        // established
-        // TODO: Maybe create a map to track canConnect from the conduit so this is a
-        // guarantee.
-        return true;
+        // TODO: This should be cached and updated whenever neighbors change...
+        return conduit.value().canForceConnectToBlock(level, getBlockPos(), side);
     }
 
     @Override
@@ -431,7 +434,7 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
     // region Conduits
 
     public List<Holder<Conduit<?, ?>>> getConduits() {
-        return List.copyOf(conduits);
+        return Collections.unmodifiableList(conduits);
     }
 
     @Override
@@ -1417,8 +1420,11 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
 
         public ConnectionContainer(Holder<Conduit<?, ?>> conduit) {
             this.conduit = conduit;
+
+            var defaultConfig = conduit.value().connectionConfigType().getDefault();
             for (Direction dir : Direction.values()) {
                 statuses.put(dir, ConnectionStatus.DISCONNECTED);
+                configs.put(dir, defaultConfig);
             }
         }
 
@@ -1461,9 +1467,14 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
             // Ensure the connection type is correct.
             // If it isn't, revert to the default.
             if (config.type() != conduit.value().connectionConfigType()) {
-                config = conduit.value().connectionConfigType().getDefault();
+                config = defaultConfig;
                 configs.put(side, config);
                 bundleChanged();
+            }
+
+            // We keep the old state in case the wrench is used, but UI will need to show empty arrows.
+            if (statuses.get(side) != ConnectionStatus.CONNECTED_BLOCK && config.isConnected()) {
+                return config.disconnected();
             }
 
             return config;

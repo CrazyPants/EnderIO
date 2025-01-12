@@ -20,8 +20,9 @@ public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, bo
         RedstoneControl receiveRedstoneControl, DyeColor receiveRedstoneChannel, boolean isRoundRobin,
         boolean isSelfFeed, int priority) implements NewIOConnectionConfig, RedstoneSensitiveConnectionConfig {
 
+
     public static ItemConduitConnectionConfig DEFAULT = new ItemConduitConnectionConfig(false, DyeColor.GREEN, true,
-            DyeColor.GREEN, RedstoneControl.NEVER_ACTIVE, DyeColor.RED, false, false, 0);
+        DyeColor.GREEN, RedstoneControl.NEVER_ACTIVE, DyeColor.RED, false, false, 0);
 
     public static MapCodec<ItemConduitConnectionConfig> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(Codec.BOOL.fieldOf("is_send").forGetter(ItemConduitConnectionConfig::isSend),
@@ -50,6 +51,18 @@ public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, bo
             ItemConduitConnectionConfig.class, CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
+    public ConnectionConfig reconnected() {
+        return new ItemConduitConnectionConfig(false, sendColor, true, receiveColor,
+            receiveRedstoneControl, receiveRedstoneChannel, isRoundRobin, isSelfFeed, priority);
+    }
+
+    @Override
+    public ConnectionConfig disconnected() {
+        return new ItemConduitConnectionConfig(false, sendColor, false, receiveColor,
+            receiveRedstoneControl, receiveRedstoneChannel, isRoundRobin, isSelfFeed, priority);
+    }
+
+    @Override
     public boolean canSend(ConduitRedstoneSignalAware signalAware) {
         // TODO: sendRedstoneControl
         return isSend();
@@ -66,12 +79,6 @@ public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, bo
         } else {
             return true;
         }
-    }
-
-    @Override
-    public ConnectionConfig reconnected() {
-        return new ItemConduitConnectionConfig(DEFAULT.isSend, sendColor, DEFAULT.isReceive, receiveColor,
-                receiveRedstoneControl, receiveRedstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 
     // Generate with methods for each field

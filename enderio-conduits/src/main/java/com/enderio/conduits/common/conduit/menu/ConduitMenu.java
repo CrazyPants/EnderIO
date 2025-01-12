@@ -4,24 +4,27 @@ import com.enderio.base.api.UseOnly;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
+import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlock;
 import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.init.ConduitMenus;
 import com.enderio.conduits.common.network.S2CConduitExtraGuiDataPacket;
+import com.enderio.conduits.common.network.S2CConduitListPacket;
 import com.enderio.conduits.common.network.SetConduitConnectionConfigPacket;
 import com.enderio.core.common.menu.BaseEnderMenu;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import me.liliandev.ensure.ensures.EnsureSide;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -33,18 +36,12 @@ import org.jetbrains.annotations.Nullable;
 // Possibly create an NBT sync slot and then use it for that?
 public class ConduitMenu extends BaseEnderMenu {
 
-    public static void openConduitMenu(ServerPlayer serverPlayer, BlockPos pos, ConduitBundleBlockEntity conduitBundle,
+    public static void openConduitMenu(ServerPlayer serverPlayer, ConduitBundleBlockEntity conduitBundle,
             Direction side, Holder<Conduit<?, ?>> conduit) {
-        serverPlayer.openMenu(new SimpleMenuProvider((containerId, inventory, player) -> new ConduitMenu(containerId,
-                inventory, conduitBundle, side, conduit), conduit.value().description()), buf -> {
+        serverPlayer.openMenu(new MenuProvider(conduitBundle, side, conduit), buf -> {
                     buf.writeEnum(side);
                     Conduit.STREAM_CODEC.encode(buf, conduit);
-                    ConnectionConfig.STREAM_CODEC.encode(buf, conduitBundle.getConnectionConfig(side, conduit));
-
-                    // noinspection DataFlowIssue
-                    ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG)
-                            .map(opt -> opt.orElse(null), Optional::ofNullable)
-                            .encode(buf, conduitBundle.getConduitExtraGuiData(side, conduit));
+                    ClientConnectionAccessor.writeStartingSyncData(conduitBundle, side, conduit, buf);
                 });
     }
 
@@ -52,7 +49,7 @@ public class ConduitMenu extends BaseEnderMenu {
     public static final int BUTTON_CHANGE_CONDUIT_ID_COUNT = ConduitBundleBlockEntity.MAX_CONDUITS;
 
     private final Direction side;
-    private Holder<Conduit<?, ?>> selectedConduit; // TODO: Sync with sync slot instead of using initial menu open?
+    private final Holder<Conduit<?, ?>> selectedConduit;
 
     private final ConnectionAccessor connectionAccessor;
 
@@ -62,6 +59,9 @@ public class ConduitMenu extends BaseEnderMenu {
     @UseOnly(LogicalSide.SERVER)
     private CompoundTag remoteExtraGuiData;
 
+    @UseOnly(LogicalSide.SERVER)
+    private int conduitListHashCode;
+
     public ConduitMenu(int containerId, Inventory playerInventory, ConduitBundleBlockEntity conduitBundle,
             Direction side, Holder<Conduit<?, ?>> selectedConduit) {
         super(ConduitMenus.CONDUIT_MENU.get(), containerId, playerInventory);
@@ -69,7 +69,9 @@ public class ConduitMenu extends BaseEnderMenu {
         this.side = side;
         this.selectedConduit = selectedConduit;
         this.connectionAccessor = conduitBundle;
-        this.remoteConnectionConfig = connectionAccessor.getConnectionConfig(side, selectedConduit);
+
+        // Set to sensible defaults to allow a sync after the menu opens
+        this.remoteConnectionConfig = selectedConduit.value().connectionConfigType().getDefault();
 
         // TODO: Add conduit slots.
 
@@ -81,7 +83,10 @@ public class ConduitMenu extends BaseEnderMenu {
 
         side = buf.readEnum(Direction.class);
         selectedConduit = Conduit.STREAM_CODEC.decode(buf);
-        this.connectionAccessor = new ClientConnectionAccessor(buf);
+
+        // Use default config until synced by broadcastChanges.
+        var clientConnectionAccessor = new ClientConnectionAccessor(buf);
+        this.connectionAccessor = clientConnectionAccessor;
 
         // TODO: Add conduit slots.
 
@@ -94,6 +99,17 @@ public class ConduitMenu extends BaseEnderMenu {
 
     public Holder<Conduit<?, ?>> getSelectedConduit() {
         return selectedConduit;
+    }
+
+    public List<Holder<Conduit<?, ?>>> getConnectedConduits() {
+        return connectionAccessor.getAllPossibleConnectedCondutis(side);
+    }
+
+    @EnsureSide(EnsureSide.Side.CLIENT)
+    public void setConnectedConduits(List<Holder<Conduit<?, ?>>> connectedConduits) {
+        if (connectionAccessor instanceof ClientConnectionAccessor clientConnectionAccessor) {
+            clientConnectionAccessor.connectedConduits = connectedConduits;
+        }
     }
 
     public ConnectionConfigType<?> connectionConfigType() {
@@ -140,12 +156,20 @@ public class ConduitMenu extends BaseEnderMenu {
         // var bundle = getBlockEntity();
         // var currentConfig = connectionConfig();
 
-        if (id >= BUTTON_CHANGE_CONDUIT_START_ID
+        if (player instanceof ServerPlayer serverPlayer) {
+            if (id >= BUTTON_CHANGE_CONDUIT_START_ID
                 && id <= BUTTON_CHANGE_CONDUIT_ID_COUNT + BUTTON_CHANGE_CONDUIT_ID_COUNT) {
-            // TODO: attempt to change to a different conduit on the same face.
-            // var conduitList = getBlockEntity().getConduits();
+                // TODO: attempt to change to a different conduit on the same face.
+                // var conduitList = getBlockEntity().getConduits();
 
-            // TODO Find and switch to conduit and tell the client.
+                // TODO Find and switch to conduit and tell the client.
+
+                int conduitIndex = id - BUTTON_CHANGE_CONDUIT_START_ID;
+                var connectedConduits = getConnectedConduits();
+                if (conduitIndex < connectedConduits.size()) {
+                    openConduitMenu(serverPlayer, (ConduitBundleBlockEntity) connectionAccessor, side, connectedConduits.get(conduitIndex));
+                }
+            }
         }
 
         return super.clickMenuButton(player, id);
@@ -174,11 +198,18 @@ public class ConduitMenu extends BaseEnderMenu {
                         new S2CConduitExtraGuiDataPacket(containerId, extraGuiData));
                 this.remoteExtraGuiData = extraGuiData;
             }
+
+            var conduitList = connectionAccessor.getAllPossibleConnectedCondutis(side);
+            if (conduitListHashCode != conduitList.hashCode()) {
+                PacketDistributor.sendToPlayer(serverPlayer,
+                    new S2CConduitListPacket(containerId, conduitList));
+                conduitListHashCode = conduitList.hashCode();
+            }
         }
     }
 
     public interface ConnectionAccessor {
-        // TODO: Conduit menu list.
+        List<Holder<Conduit<?, ?>>> getAllPossibleConnectedCondutis(Direction side);
 
         ConnectionConfig getConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit);
 
@@ -194,16 +225,39 @@ public class ConduitMenu extends BaseEnderMenu {
 
     private static class ClientConnectionAccessor implements ConnectionAccessor {
 
+        private List<Holder<Conduit<?, ?>>> connectedConduits = List.of();
+
         private ConnectionConfig connectionConfig;
 
         @Nullable
         private CompoundTag extraGuiData;
 
         public ClientConnectionAccessor(RegistryFriendlyByteBuf buf) {
+            this.connectedConduits = Conduit.STREAM_CODEC.apply(ByteBufCodecs.list(ConduitBundleBlockEntity.MAX_CONDUITS))
+                .decode(buf);
+
             this.connectionConfig = ConnectionConfig.STREAM_CODEC.decode(buf);
+
             extraGuiData = ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG)
                     .map(opt -> opt.orElse(null), Optional::ofNullable)
                     .decode(buf);
+        }
+
+        private static void writeStartingSyncData(ConduitBundleBlockEntity conduitBundle, Direction side, Holder<Conduit<?, ?>> conduit, RegistryFriendlyByteBuf buf) {
+            Conduit.STREAM_CODEC.apply(ByteBufCodecs.list(ConduitBundleBlockEntity.MAX_CONDUITS))
+                .encode(buf, conduitBundle.getAllPossibleConnectedCondutis(side));
+
+            ConnectionConfig.STREAM_CODEC.encode(buf, conduitBundle.getConnectionConfig(side, conduit));
+
+            //noinspection DataFlowIssue
+            ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG)
+                .map(opt -> opt.orElse(null), Optional::ofNullable)
+                .encode(buf, conduitBundle.getConduitExtraGuiData(side, conduit));
+        }
+
+        @Override
+        public List<Holder<Conduit<?, ?>>> getAllPossibleConnectedCondutis(Direction side) {
+            return connectedConduits;
         }
 
         @Override
@@ -229,6 +283,26 @@ public class ConduitMenu extends BaseEnderMenu {
         @Override
         public boolean stillValid(Player player) {
             return true;
+        }
+    }
+
+    private record MenuProvider(ConduitBundleBlockEntity conduitBundle, Direction side, Holder<Conduit<?, ?>> conduit) implements
+        net.minecraft.world.MenuProvider {
+
+        @Override
+        public Component getDisplayName() {
+            return conduit.value().description();
+        }
+
+        @Override
+        public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+            return new ConduitMenu(containerId, inventory, conduitBundle, side, conduit);
+        }
+
+        @Override
+        public boolean shouldTriggerClientSideContainerClosingOnOpen() {
+            // Prevents the mouse from jumping when changing between conduits.
+            return false;
         }
     }
 }

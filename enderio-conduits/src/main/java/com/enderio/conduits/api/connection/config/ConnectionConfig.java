@@ -42,5 +42,17 @@ public interface ConnectionConfig {
         throw new NotImplementedException("This connection config type needs to implement reconnected().");
     }
 
+    /**
+     * Modify the config such that isConnected() is true again.
+     * This will ensure that when the connection is revived, it isn't invalid.
+     */
+    default ConnectionConfig disconnected() {
+        if (this.isConnected()) {
+            return this;
+        }
+
+        throw new NotImplementedException("This connection config type needs to implement reconnected().");
+    }
+
     ConnectionConfigType<?> type();
 }

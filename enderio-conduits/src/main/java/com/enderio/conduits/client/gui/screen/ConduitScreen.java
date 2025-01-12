@@ -10,6 +10,7 @@ import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.screen.ConduitMenuDataAccess;
 import com.enderio.conduits.api.screen.ConduitScreenHelper;
 import com.enderio.conduits.api.screen.ConduitScreenType;
+import com.enderio.conduits.client.gui.NewConduitSelectionButton;
 import com.enderio.conduits.client.gui.screen.types.ConduitScreenTypes;
 import com.enderio.conduits.common.conduit.menu.ConduitMenu;
 import com.enderio.conduits.common.init.ConduitLang;
@@ -25,6 +26,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -33,7 +35,7 @@ import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
+public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
     public static final ResourceLocation TEXTURE = EnderIO.loc("textures/gui/conduit.png");
     private static final int WIDTH = 206;
     private static final int HEIGHT = 195;
@@ -44,7 +46,7 @@ public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
 
     private final List<Runnable> preRenderActions = new ArrayList<>();
 
-    public NewConduitScreen(ConduitMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public ConduitScreen(ConduitMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
 
 //        this.shouldRenderLabels = true;
@@ -64,7 +66,10 @@ public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
             screenTypeContainer.addWidgets(screenHelper);
         }
 
-        // TODO: Conduit selection buttons
+        for (int i = 0; i < 9; i++) {
+            addRenderableWidget(new NewConduitSelectionButton(getGuiLeft() + 206, getGuiTop() + 4 + 24*i, i,
+                menu::getSelectedConduit, menu::getConnectedConduits, idx -> handleButtonPress(ConduitMenu.BUTTON_CHANGE_CONDUIT_START_ID + idx)));
+        }
     }
 
     @Override
@@ -227,22 +232,22 @@ public class NewConduitScreen extends EnderContainerScreen<ConduitMenu> {
 
         @Override
         public <W extends GuiEventListener & NarratableEntry> W addWidget(W listener) {
-            return NewConduitScreen.this.addWidget(listener);
+            return ConduitScreen.this.addWidget(listener);
         }
 
         @Override
         public <W extends Renderable> W addRenderableOnly(W renderable) {
-            return NewConduitScreen.this.addRenderableOnly(renderable);
+            return ConduitScreen.this.addRenderableOnly(renderable);
         }
 
         @Override
         public <W extends GuiEventListener & Renderable & NarratableEntry> W addRenderableWidget(W widget) {
-            return NewConduitScreen.this.addRenderableWidget(widget);
+            return ConduitScreen.this.addRenderableWidget(widget);
         }
 
         @Override
         public void removeWidget(GuiEventListener listener) {
-            NewConduitScreen.this.removeWidget(listener);
+            ConduitScreen.this.removeWidget(listener);
         }
     }
 }

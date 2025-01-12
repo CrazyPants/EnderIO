@@ -30,6 +30,9 @@ public class ConduitNetwork {
         registrar.playToClient(S2CConduitExtraGuiDataPacket.TYPE, S2CConduitExtraGuiDataPacket.STREAM_CODEC,
                 ConduitClientPayloadHandler.getInstance()::handle);
 
+        registrar.playToClient(S2CConduitListPacket.TYPE, S2CConduitListPacket.STREAM_CODEC,
+                ConduitClientPayloadHandler.getInstance()::handle);
+
         registrar.playBidirectional(SetConduitConnectionConfigPacket.TYPE,
                 SetConduitConnectionConfigPacket.STREAM_CODEC, ConduitCommonPayloadHandler.getInstance()::handle);
     }

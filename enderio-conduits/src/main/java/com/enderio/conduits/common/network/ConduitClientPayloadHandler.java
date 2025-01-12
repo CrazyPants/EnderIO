@@ -16,6 +16,16 @@ public class ConduitClientPayloadHandler {
         });
     }
 
+    public void handle(S2CConduitListPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (packet.containerId() == context.player().containerMenu.containerId) {
+                if (context.player().containerMenu instanceof ConduitMenu menu) {
+                    menu.setConnectedConduits(packet.conduits());
+                }
+            }
+        });
+    }
+
     public static ConduitClientPayloadHandler getInstance() {
         return INSTANCE;
     }

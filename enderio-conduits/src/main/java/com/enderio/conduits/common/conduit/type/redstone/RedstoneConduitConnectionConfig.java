@@ -41,6 +41,12 @@ public record RedstoneConduitConnectionConfig(boolean isSend, DyeColor sendColor
                 isStrongOutputSignal);
     }
 
+    @Override
+    public ConnectionConfig disconnected() {
+        return new RedstoneConduitConnectionConfig(false, sendColor, false, receiveColor,
+            isStrongOutputSignal);
+    }
+
     public RedstoneConduitConnectionConfig withIsSend(boolean isSend) {
         return new RedstoneConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, isStrongOutputSignal);
     }

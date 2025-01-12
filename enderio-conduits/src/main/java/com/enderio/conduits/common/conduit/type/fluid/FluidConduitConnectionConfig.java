@@ -43,18 +43,24 @@ public record FluidConduitConnectionConfig(boolean canInsert, DyeColor insertCha
 
     @Override
     public ConnectionConfig reconnected() {
-        return new FluidConduitConnectionConfig(DEFAULT.canInsert, DEFAULT.insertChannel, DEFAULT.canExtract,
-                DEFAULT.extractChannel, redstoneControl, redstoneChannel);
+        return new FluidConduitConnectionConfig(DEFAULT.canInsert, insertChannel, DEFAULT.canExtract,
+                extractChannel, redstoneControl, redstoneChannel);
     }
 
     @Override
-    public IOConnectionConfig withInsert(boolean canInsert) {
+    public ConnectionConfig disconnected() {
+        return new FluidConduitConnectionConfig(false, insertChannel, false,
+            extractChannel, redstoneControl, redstoneChannel);
+    }
+
+    @Override
+    public FluidConduitConnectionConfig withInsert(boolean canInsert) {
         return new FluidConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl,
                 redstoneChannel);
     }
 
     @Override
-    public IOConnectionConfig withExtract(boolean canExtract) {
+    public FluidConduitConnectionConfig withExtract(boolean canExtract) {
         return new FluidConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl,
                 redstoneChannel);
     }
