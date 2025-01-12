@@ -76,11 +76,7 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
      * @implNote if a conduit has a menu, you must also register a {@link com.enderio.conduits.api.screen.ConduitScreenType} for it.
      * @return whether this conduit has a menu.
      */
-//    boolean hasMenu();
-
-    // TODO: Custom menu data factory?
-
-    ConduitMenuData getMenuData();
+    //boolean hasMenu();
 
     // region Conduit Checks
 
@@ -99,28 +95,28 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
         return this.equals(other.value());
     }
 
-    // endregion
-
-    // region Connection Checks
-
     /**
-     * This can be used to prevent connection between nodes with incompatible data.
-     * Warning: If you are unable to determine if the conduit is connectable, always return false - otherwise the client visual can desync.
-     * @apiNote only called on the server side, should mirror the behaviour of {@link #canConnectConduits(ConduitNode, ConduitNode)} for seamless block placement.
-     * @return true if both nodes are compatible.
+     * If this conduit overrides {@link #canConnectConduits(ConduitNode, ConduitNode)}, return true.
+     * This will avoid showing connections between conduits on the client until the server evaluates whether they can connect.
+     * @apiNote Failing to override this properly could result in connection desyncs.
+     * @return whether this conduit has additional server-side connection checks.
      */
-    default boolean canConnectConduits(@Nullable CompoundTag selfRenderData, @Nullable CompoundTag otherRenderData) {
-        return true;
+    default boolean hasServerConnectionChecks() {
+        return false;
     }
 
     /**
      * This can be used to prevent connection between nodes with incompatible data.
-     * @apiNote only called on the server side. For seamless block placement, implement {@link #canConnectConduits(CompoundTag, CompoundTag)}
+     * @apiNote Not called by the server if {@link #hasServerConnectionChecks()} does not return true.
      * @return true if both nodes are compatible.
      */
     default boolean canConnectConduits(ConduitNode selfNode, ConduitNode otherNode) {
         return true;
     }
+
+    // endregion
+
+    // region Connection Checks
 
     boolean canConnectToBlock(Level level, BlockPos conduitPos, Direction direction);
 
@@ -186,8 +182,10 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
      * @deprecated Only for conversion of <7.1 conduit data. Will be removed in Ender IO 8.
      */
     @Deprecated(since = "7.2")
-    TConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
-            DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel);
+    default TConnectionConfig convertConnection(boolean isInsert, boolean isExtract, DyeColor inputChannel,
+            DyeColor outputChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel) {
+        return connectionConfigType().getDefault();
+    }
 
     /**
      * Copy legacy data from the old conduit data accessor to the new node however you wish.

@@ -843,7 +843,6 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
 
     // TODO: This needs a better name or to handle blocks as well as conduits before
     // it can be exposed via the interface.
-    @EnsureSide(EnsureSide.Side.SERVER)
     public boolean canConnectTo(Direction side, Holder<Conduit<?, ?>> conduit, ConduitGraphObject otherNode,
             boolean isForcedConnection) {
         if (level == null) {
@@ -854,25 +853,17 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
             return false;
         }
 
-        if (!conduit.value().canConnectConduits(conduitNodes.get(conduit), otherNode)) {
-            return false;
-        }
+        if (conduit.value().hasServerConnectionChecks()) {
+            if (level.isClientSide()) {
+                // If this has server-side logic, don't continue locally.
+                return false;
+            }
 
-        return isForcedConnection || conduitConnections.get(conduit).getStatus(side) != ConnectionStatus.DISABLED;
-    }
+            // Gated behind hasServerConnectionChecks to ensure conduit devs do not forget to override both.
+            if (!conduit.value().canConnectConduits(conduitNodes.get(conduit), otherNode)) {
+                return false;
+            }
 
-    @EnsureSide(EnsureSide.Side.CLIENT)
-    public boolean canConnectTo(Direction side, Holder<Conduit<?, ?>> conduit,
-            @Nullable CompoundTag otherExtraWorldData, boolean isForcedConnection) {
-        if (level == null) {
-            return false;
-        }
-
-        if (!doTypesMatch(conduit)) {
-            return false;
-        }
-
-        if (!conduit.value().canConnectConduits(getConduitExtraWorldData(conduit), otherExtraWorldData)) {
             return false;
         }
 
@@ -908,18 +899,8 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
                 getBlockPos().relative(side)) instanceof ConduitBundleBlockEntity neighbourConduitBundle) {
             var node = conduitNodes.get(conduit);
 
-            // TODO: This is really ugly.
-            boolean canConnectToNeighbour;
-            if (level.isClientSide()) {
-                canConnectToNeighbour = neighbourConduitBundle.canConnectTo(side, conduit,
-                        getConduitExtraWorldData(conduit), isForcedConnection);
-            } else {
-                canConnectToNeighbour = neighbourConduitBundle.canConnectTo(side.getOpposite(), conduit, node,
-                        isForcedConnection);
-            }
-
             // Connect to another bundle which has a compatible conduit.
-            if (canConnectToNeighbour) {
+            if (neighbourConduitBundle.canConnectTo(side.getOpposite(), conduit, node, isForcedConnection)) {
                 // Make connections to both sides
                 connectConduit(side, conduit);
                 neighbourConduitBundle.connectConduit(side.getOpposite(), conduit);

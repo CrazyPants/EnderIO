@@ -4,7 +4,6 @@ import com.enderio.base.api.filter.ItemStackFilter;
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.SlotType;
@@ -44,8 +43,6 @@ public record ItemConduit(ResourceLocation texture, Component description, int t
                     Codec.intRange(1, 20).optionalFieldOf("ticks_per_cycle", 20).forGetter(ItemConduit::graphTickRate))
             .apply(builder, ItemConduit::new));
 
-    private static final ConduitMenuData MENU_DATA = new ConduitMenuData.Simple(true, true, true, true, true, true);
-
     private static final ItemConduitTicker TICKER = new ItemConduitTicker();
 
     @Override
@@ -56,11 +53,6 @@ public record ItemConduit(ResourceLocation texture, Component description, int t
     @Override
     public ItemConduitTicker getTicker() {
         return TICKER;
-    }
-
-    @Override
-    public ConduitMenuData getMenuData() {
-        return MENU_DATA;
     }
 
     @Override

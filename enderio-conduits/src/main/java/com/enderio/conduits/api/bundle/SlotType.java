@@ -1,7 +1,5 @@
 package com.enderio.conduits.api.bundle;
 
-import com.enderio.conduits.api.ConduitMenuData;
-
 public enum SlotType {
     FILTER_EXTRACT, FILTER_INSERT, UPGRADE_EXTRACT;
 
@@ -17,13 +15,5 @@ public enum SlotType {
 
     public int getY() {
         return Y_POSITION;
-    }
-
-    public boolean isAvailableFor(ConduitMenuData data) {
-        return switch (this) {
-        case FILTER_INSERT -> data.hasFilterInsert();
-        case FILTER_EXTRACT -> data.hasFilterExtract();
-        case UPGRADE_EXTRACT -> data.hasUpgrade();
-        };
     }
 }

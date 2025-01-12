@@ -4,7 +4,6 @@ import com.enderio.base.api.filter.FluidStackFilter;
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.SlotType;
@@ -50,10 +49,6 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
                                     Codec.BOOL.fieldOf("is_multi_fluid").forGetter(FluidConduit::isMultiFluid))
                             .apply(builder, FluidConduit::new));
 
-    public static final ConduitMenuData NORMAL_MENU_DATA = new ConduitMenuData.Simple(true, true, true, false, false,
-            true);
-    public static final ConduitMenuData ADVANCED_MENU_DATA = new ConduitMenuData.Simple(true, true, true, true, true,
-            true);
     private static final FluidConduitTicker TICKER = new FluidConduitTicker();
 
     @Override
@@ -64,11 +59,6 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
     @Override
     public FluidConduitTicker getTicker() {
         return TICKER;
-    }
-
-    @Override
-    public ConduitMenuData getMenuData() {
-        return isMultiFluid ? ADVANCED_MENU_DATA : NORMAL_MENU_DATA;
     }
 
     @Override
@@ -86,29 +76,16 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
     }
 
     @Override
-    public boolean canConnectConduits(@Nullable CompoundTag selfRenderData, @Nullable CompoundTag otherRenderData) {
-        /*// If there's no data for one of the nodes, the network must be fresh or
-        // uninitialized.
-        if (selfRenderData == null || otherRenderData == null) {
-            return true;
-        }
-
-        if (selfRenderData.contains("LockedFluid") || otherRenderData.contains("LockedFluid")) {
-            return true;
-        }
-
-        var selfLockedFluid = BuiltInRegistries.FLUID
-                .get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
-        var otherLockedFluid = BuiltInRegistries.FLUID
-                .get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
-
-        return selfLockedFluid.isSame(otherLockedFluid);*/
-
-        return false;
+    public boolean hasServerConnectionChecks() {
+        return !isMultiFluid();
     }
 
     @Override
     public boolean canConnectConduits(ConduitNode selfNode, ConduitNode otherNode) {
+        if (!isMultiFluid()) {
+            return true;
+        }
+
         // Ensure the networks are not locked to different fluids before connecting.
         var selfNetwork = selfNode.getNetwork();
         var otherNetwork = otherNode.getNetwork();

@@ -3,7 +3,6 @@ package com.enderio.conduits.common.conduit.type.redstone;
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.SlotType;
@@ -38,7 +37,6 @@ public record RedstoneConduit(ResourceLocation texture, ResourceLocation activeT
             .apply(builder, RedstoneConduit::new));
 
     private static final RedstoneConduitTicker TICKER = new RedstoneConduitTicker();
-    private static final ConduitMenuData MENU_DATA = new ConduitMenuData.Simple(true, true, false, true, true, false);
 
     @Override
     public int graphTickRate() {
@@ -53,11 +51,6 @@ public record RedstoneConduit(ResourceLocation texture, ResourceLocation activeT
     @Override
     public RedstoneConduitTicker getTicker() {
         return TICKER;
-    }
-
-    @Override
-    public ConduitMenuData getMenuData() {
-        return MENU_DATA;
     }
 
     @Override

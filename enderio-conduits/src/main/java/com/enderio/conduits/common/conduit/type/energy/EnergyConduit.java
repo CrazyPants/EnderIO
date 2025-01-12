@@ -3,7 +3,6 @@ package com.enderio.conduits.common.conduit.type.energy;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.Conduit;
-import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.api.network.node.ConduitNode;
@@ -46,8 +45,6 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
     }
 
     private static final EnergyConduitTicker TICKER = new EnergyConduitTicker();
-    private static final ConduitMenuData MENU_DATA = new ConduitMenuData.Simple(false, false, false, false, false,
-            true);
 
     // Not configurable - energy is instantaneous
     @Override
@@ -63,11 +60,6 @@ public record EnergyConduit(ResourceLocation texture, Component description, int
     @Override
     public EnergyConduitTicker getTicker() {
         return TICKER;
-    }
-
-    @Override
-    public ConduitMenuData getMenuData() {
-        return MENU_DATA;
     }
 
     @Override
