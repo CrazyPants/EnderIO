@@ -514,7 +514,8 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
     }
 
     @Override
-    public AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Direction primaryConnectionSide, @Nullable Player player) {
+    public AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Direction primaryConnectionSide,
+            @Nullable Player player) {
         if (level == null) {
             return new AddConduitResult.Blocked();
         }
@@ -607,7 +608,8 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
             node.attach(new ConnectionHost(this, conduit));
         }
 
-        // Now attempt to make connections, starting from the "primary" side (clicked or facing direction)
+        // Now attempt to make connections, starting from the "primary" side (clicked or
+        // facing direction)
         if (primaryConnectionSide != null) {
             tryConnectTo(primaryConnectionSide, conduit, false);
         }
@@ -859,7 +861,8 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
                 return false;
             }
 
-            // Gated behind hasServerConnectionChecks to ensure conduit devs do not forget to override both.
+            // Gated behind hasServerConnectionChecks to ensure conduit devs do not forget
+            // to override both.
             if (!conduit.value().canConnectConduits(conduitNodes.get(conduit), otherNode)) {
                 return false;
             }
@@ -1460,7 +1463,8 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
                 bundleChanged();
             }
 
-            // We keep the old state in case the wrench is used, but UI will need to show empty arrows.
+            // We keep the old state in case the wrench is used, but UI will need to show
+            // empty arrows.
             if (statuses.get(side) != ConnectionStatus.CONNECTED_BLOCK && config.isConnected()) {
                 return config.disconnected();
             }

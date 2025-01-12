@@ -1,16 +1,13 @@
 package com.enderio.conduits.client.gui.screen.types;
 
-import com.enderio.base.api.EnderIO;
 import com.enderio.base.common.lang.EIOLang;
 import com.enderio.conduits.api.screen.ConduitMenuDataAccess;
 import com.enderio.conduits.api.screen.ConduitScreenHelper;
 import com.enderio.conduits.api.screen.ConduitScreenType;
 import com.enderio.conduits.common.conduit.type.energy.EnergyConduitConnectionConfig;
-import com.enderio.conduits.common.conduit.type.item.ItemConduitConnectionConfig;
 import com.enderio.conduits.common.init.ConduitLang;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
 
 public class EnergyConduitScreenType extends ConduitScreenType<EnergyConduitConnectionConfig> {
 

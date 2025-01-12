@@ -10,7 +10,8 @@ public record C2SClearLockedFluidPacket(BlockPos pos) implements CustomPacketPay
 
     public static final Type<C2SClearLockedFluidPacket> TYPE = new Type<>(EnderIO.loc("clear_locked_fluid"));
 
-    public static StreamCodec<ByteBuf, C2SClearLockedFluidPacket> STREAM_CODEC = BlockPos.STREAM_CODEC.map(C2SClearLockedFluidPacket::new, C2SClearLockedFluidPacket::pos);
+    public static StreamCodec<ByteBuf, C2SClearLockedFluidPacket> STREAM_CODEC = BlockPos.STREAM_CODEC
+            .map(C2SClearLockedFluidPacket::new, C2SClearLockedFluidPacket::pos);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

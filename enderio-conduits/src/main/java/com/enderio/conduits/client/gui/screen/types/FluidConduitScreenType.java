@@ -11,6 +11,7 @@ import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.network.C2SClearLockedFluidPacket;
 import com.enderio.core.common.util.TooltipUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,8 +30,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.network.PacketDistributor;
-
-import java.util.function.Supplier;
 
 public class FluidConduitScreenType extends ConduitScreenType<FluidConduitConnectionConfig> {
 
@@ -57,32 +56,35 @@ public class FluidConduitScreenType extends ConduitScreenType<FluidConduitConnec
         // Locked fluid widget
         if (dataAccess.conduit() instanceof FluidConduit fluidConduit && !fluidConduit.isMultiFluid()) {
             screen.addRenderableWidget(new FluidWidget(screen.getAreaLeft(), screen.getAreaTop() + currentY,
-                () -> getLockedFluid(dataAccess),
-                () -> PacketDistributor.sendToServer(new C2SClearLockedFluidPacket(dataAccess.getBlockPos()))));
+                    () -> getLockedFluid(dataAccess),
+                    () -> PacketDistributor.sendToServer(new C2SClearLockedFluidPacket(dataAccess.getBlockPos()))));
         } else {
             // Channel colors
-            screen.addColorPicker(0, currentY, ConduitLang.CONDUIT_CHANNEL, () -> dataAccess.getConnectionConfig().sendColor(),
-                value -> dataAccess.updateConnectionConfig(config -> config.withSendColor(value)));
+            screen.addColorPicker(0, currentY, ConduitLang.CONDUIT_CHANNEL,
+                    () -> dataAccess.getConnectionConfig().sendColor(),
+                    value -> dataAccess.updateConnectionConfig(config -> config.withSendColor(value)));
 
             screen.addColorPicker(90, currentY, ConduitLang.CONDUIT_CHANNEL,
-                () -> dataAccess.getConnectionConfig().receiveColor(),
-                value -> dataAccess.updateConnectionConfig(config -> config.withReceiveColor(value)));
+                    () -> dataAccess.getConnectionConfig().receiveColor(),
+                    value -> dataAccess.updateConnectionConfig(config -> config.withReceiveColor(value)));
 
             currentY += 20;
         }
 
         // TODO: Could be good fluid conduit features?
-        /*// Round robin
-        screen.addToggleButton(90 + 16 + 4, 20, 16, 16, ConduitLang.ROUND_ROBIN_ENABLED,
-                ConduitLang.ROUND_ROBIN_DISABLED, ICON_ROUND_ROBIN_ENABLED, ICON_ROUND_ROBIN_DISABLED,
-                () -> dataAccess.getConnectionConfig().isRoundRobin(),
-                value -> dataAccess.updateConnectionConfig(config -> config.withIsRoundRobin(value)));
-
-        // Self feed
-        screen.addToggleButton(90 + (16 + 4) * 2, 20, 16, 16, ConduitLang.SELF_FEED_ENABLED,
-                ConduitLang.SELF_FEED_DISABLED, ICON_SELF_FEED_ENABLED, ICON_SELF_FEED_DISABLED,
-                () -> dataAccess.getConnectionConfig().isSelfFeed(),
-                value -> dataAccess.updateConnectionConfig(config -> config.withIsSelfFeed(value)));*/
+        /*
+         * // Round robin screen.addToggleButton(90 + 16 + 4, 20, 16, 16,
+         * ConduitLang.ROUND_ROBIN_ENABLED, ConduitLang.ROUND_ROBIN_DISABLED,
+         * ICON_ROUND_ROBIN_ENABLED, ICON_ROUND_ROBIN_DISABLED, () ->
+         * dataAccess.getConnectionConfig().isRoundRobin(), value ->
+         * dataAccess.updateConnectionConfig(config -> config.withIsRoundRobin(value)));
+         *
+         * // Self feed screen.addToggleButton(90 + (16 + 4) * 2, 20, 16, 16,
+         * ConduitLang.SELF_FEED_ENABLED, ConduitLang.SELF_FEED_DISABLED,
+         * ICON_SELF_FEED_ENABLED, ICON_SELF_FEED_DISABLED, () ->
+         * dataAccess.getConnectionConfig().isSelfFeed(), value ->
+         * dataAccess.updateConnectionConfig(config -> config.withIsSelfFeed(value)));
+         */
 
         // Redstone control
         var redstoneChannelWidget = screen.addColorPicker(90 + 16 + 4, currentY, ConduitLang.REDSTONE_CHANNEL,
@@ -145,8 +147,8 @@ public class FluidConduitScreenType extends ConduitScreenType<FluidConduitConnec
                 tooltip.append("\n").append(ConduitLang.FLUID_CONDUIT_CHANGE_FLUID2);
                 if (!currentFluid.get().isSame(Fluids.EMPTY)) {
                     tooltip.append("\n")
-                        .append(TooltipUtil.withArgs(ConduitLang.FLUID_CONDUIT_CHANGE_FLUID3,
-                            currentFluid.get().getFluidType().getDescription()));
+                            .append(TooltipUtil.withArgs(ConduitLang.FLUID_CONDUIT_CHANGE_FLUID3,
+                                    currentFluid.get().getFluidType().getDescription()));
                 }
                 setTooltip(Tooltip.create(TooltipUtil.style(tooltip)));
             }
@@ -162,22 +164,22 @@ public class FluidConduitScreenType extends ConduitScreenType<FluidConduitConnec
             IClientFluidTypeExtensions props = IClientFluidTypeExtensions.of(currentFluid.get());
             ResourceLocation still = props.getStillTexture();
             AbstractTexture texture = Minecraft.getInstance()
-                .getTextureManager()
-                .getTexture(TextureAtlas.LOCATION_BLOCKS);
+                    .getTextureManager()
+                    .getTexture(TextureAtlas.LOCATION_BLOCKS);
             if (texture instanceof TextureAtlas atlas) {
                 TextureAtlasSprite sprite = atlas.getSprite(still);
 
                 int color = props.getTintColor();
                 RenderSystem.setShaderColor(FastColor.ARGB32.red(color) / 255.0F,
-                    FastColor.ARGB32.green(color) / 255.0F, FastColor.ARGB32.blue(color) / 255.0F,
-                    FastColor.ARGB32.alpha(color) / 255.0F);
+                        FastColor.ARGB32.green(color) / 255.0F, FastColor.ARGB32.blue(color) / 255.0F,
+                        FastColor.ARGB32.alpha(color) / 255.0F);
                 RenderSystem.enableBlend();
 
                 int atlasWidth = (int) (sprite.contents().width() / (sprite.getU1() - sprite.getU0()));
                 int atlasHeight = (int) (sprite.contents().height() / (sprite.getV1() - sprite.getV0()));
 
                 guiGraphics.blit(TextureAtlas.LOCATION_BLOCKS, getX() + 1, getY() + 1, 0, sprite.getU0() * atlasWidth,
-                    sprite.getV0() * atlasHeight, 12, 12, atlasWidth, atlasHeight);
+                        sprite.getV0() * atlasHeight, 12, 12, atlasWidth, atlasHeight);
 
                 RenderSystem.setShaderColor(1, 1, 1, 1);
             }

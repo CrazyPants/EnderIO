@@ -58,7 +58,8 @@ public class FluidConduitNetworkContext implements ConduitNetworkContext<FluidCo
 
     @Override
     public FluidConduitNetworkContext mergeWith(FluidConduitNetworkContext other) {
-        // Merge with the locked fluid, but set the last to empty so the ticker marks the nodes as dirty.
+        // Merge with the locked fluid, but set the last to empty so the ticker marks
+        // the nodes as dirty.
         if (lockedFluid.equals(Fluids.EMPTY)) {
             return new FluidConduitNetworkContext(other.lockedFluid, Fluids.EMPTY);
         }

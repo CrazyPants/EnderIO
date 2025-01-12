@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class RedstoneConduitTicker extends
-    IOAwareConduitTicker<RedstoneConduit, RedstoneConduitConnectionConfig, RedstoneConduitTicker.Connection> {
+        IOAwareConduitTicker<RedstoneConduit, RedstoneConduitConnectionConfig, RedstoneConduitTicker.Connection> {
 
     @Override
     public void tickGraph(ServerLevel level, RedstoneConduit conduit, ConduitNetwork graph,

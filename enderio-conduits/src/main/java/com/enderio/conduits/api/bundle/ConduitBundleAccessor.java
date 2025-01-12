@@ -25,7 +25,8 @@ public interface ConduitBundleAccessor extends ConduitBundleReader {
      * @param player the player adding the conduit, or null if performed from another source.
      * @return the result of the add operation.
      */
-    AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Direction primaryConnectionSide, @Nullable Player player);
+    AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Direction primaryConnectionSide,
+            @Nullable Player player);
 
     /**
      * Remove a conduit from the bundle.

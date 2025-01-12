@@ -32,7 +32,8 @@ public record RedstoneConduitConnectionConfig(boolean isSend, DyeColor sendColor
             DyeColor.STREAM_CODEC, RedstoneConduitConnectionConfig::receiveColor, ByteBufCodecs.BOOL,
             RedstoneConduitConnectionConfig::isStrongOutputSignal, RedstoneConduitConnectionConfig::new);
 
-    public static ConnectionConfigType<RedstoneConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
+    public static ConnectionConfigType<RedstoneConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC,
+            STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {
@@ -42,8 +43,7 @@ public record RedstoneConduitConnectionConfig(boolean isSend, DyeColor sendColor
 
     @Override
     public ConnectionConfig disconnected() {
-        return new RedstoneConduitConnectionConfig(false, sendColor, false, receiveColor,
-            isStrongOutputSignal);
+        return new RedstoneConduitConnectionConfig(false, sendColor, false, receiveColor, isStrongOutputSignal);
     }
 
     public RedstoneConduitConnectionConfig withIsSend(boolean isSend) {

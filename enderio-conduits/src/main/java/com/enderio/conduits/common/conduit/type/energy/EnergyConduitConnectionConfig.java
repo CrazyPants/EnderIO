@@ -10,14 +10,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
+import java.util.List;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 
-import java.util.List;
-
 public record EnergyConduitConnectionConfig(boolean isSend, boolean isReceive, RedstoneControl receiveRedstoneControl,
-                                            DyeColor receiveRedstoneChannel) implements IOConnectionConfig, RedstoneSensitiveConnectionConfig {
+        DyeColor receiveRedstoneChannel) implements IOConnectionConfig, RedstoneSensitiveConnectionConfig {
 
     public static EnergyConduitConnectionConfig DEFAULT = new EnergyConduitConnectionConfig(true, true,
             RedstoneControl.ALWAYS_ACTIVE, DyeColor.RED);
@@ -37,11 +36,13 @@ public record EnergyConduitConnectionConfig(boolean isSend, boolean isReceive, R
             EnergyConduitConnectionConfig::receiveRedstoneControl, DyeColor.STREAM_CODEC,
             EnergyConduitConnectionConfig::receiveRedstoneChannel, EnergyConduitConnectionConfig::new);
 
-    public static final ConnectionConfigType<EnergyConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
+    public static final ConnectionConfigType<EnergyConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC,
+            STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {
-        return new EnergyConduitConnectionConfig(DEFAULT.isSend, DEFAULT.isReceive, receiveRedstoneControl, receiveRedstoneChannel);
+        return new EnergyConduitConnectionConfig(DEFAULT.isSend, DEFAULT.isReceive, receiveRedstoneControl,
+                receiveRedstoneChannel);
     }
 
     @Override

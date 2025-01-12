@@ -20,9 +20,8 @@ public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, bo
         RedstoneControl receiveRedstoneControl, DyeColor receiveRedstoneChannel, boolean isRoundRobin,
         boolean isSelfFeed, int priority) implements IOConnectionConfig, RedstoneSensitiveConnectionConfig {
 
-
     public static ItemConduitConnectionConfig DEFAULT = new ItemConduitConnectionConfig(false, DyeColor.GREEN, true,
-        DyeColor.GREEN, RedstoneControl.NEVER_ACTIVE, DyeColor.RED, false, false, 0);
+            DyeColor.GREEN, RedstoneControl.NEVER_ACTIVE, DyeColor.RED, false, false, 0);
 
     public static MapCodec<ItemConduitConnectionConfig> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
             .group(Codec.BOOL.fieldOf("is_send").forGetter(ItemConduitConnectionConfig::isSend),
@@ -47,18 +46,19 @@ public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, bo
             ItemConduitConnectionConfig::isRoundRobin, ByteBufCodecs.BOOL, ItemConduitConnectionConfig::isSelfFeed,
             ByteBufCodecs.INT, ItemConduitConnectionConfig::priority, ItemConduitConnectionConfig::new);
 
-    public static ConnectionConfigType<ItemConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
+    public static ConnectionConfigType<ItemConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC,
+            STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {
-        return new ItemConduitConnectionConfig(false, sendColor, true, receiveColor,
-            receiveRedstoneControl, receiveRedstoneChannel, isRoundRobin, isSelfFeed, priority);
+        return new ItemConduitConnectionConfig(false, sendColor, true, receiveColor, receiveRedstoneControl,
+                receiveRedstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 
     @Override
     public ConnectionConfig disconnected() {
-        return new ItemConduitConnectionConfig(false, sendColor, false, receiveColor,
-            receiveRedstoneControl, receiveRedstoneChannel, isRoundRobin, isSelfFeed, priority);
+        return new ItemConduitConnectionConfig(false, sendColor, false, receiveColor, receiveRedstoneControl,
+                receiveRedstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 
     @Override

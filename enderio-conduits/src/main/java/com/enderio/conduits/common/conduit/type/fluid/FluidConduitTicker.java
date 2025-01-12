@@ -4,10 +4,8 @@ import com.enderio.base.api.filter.FluidStackFilter;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
-
-import java.util.List;
-
 import com.enderio.conduits.api.ticker.IOAwareConduitTicker;
+import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
@@ -21,7 +19,8 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
 
-public class FluidConduitTicker extends IOAwareConduitTicker<FluidConduit, FluidConduitConnectionConfig, FluidConduitTicker.Connection> {
+public class FluidConduitTicker
+        extends IOAwareConduitTicker<FluidConduit, FluidConduitConnectionConfig, FluidConduitTicker.Connection> {
 
     private int getScaledFluidRate(FluidConduit conduit) {
         // Adjust for tick rate. Always flow up so we are at minimum meeting the
@@ -65,7 +64,8 @@ public class FluidConduitTicker extends IOAwareConduitTicker<FluidConduit, Fluid
     }
 
     @Override
-    public void tickGraph(ServerLevel level, FluidConduit conduit, ConduitNetwork graph, ColoredRedstoneProvider coloredRedstoneProvider) {
+    public void tickGraph(ServerLevel level, FluidConduit conduit, ConduitNetwork graph,
+            ColoredRedstoneProvider coloredRedstoneProvider) {
         super.tickGraph(level, conduit, graph, coloredRedstoneProvider);
 
         // Update if the network is now locked
@@ -123,7 +123,8 @@ public class FluidConduitTicker extends IOAwareConduitTicker<FluidConduit, Fluid
         IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, node.getPos().relative(side),
                 side.getOpposite());
         if (fluidHandler != null) {
-            return new Connection(node, side, node.getConnectionConfig(side, FluidConduitConnectionConfig.TYPE), fluidHandler);
+            return new Connection(node, side, node.getConnectionConfig(side, FluidConduitConnectionConfig.TYPE),
+                    fluidHandler);
         }
         return null;
     }
@@ -131,7 +132,8 @@ public class FluidConduitTicker extends IOAwareConduitTicker<FluidConduit, Fluid
     protected static class Connection extends SimpleConnection<FluidConduitConnectionConfig> {
         private final IFluidHandler fluidHandler;
 
-        public Connection(ConduitNode node, Direction side, FluidConduitConnectionConfig config, IFluidHandler fluidHandler) {
+        public Connection(ConduitNode node, Direction side, FluidConduitConnectionConfig config,
+                IFluidHandler fluidHandler) {
             super(node, side, config);
             this.fluidHandler = fluidHandler;
         }

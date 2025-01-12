@@ -4,7 +4,6 @@ import com.enderio.base.api.UseOnly;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlock;
 import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
 import com.enderio.conduits.common.init.ConduitMenus;
 import com.enderio.conduits.common.network.S2CConduitExtraGuiDataPacket;
@@ -40,11 +39,11 @@ public class ConduitMenu extends BaseEnderMenu {
     public static void openConduitMenu(ServerPlayer serverPlayer, ConduitBundleBlockEntity conduitBundle,
             Direction side, Holder<Conduit<?, ?>> conduit) {
         serverPlayer.openMenu(new MenuProvider(conduitBundle, side, conduit), buf -> {
-                    buf.writeBlockPos(conduitBundle.getBlockPos());
-                    buf.writeEnum(side);
-                    Conduit.STREAM_CODEC.encode(buf, conduit);
-                    ClientConnectionAccessor.writeStartingSyncData(conduitBundle, side, conduit, buf);
-                });
+            buf.writeBlockPos(conduitBundle.getBlockPos());
+            buf.writeEnum(side);
+            Conduit.STREAM_CODEC.encode(buf, conduit);
+            ClientConnectionAccessor.writeStartingSyncData(conduitBundle, side, conduit, buf);
+        });
     }
 
     public static final int BUTTON_CHANGE_CONDUIT_START_ID = 0;
@@ -168,7 +167,7 @@ public class ConduitMenu extends BaseEnderMenu {
 
         if (player instanceof ServerPlayer serverPlayer) {
             if (id >= BUTTON_CHANGE_CONDUIT_START_ID
-                && id <= BUTTON_CHANGE_CONDUIT_ID_COUNT + BUTTON_CHANGE_CONDUIT_ID_COUNT) {
+                    && id <= BUTTON_CHANGE_CONDUIT_ID_COUNT + BUTTON_CHANGE_CONDUIT_ID_COUNT) {
                 // TODO: attempt to change to a different conduit on the same face.
                 // var conduitList = getBlockEntity().getConduits();
 
@@ -177,7 +176,8 @@ public class ConduitMenu extends BaseEnderMenu {
                 int conduitIndex = id - BUTTON_CHANGE_CONDUIT_START_ID;
                 var connectedConduits = getConnectedConduits();
                 if (conduitIndex < connectedConduits.size()) {
-                    openConduitMenu(serverPlayer, (ConduitBundleBlockEntity) connectionAccessor, side, connectedConduits.get(conduitIndex));
+                    openConduitMenu(serverPlayer, (ConduitBundleBlockEntity) connectionAccessor, side,
+                            connectedConduits.get(conduitIndex));
                 }
             }
         }
@@ -211,8 +211,7 @@ public class ConduitMenu extends BaseEnderMenu {
 
             var conduitList = connectionAccessor.getAllPossibleConnectedCondutis(side);
             if (conduitListHashCode != conduitList.hashCode()) {
-                PacketDistributor.sendToPlayer(serverPlayer,
-                    new S2CConduitListPacket(containerId, conduitList));
+                PacketDistributor.sendToPlayer(serverPlayer, new S2CConduitListPacket(containerId, conduitList));
                 conduitListHashCode = conduitList.hashCode();
             }
         }
@@ -243,8 +242,9 @@ public class ConduitMenu extends BaseEnderMenu {
         private CompoundTag extraGuiData;
 
         public ClientConnectionAccessor(RegistryFriendlyByteBuf buf) {
-            this.connectedConduits = Conduit.STREAM_CODEC.apply(ByteBufCodecs.list(ConduitBundleBlockEntity.MAX_CONDUITS))
-                .decode(buf);
+            this.connectedConduits = Conduit.STREAM_CODEC
+                    .apply(ByteBufCodecs.list(ConduitBundleBlockEntity.MAX_CONDUITS))
+                    .decode(buf);
 
             this.connectionConfig = ConnectionConfig.STREAM_CODEC.decode(buf);
 
@@ -253,16 +253,17 @@ public class ConduitMenu extends BaseEnderMenu {
                     .decode(buf);
         }
 
-        private static void writeStartingSyncData(ConduitBundleBlockEntity conduitBundle, Direction side, Holder<Conduit<?, ?>> conduit, RegistryFriendlyByteBuf buf) {
+        private static void writeStartingSyncData(ConduitBundleBlockEntity conduitBundle, Direction side,
+                Holder<Conduit<?, ?>> conduit, RegistryFriendlyByteBuf buf) {
             Conduit.STREAM_CODEC.apply(ByteBufCodecs.list(ConduitBundleBlockEntity.MAX_CONDUITS))
-                .encode(buf, conduitBundle.getAllPossibleConnectedCondutis(side));
+                    .encode(buf, conduitBundle.getAllPossibleConnectedCondutis(side));
 
             ConnectionConfig.STREAM_CODEC.encode(buf, conduitBundle.getConnectionConfig(side, conduit));
 
-            //noinspection DataFlowIssue
+            // noinspection DataFlowIssue
             ByteBufCodecs.optional(ByteBufCodecs.COMPOUND_TAG)
-                .map(opt -> opt.orElse(null), Optional::ofNullable)
-                .encode(buf, conduitBundle.getConduitExtraGuiData(side, conduit));
+                    .map(opt -> opt.orElse(null), Optional::ofNullable)
+                    .encode(buf, conduitBundle.getConduitExtraGuiData(side, conduit));
         }
 
         @Override
@@ -296,8 +297,8 @@ public class ConduitMenu extends BaseEnderMenu {
         }
     }
 
-    private record MenuProvider(ConduitBundleBlockEntity conduitBundle, Direction side, Holder<Conduit<?, ?>> conduit) implements
-        net.minecraft.world.MenuProvider {
+    private record MenuProvider(ConduitBundleBlockEntity conduitBundle, Direction side, Holder<Conduit<?, ?>> conduit)
+            implements net.minecraft.world.MenuProvider {
 
         @Override
         public Component getDisplayName() {

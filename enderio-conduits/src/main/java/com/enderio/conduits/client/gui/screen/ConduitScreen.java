@@ -27,7 +27,6 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -68,8 +67,9 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         }
 
         for (int i = 0; i < 9; i++) {
-            addRenderableWidget(new NewConduitSelectionButton(getGuiLeft() + 206, getGuiTop() + 4 + 24*i, i,
-                menu::getSelectedConduit, menu::getConnectedConduits, idx -> handleButtonPress(ConduitMenu.BUTTON_CHANGE_CONDUIT_START_ID + idx)));
+            addRenderableWidget(new NewConduitSelectionButton(getGuiLeft() + 206, getGuiTop() + 4 + 24 * i, i,
+                    menu::getSelectedConduit, menu::getConnectedConduits,
+                    idx -> handleButtonPress(ConduitMenu.BUTTON_CHANGE_CONDUIT_START_ID + idx)));
         }
     }
 

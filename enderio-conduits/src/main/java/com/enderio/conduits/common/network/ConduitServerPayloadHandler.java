@@ -2,8 +2,6 @@ package com.enderio.conduits.common.network;
 
 import com.enderio.base.common.init.EIOCapabilities;
 import com.enderio.conduits.api.bundle.ConduitBundleAccessor;
-import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
-import com.enderio.conduits.common.conduit.type.fluid.FluidConduit;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduitNetworkContext;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.redstone.DoubleRedstoneChannel;
