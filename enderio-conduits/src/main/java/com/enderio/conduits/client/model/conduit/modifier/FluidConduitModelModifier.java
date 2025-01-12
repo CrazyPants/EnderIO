@@ -34,7 +34,11 @@ public class FluidConduitModelModifier implements ConduitModelModifier {
     @Override
     public List<BakedQuad> createConnectionQuads(Holder<Conduit<?, ?>> conduit, @Nullable CompoundTag extraWorldData,
             @Nullable Direction facing, Direction connectionDirection, RandomSource rand, @Nullable RenderType type) {
-        if (!(conduit.value() instanceof FluidConduit fluidConduit && fluidConduit.isMultiFluid())) {
+        if (!(conduit.value() instanceof FluidConduit fluidConduit)) {
+            return List.of();
+        }
+
+        if (fluidConduit.isMultiFluid()) {
             return List.of();
         }
 

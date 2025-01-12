@@ -2,6 +2,7 @@ package com.enderio.conduits.api.network.node.legacy;
 
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated(forRemoval = true, since = "7.2")
 public interface ConduitDataAccessor {
     boolean hasData(ConduitDataType<?> type);
 

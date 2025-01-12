@@ -3,7 +3,7 @@ package com.enderio.conduits.common.conduit.type.redstone;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.ticker.NewIOAwareConduitTicker;
+import com.enderio.conduits.api.ticker.IOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitBlocks;
 import com.enderio.conduits.common.redstone.RedstoneExtractFilter;
 import java.util.List;
@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class RedstoneConduitTicker extends
-        NewIOAwareConduitTicker<RedstoneConduit, RedstoneConduitConnectionConfig, RedstoneConduitTicker.Connection> {
+    IOAwareConduitTicker<RedstoneConduit, RedstoneConduitConnectionConfig, RedstoneConduitTicker.Connection> {
 
     @Override
     public void tickGraph(ServerLevel level, RedstoneConduit conduit, ConduitNetwork graph,

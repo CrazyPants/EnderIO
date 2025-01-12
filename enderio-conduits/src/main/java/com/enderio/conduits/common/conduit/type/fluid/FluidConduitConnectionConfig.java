@@ -1,11 +1,11 @@
 package com.enderio.conduits.common.conduit.type.fluid;
 
 import com.enderio.base.api.misc.RedstoneControl;
+import com.enderio.conduits.api.ConduitRedstoneSignalAware;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
-import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
-import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
+import com.enderio.conduits.api.connection.config.IOConnectionConfig;
+import com.enderio.conduits.api.connection.config.RedstoneSensitiveConnectionConfig;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -14,79 +14,106 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 
-public record FluidConduitConnectionConfig(boolean canInsert, DyeColor insertChannel, boolean canExtract,
-        DyeColor extractChannel, RedstoneControl redstoneControl, DyeColor redstoneChannel)
-        implements ChanneledIOConnectionConfig, RedstoneControlledConnection {
+import java.util.List;
+
+public record FluidConduitConnectionConfig(boolean isSend, DyeColor sendColor, boolean isReceive,
+        DyeColor receiveColor, RedstoneControl receiveRedstoneControl, DyeColor receiveRedstoneChannel)
+        implements IOConnectionConfig, RedstoneSensitiveConnectionConfig {
 
     public static FluidConduitConnectionConfig DEFAULT = new FluidConduitConnectionConfig(false, DyeColor.GREEN, true,
             DyeColor.GREEN, RedstoneControl.NEVER_ACTIVE, DyeColor.RED);
 
     public static MapCodec<FluidConduitConnectionConfig> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
-            .group(Codec.BOOL.fieldOf("can_insert").forGetter(FluidConduitConnectionConfig::canInsert),
-                    DyeColor.CODEC.fieldOf("insert_channel").forGetter(FluidConduitConnectionConfig::insertChannel),
-                    Codec.BOOL.fieldOf("can_extract").forGetter(FluidConduitConnectionConfig::canExtract),
-                    DyeColor.CODEC.fieldOf("extract_channel").forGetter(FluidConduitConnectionConfig::extractChannel),
-                    RedstoneControl.CODEC.fieldOf("redstone_control")
-                            .forGetter(FluidConduitConnectionConfig::redstoneControl),
-                    DyeColor.CODEC.fieldOf("redstone_channel").forGetter(FluidConduitConnectionConfig::redstoneChannel))
+            .group(Codec.BOOL.fieldOf("is_send").forGetter(FluidConduitConnectionConfig::isSend),
+                    DyeColor.CODEC.fieldOf("send_color").forGetter(FluidConduitConnectionConfig::sendColor),
+                    Codec.BOOL.fieldOf("is_receive").forGetter(FluidConduitConnectionConfig::isReceive),
+                    DyeColor.CODEC.fieldOf("receive_channel").forGetter(FluidConduitConnectionConfig::receiveColor),
+                    RedstoneControl.CODEC.fieldOf("receive_redstone_control")
+                            .forGetter(FluidConduitConnectionConfig::receiveRedstoneControl),
+                    DyeColor.CODEC.fieldOf("receive_redstone_channel").forGetter(FluidConduitConnectionConfig::receiveRedstoneChannel))
             .apply(instance, FluidConduitConnectionConfig::new));
 
+    // @formatter:off
     public static StreamCodec<ByteBuf, FluidConduitConnectionConfig> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL, FluidConduitConnectionConfig::canInsert, DyeColor.STREAM_CODEC,
-            FluidConduitConnectionConfig::insertChannel, ByteBufCodecs.BOOL, FluidConduitConnectionConfig::canExtract,
-            DyeColor.STREAM_CODEC, FluidConduitConnectionConfig::extractChannel, RedstoneControl.STREAM_CODEC,
-            FluidConduitConnectionConfig::redstoneControl, DyeColor.STREAM_CODEC,
-            FluidConduitConnectionConfig::redstoneChannel, FluidConduitConnectionConfig::new);
+        ByteBufCodecs.BOOL,
+        FluidConduitConnectionConfig::isSend,
+        DyeColor.STREAM_CODEC,
+        FluidConduitConnectionConfig::sendColor,
+        ByteBufCodecs.BOOL,
+        FluidConduitConnectionConfig::isReceive,
+        DyeColor.STREAM_CODEC,
+        FluidConduitConnectionConfig::receiveColor,
+        RedstoneControl.STREAM_CODEC,
+        FluidConduitConnectionConfig::receiveRedstoneControl,
+        DyeColor.STREAM_CODEC,
+        FluidConduitConnectionConfig::receiveRedstoneChannel,
+        FluidConduitConnectionConfig::new);
+    // @formatter:on
 
-    public static ConnectionConfigType<FluidConduitConnectionConfig> TYPE = new ConnectionConfigType<>(
-            FluidConduitConnectionConfig.class, CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
+    public static ConnectionConfigType<FluidConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {
-        return new FluidConduitConnectionConfig(DEFAULT.canInsert, insertChannel, DEFAULT.canExtract,
-                extractChannel, redstoneControl, redstoneChannel);
+        return new FluidConduitConnectionConfig(DEFAULT.isSend, sendColor, DEFAULT.isReceive,
+                receiveColor, receiveRedstoneControl, receiveRedstoneChannel);
     }
 
     @Override
     public ConnectionConfig disconnected() {
-        return new FluidConduitConnectionConfig(false, insertChannel, false,
-            extractChannel, redstoneControl, redstoneChannel);
+        return new FluidConduitConnectionConfig(false, sendColor, false,
+            receiveColor, receiveRedstoneControl, receiveRedstoneChannel);
     }
 
     @Override
-    public FluidConduitConnectionConfig withInsert(boolean canInsert) {
-        return new FluidConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl,
-                redstoneChannel);
+    public boolean canSend(ConduitRedstoneSignalAware signalAware) {
+        // TODO: sendRedstoneControl
+        return isSend();
     }
 
     @Override
-    public FluidConduitConnectionConfig withExtract(boolean canExtract) {
-        return new FluidConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl,
-                redstoneChannel);
+    public boolean canReceive(ConduitRedstoneSignalAware signalAware) {
+        if (!isReceive()) {
+            return false;
+        }
+
+        if (receiveRedstoneControl.isRedstoneSensitive()) {
+            return receiveRedstoneControl.isActive(signalAware.hasRedstoneSignal(receiveRedstoneChannel));
+        } else {
+            return true;
+        }
     }
 
     @Override
-    public FluidConduitConnectionConfig withInputChannel(DyeColor inputChannel) {
-        return new FluidConduitConnectionConfig(canInsert, inputChannel, canExtract, extractChannel, redstoneControl,
-                redstoneChannel);
+    public List<DyeColor> getRedstoneSignalColors() {
+        if (receiveRedstoneControl.isRedstoneSensitive()) {
+            return List.of(receiveRedstoneChannel);
+        }
+
+        return List.of();
     }
 
-    @Override
-    public FluidConduitConnectionConfig withOutputChannel(DyeColor outputChannel) {
-        return new FluidConduitConnectionConfig(canInsert, insertChannel, canExtract, outputChannel, redstoneControl,
-                redstoneChannel);
+    public FluidConduitConnectionConfig withIsSend(boolean isSend) {
+        return new FluidConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, receiveRedstoneControl, receiveRedstoneChannel);
     }
 
-    @Override
-    public FluidConduitConnectionConfig withRedstoneControl(RedstoneControl redstoneControl) {
-        return new FluidConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl,
-                redstoneChannel);
+    public FluidConduitConnectionConfig withSendColor(DyeColor sendColor) {
+        return new FluidConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, receiveRedstoneControl, receiveRedstoneChannel);
     }
 
-    @Override
-    public RedstoneControlledConnection withRedstoneChannel(DyeColor redstoneChannel) {
-        return new FluidConduitConnectionConfig(canInsert, insertChannel, canExtract, extractChannel, redstoneControl,
-                redstoneChannel);
+    public FluidConduitConnectionConfig withIsReceive(boolean isReceive) {
+        return new FluidConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, receiveRedstoneControl, receiveRedstoneChannel);
+    }
+
+    public FluidConduitConnectionConfig withReceiveColor(DyeColor receiveColor) {
+        return new FluidConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, receiveRedstoneControl, receiveRedstoneChannel);
+    }
+
+    public FluidConduitConnectionConfig withReceiveRedstoneControl(RedstoneControl receiveRedstoneControl) {
+        return new FluidConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, receiveRedstoneControl, receiveRedstoneChannel);
+    }
+
+    public FluidConduitConnectionConfig withReceiveRedstoneChannel(DyeColor receiveRedstoneChannel) {
+        return new FluidConduitConnectionConfig(isSend, sendColor, isReceive, receiveColor, receiveRedstoneControl, receiveRedstoneChannel);
     }
 
     @Override

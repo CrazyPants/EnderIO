@@ -156,7 +156,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
 //
 //                                quads.addAll(QuadTransformers.applying(transformation)
 //                                    .andThen(rotationTranslation)
-//                                    .andThen(new ColorQuadTransformer(null, connectionState.redstoneChannel()))
+//                                    .andThen(new ColorQuadTransformer(null, connectionState.receiveRedstoneChannel()))
 //                                    .process(modelOf(CONDUIT_IO_REDSTONE).getQuads(state, preRotation, rand,
 //                                        extraData, renderType)));
 //

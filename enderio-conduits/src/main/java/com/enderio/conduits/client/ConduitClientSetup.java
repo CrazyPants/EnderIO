@@ -3,11 +3,10 @@ package com.enderio.conduits.client;
 import com.enderio.base.api.EnderIO;
 import com.enderio.conduits.EnderIOConduits;
 import com.enderio.conduits.api.model.RegisterConduitModelModifiersEvent;
-import com.enderio.conduits.api.screen.RegisterConduitScreenExtensionsEvent;
 import com.enderio.conduits.api.screen.RegisterConduitScreenTypesEvent;
-import com.enderio.conduits.client.gui.conduit.ConduitScreenExtensions;
-import com.enderio.conduits.client.gui.conduit.FluidConduitScreenExtension;
 import com.enderio.conduits.client.gui.screen.types.ConduitScreenTypes;
+import com.enderio.conduits.client.gui.screen.types.EnergyConduitScreenType;
+import com.enderio.conduits.client.gui.screen.types.FluidConduitScreenType;
 import com.enderio.conduits.client.gui.screen.types.ItemConduitScreenType;
 import com.enderio.conduits.client.gui.screen.types.RedstoneConduitScreenType;
 import com.enderio.conduits.client.model.conduit.ConduitItemModelLoader;
@@ -52,7 +51,6 @@ public class ConduitClientSetup {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
-        ConduitScreenExtensions.init();
         ConduitScreenTypes.init();
     }
 
@@ -62,12 +60,9 @@ public class ConduitClientSetup {
     }
 
     @SubscribeEvent
-    public static void registerConduitScreenExtensions(RegisterConduitScreenExtensionsEvent event) {
-        event.register(ConduitTypes.FLUID.get(), FluidConduitScreenExtension::new);
-    }
-
-    @SubscribeEvent
     public static void registerConduitScreenTypes(RegisterConduitScreenTypesEvent event) {
+        event.register(ConduitTypes.ENERGY.get(), new EnergyConduitScreenType());
+        event.register(ConduitTypes.FLUID.get(), new FluidConduitScreenType());
         event.register(ConduitTypes.REDSTONE.get(), new RedstoneConduitScreenType());
         event.register(ConduitTypes.ITEM.get(), new ItemConduitScreenType());
     }

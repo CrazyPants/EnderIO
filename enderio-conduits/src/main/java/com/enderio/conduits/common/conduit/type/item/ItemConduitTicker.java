@@ -4,7 +4,7 @@ import com.enderio.base.api.filter.ItemStackFilter;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.ticker.NewIOAwareConduitTicker;
+import com.enderio.conduits.api.ticker.IOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitTypes;
 import java.util.Comparator;
 import java.util.List;
@@ -19,7 +19,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemConduitTicker
-        extends NewIOAwareConduitTicker<ItemConduit, ItemConduitConnectionConfig, ItemConduitTicker.Connection> {
+        extends IOAwareConduitTicker<ItemConduit, ItemConduitConnectionConfig, ItemConduitTicker.Connection> {
 
     @Override
     protected void tickColoredGraph(ServerLevel level, ItemConduit conduit, List<Connection> senders,

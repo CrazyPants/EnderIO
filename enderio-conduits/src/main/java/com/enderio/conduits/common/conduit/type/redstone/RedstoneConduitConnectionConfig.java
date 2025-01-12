@@ -2,7 +2,7 @@ package com.enderio.conduits.common.conduit.type.redstone;
 
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
+import com.enderio.conduits.api.connection.config.IOConnectionConfig;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,7 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 
 public record RedstoneConduitConnectionConfig(boolean isSend, DyeColor sendColor, boolean isReceive,
-        DyeColor receiveColor, boolean isStrongOutputSignal) implements NewIOConnectionConfig {
+        DyeColor receiveColor, boolean isStrongOutputSignal) implements IOConnectionConfig {
 
     public static RedstoneConduitConnectionConfig DEFAULT = new RedstoneConduitConnectionConfig(false, DyeColor.GREEN,
             true, DyeColor.RED, false);
@@ -32,8 +32,7 @@ public record RedstoneConduitConnectionConfig(boolean isSend, DyeColor sendColor
             DyeColor.STREAM_CODEC, RedstoneConduitConnectionConfig::receiveColor, ByteBufCodecs.BOOL,
             RedstoneConduitConnectionConfig::isStrongOutputSignal, RedstoneConduitConnectionConfig::new);
 
-    public static ConnectionConfigType<RedstoneConduitConnectionConfig> TYPE = new ConnectionConfigType<>(
-            RedstoneConduitConnectionConfig.class, CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
+    public static ConnectionConfigType<RedstoneConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {

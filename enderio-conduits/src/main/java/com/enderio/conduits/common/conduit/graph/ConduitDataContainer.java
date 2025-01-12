@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A safe way to store conduit data.
  */
+@Deprecated(forRemoval = true, since = "7.2")
 public class ConduitDataContainer implements ConduitDataAccessor {
 
     public static Codec<ConduitDataContainer> CODEC = ExtraCodecs.optionalEmptyMap(ConduitData.CODEC)
@@ -73,33 +74,6 @@ public class ConduitDataContainer implements ConduitDataAccessor {
 
         data = type.factory().get();
         return (T) data;
-    }
-
-    public void handleClientChanges(ConduitDataContainer clientDataContainer) {
-        // Ensure the type we contain matches the client.
-        // If it does not, assume the client is out of date and ignore it.
-        if (data != null && !clientDataContainer.hasData(data.type())) {
-            return;
-        }
-
-        if (data != null) {
-            data = applyClientChanges(data.type(), clientDataContainer);
-        } else {
-            data = applyClientChanges(clientDataContainer.data.type(), clientDataContainer);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends ConduitData<T>> T applyClientChanges(ConduitDataType<T> type,
-            ConduitDataContainer clientDataContainer) {
-        T myData = getOrCreateData(type);
-        T clientData = clientDataContainer.getData(type);
-
-        if (clientData == null) {
-            return myData;
-        }
-
-        return myData.withClientChanges(clientData);
     }
 
     public Tag save(HolderLookup.Provider lookupProvider) {

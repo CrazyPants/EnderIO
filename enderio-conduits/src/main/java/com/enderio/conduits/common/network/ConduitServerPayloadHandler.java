@@ -1,10 +1,16 @@
 package com.enderio.conduits.common.network;
 
 import com.enderio.base.common.init.EIOCapabilities;
+import com.enderio.conduits.api.bundle.ConduitBundleAccessor;
+import com.enderio.conduits.common.conduit.bundle.ConduitBundleBlockEntity;
+import com.enderio.conduits.common.conduit.type.fluid.FluidConduit;
+import com.enderio.conduits.common.conduit.type.fluid.FluidConduitNetworkContext;
+import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.conduits.common.redstone.DoubleRedstoneChannel;
 import com.enderio.conduits.common.redstone.RedstoneCountFilter;
 import com.enderio.conduits.common.redstone.RedstoneTimerFilter;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ConduitServerPayloadHandler {
@@ -48,6 +54,27 @@ public class ConduitServerPayloadHandler {
             var channels = mainHandItem.getCapability(EIOCapabilities.Filter.ITEM);
             if (channels instanceof RedstoneCountFilter count) {
                 count.setState(packet);
+            }
+        });
+    }
+
+    public void handle(C2SClearLockedFluidPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var level = context.player().level();
+            var be = level.getBlockEntity(packet.pos());
+            if (be instanceof ConduitBundleAccessor conduitBundle) {
+                var fluidConduit = conduitBundle.getConduitByType(ConduitTypes.FLUID.get());
+                if (fluidConduit != null) {
+                    var node = conduitBundle.getConduitNode(fluidConduit);
+
+                    var network = node.getNetwork();
+                    if (network != null) {
+                        var networkContext = network.getContext(FluidConduitNetworkContext.TYPE);
+                        if (networkContext != null) {
+                            networkContext.setLockedFluid(Fluids.EMPTY);
+                        }
+                    }
+                }
             }
         });
     }

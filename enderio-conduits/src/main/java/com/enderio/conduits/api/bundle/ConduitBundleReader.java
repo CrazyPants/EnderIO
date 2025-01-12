@@ -29,13 +29,6 @@ public interface ConduitBundleReader {
     List<Holder<Conduit<?, ?>>> getConduits();
 
     /**
-     * @throws IllegalArgumentException if the conduit is not present.
-     * @param conduit the conduit to get a node for.
-     * @return the conduit node.
-     */
-    ConduitNode getConduitNode(Holder<Conduit<?, ?>> conduit);
-
-    /**
      * @param conduit the conduit to get data for.
      * @return the client data tag, or null if there is none or the conduit doesn't sync extra data.
      */
@@ -55,6 +48,9 @@ public interface ConduitBundleReader {
 
     // TODO: Docs
     boolean hasConduitByType(ConduitType<?> conduitType);
+
+    // TODO: Docs
+    Holder<Conduit<?, ?>> getConduitByType(ConduitType<?> conduitType);
 
     /**
      * @param conduit the conduit to check for

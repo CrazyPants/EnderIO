@@ -87,7 +87,7 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
 
     @Override
     public boolean canConnectConduits(@Nullable CompoundTag selfRenderData, @Nullable CompoundTag otherRenderData) {
-        // If there's no data for one of the nodes, the network must be fresh or
+        /*// If there's no data for one of the nodes, the network must be fresh or
         // uninitialized.
         if (selfRenderData == null || otherRenderData == null) {
             return true;
@@ -102,7 +102,9 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
         var otherLockedFluid = BuiltInRegistries.FLUID
                 .get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
 
-        return selfLockedFluid.isSame(otherLockedFluid);
+        return selfLockedFluid.isSame(otherLockedFluid);*/
+
+        return false;
     }
 
     @Override
@@ -119,12 +121,15 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
         var selfContext = selfNetwork.getContext(FluidConduitNetworkContext.TYPE);
         var otherContext = otherNetwork.getContext(FluidConduitNetworkContext.TYPE);
 
-        // If either is null, it isn't locked.
         if (selfContext == null || otherContext == null) {
             return true;
         }
 
-        return selfContext.lockedFluid() == otherContext.lockedFluid();
+        if (selfContext.lockedFluid().isSame(Fluids.EMPTY) || otherContext.lockedFluid().isSame(Fluids.EMPTY)) {
+            return true;
+        }
+
+        return selfContext.lockedFluid().isSame(otherContext.lockedFluid());
     }
 
     @Override
@@ -166,6 +171,11 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
 
         // Copy locked fluid from old data.
         context.setLockedFluid(legacyData.lockedFluid());
+    }
+
+    @Override
+    public @Nullable CompoundTag getExtraGuiData(ConduitBundleReader conduitBundle, ConduitNode node, Direction side) {
+        return getExtraWorldData(conduitBundle, node);
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.enderio.base.api.network.MassiveStreamCodec;
 import com.enderio.conduits.api.ConduitRedstoneSignalAware;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
+import com.enderio.conduits.api.connection.config.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.RedstoneSensitiveConnectionConfig;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -18,7 +18,7 @@ import net.minecraft.world.item.DyeColor;
 
 public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, boolean isReceive, DyeColor receiveColor,
         RedstoneControl receiveRedstoneControl, DyeColor receiveRedstoneChannel, boolean isRoundRobin,
-        boolean isSelfFeed, int priority) implements NewIOConnectionConfig, RedstoneSensitiveConnectionConfig {
+        boolean isSelfFeed, int priority) implements IOConnectionConfig, RedstoneSensitiveConnectionConfig {
 
 
     public static ItemConduitConnectionConfig DEFAULT = new ItemConduitConnectionConfig(false, DyeColor.GREEN, true,
@@ -47,8 +47,7 @@ public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, bo
             ItemConduitConnectionConfig::isRoundRobin, ByteBufCodecs.BOOL, ItemConduitConnectionConfig::isSelfFeed,
             ByteBufCodecs.INT, ItemConduitConnectionConfig::priority, ItemConduitConnectionConfig::new);
 
-    public static ConnectionConfigType<ItemConduitConnectionConfig> TYPE = new ConnectionConfigType<>(
-            ItemConduitConnectionConfig.class, CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
+    public static ConnectionConfigType<ItemConduitConnectionConfig> TYPE = new ConnectionConfigType<>(CODEC, STREAM_CODEC.cast(), () -> DEFAULT);
 
     @Override
     public ConnectionConfig reconnected() {
@@ -79,6 +78,15 @@ public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, bo
         } else {
             return true;
         }
+    }
+
+    @Override
+    public List<DyeColor> getRedstoneSignalColors() {
+        if (receiveRedstoneControl.isRedstoneSensitive()) {
+            return List.of(receiveRedstoneChannel);
+        }
+
+        return List.of();
     }
 
     // Generate with methods for each field
@@ -130,14 +138,5 @@ public record ItemConduitConnectionConfig(boolean isSend, DyeColor sendColor, bo
     @Override
     public ConnectionConfigType<ItemConduitConnectionConfig> type() {
         return TYPE;
-    }
-
-    @Override
-    public List<DyeColor> getRedstoneSignalColors() {
-        if (receiveRedstoneControl.isRedstoneSensitive()) {
-            return List.of(receiveRedstoneChannel);
-        }
-
-        return List.of();
     }
 }

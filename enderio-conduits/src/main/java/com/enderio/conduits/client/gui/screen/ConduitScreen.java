@@ -26,6 +26,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -114,7 +115,7 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         private final ConduitScreenType<U> screenType;
 
         public ConduitScreenTypeContainer(Conduit<?, U> conduit) {
-            this.dataAccess = createDataAccess(conduit);
+            this.dataAccess = createDataAccess(menu.getBlockPos(), conduit);
             this.screenType = ConduitScreenTypes.get(conduit.type());
         }
 
@@ -138,8 +139,18 @@ public class ConduitScreen extends EnderContainerScreen<ConduitMenu> {
         }
 
         private <T extends Conduit<T, U>, U extends ConnectionConfig> ConduitMenuDataAccess<U> createDataAccess(
-                Conduit<T, U> conduit) {
+                BlockPos pos, Conduit<T, U> conduit) {
             return new ConduitMenuDataAccess<>() {
+                @Override
+                public Conduit<?, U> conduit() {
+                    return conduit;
+                }
+
+                @Override
+                public BlockPos getBlockPos() {
+                    return pos;
+                }
+
                 @Override
                 public U getConnectionConfig() {
                     return menu.connectionConfig(conduit.connectionConfigType());

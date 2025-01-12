@@ -231,6 +231,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
             ItemStack stack) {
+        // TODO: Maybe we need to support non-player placement?
         if (!(placer instanceof Player player)) {
             return;
         }
@@ -238,7 +239,13 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             Holder<Conduit<?, ?>> conduit = stack.get(ConduitComponents.CONDUIT);
             if (conduit != null) {
-                conduitBundle.addConduit(conduit, player);
+                HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);
+                Direction primaryConnectionSide = null;
+                if (hit instanceof BlockHitResult blockHitResult) {
+                    primaryConnectionSide = blockHitResult.getDirection().getOpposite();
+                }
+
+                conduitBundle.addConduit(conduit, primaryConnectionSide, player);
             } else {
                 // We might be placed using a facade item. If we are, apply the facade to the
                 var facadeProvider = stack.getCapability(ConduitCapabilities.CONDUIT_FACADE_PROVIDER);
@@ -406,7 +413,13 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         }
 
         // Attempt to add to the bundle
-        AddConduitResult addResult = conduitBundle.addConduit(conduit, player);
+        HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);
+        Direction primaryConnectionSide = null;
+        if (hit instanceof BlockHitResult blockHitResult) {
+            primaryConnectionSide = blockHitResult.getDirection().getOpposite();
+        }
+
+        AddConduitResult addResult = conduitBundle.addConduit(conduit, primaryConnectionSide, player);
 
         if (addResult instanceof AddConduitResult.Upgrade(Holder<Conduit<?, ?>> replacedConduit)) {
             if (!player.getAbilities().instabuild) {

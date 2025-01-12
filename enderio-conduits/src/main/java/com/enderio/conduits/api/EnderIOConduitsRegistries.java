@@ -14,6 +14,7 @@ public class EnderIOConduitsRegistries {
     public static final Registry<ConduitType<?>> CONDUIT_TYPE = new RegistryBuilder<>(Keys.CONDUIT_TYPE).sync(true)
             .create();
 
+    @Deprecated(forRemoval = true, since = "7.2")
     public static final Registry<ConduitDataType<?>> CONDUIT_DATA_TYPE = new RegistryBuilder<>(Keys.CONDUIT_DATA_TYPE)
             .sync(true)
             .create();
@@ -28,6 +29,7 @@ public class EnderIOConduitsRegistries {
             Keys.CONDUIT_NETWORK_CONTEXT_TYPE).sync(true).create();
 
     public static class Keys {
+        @Deprecated(forRemoval = true, since = "7.2")
         public static final ResourceKey<Registry<ConduitDataType<?>>> CONDUIT_DATA_TYPE = createKey(
                 "conduit_data_type");
 

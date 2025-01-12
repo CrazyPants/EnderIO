@@ -5,7 +5,7 @@ import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
-public interface NewIOConnectionConfig extends ConnectionConfig {
+public interface IOConnectionConfig extends ConnectionConfig {
     /**
      * @return whether the connection is sending resources to the connected block
      */

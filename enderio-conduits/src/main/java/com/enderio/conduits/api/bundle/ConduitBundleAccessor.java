@@ -3,6 +3,7 @@ package com.enderio.conduits.api.bundle;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
+import com.enderio.conduits.api.network.node.ConduitNode;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.player.Player;
@@ -24,7 +25,7 @@ public interface ConduitBundleAccessor extends ConduitBundleReader {
      * @param player the player adding the conduit, or null if performed from another source.
      * @return the result of the add operation.
      */
-    AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Player player);
+    AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Direction primaryConnectionSide, @Nullable Player player);
 
     /**
      * Remove a conduit from the bundle.
@@ -37,6 +38,13 @@ public interface ConduitBundleAccessor extends ConduitBundleReader {
      * @return the inventory for this conduit.
      */
     ConduitInventory getInventory(Holder<Conduit<?, ?>> conduit);
+
+    /**
+     * @throws IllegalArgumentException if the conduit is not present.
+     * @param conduit the conduit to get a node for.
+     * @return the conduit node.
+     */
+    ConduitNode getConduitNode(Holder<Conduit<?, ?>> conduit);
 
     // region Connections
 

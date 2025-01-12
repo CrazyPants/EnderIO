@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import me.liliandev.ensure.ensures.EnsureSide;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -39,6 +40,7 @@ public class ConduitMenu extends BaseEnderMenu {
     public static void openConduitMenu(ServerPlayer serverPlayer, ConduitBundleBlockEntity conduitBundle,
             Direction side, Holder<Conduit<?, ?>> conduit) {
         serverPlayer.openMenu(new MenuProvider(conduitBundle, side, conduit), buf -> {
+                    buf.writeBlockPos(conduitBundle.getBlockPos());
                     buf.writeEnum(side);
                     Conduit.STREAM_CODEC.encode(buf, conduit);
                     ClientConnectionAccessor.writeStartingSyncData(conduitBundle, side, conduit, buf);
@@ -62,10 +64,13 @@ public class ConduitMenu extends BaseEnderMenu {
     @UseOnly(LogicalSide.SERVER)
     private int conduitListHashCode;
 
+    private BlockPos pos;
+
     public ConduitMenu(int containerId, Inventory playerInventory, ConduitBundleBlockEntity conduitBundle,
             Direction side, Holder<Conduit<?, ?>> selectedConduit) {
         super(ConduitMenus.CONDUIT_MENU.get(), containerId, playerInventory);
 
+        this.pos = conduitBundle.getBlockPos();
         this.side = side;
         this.selectedConduit = selectedConduit;
         this.connectionAccessor = conduitBundle;
@@ -81,6 +86,7 @@ public class ConduitMenu extends BaseEnderMenu {
     public ConduitMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buf) {
         super(ConduitMenus.CONDUIT_MENU.get(), containerId, playerInventory);
 
+        pos = buf.readBlockPos();
         side = buf.readEnum(Direction.class);
         selectedConduit = Conduit.STREAM_CODEC.decode(buf);
 
@@ -91,6 +97,10 @@ public class ConduitMenu extends BaseEnderMenu {
         // TODO: Add conduit slots.
 
         addPlayerInventorySlots(23, 113);
+    }
+
+    public BlockPos getBlockPos() {
+        return pos;
     }
 
     public Direction getSide() {

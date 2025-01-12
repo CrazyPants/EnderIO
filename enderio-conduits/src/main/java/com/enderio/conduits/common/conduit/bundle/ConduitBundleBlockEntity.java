@@ -514,7 +514,7 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
     }
 
     @Override
-    public AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Player player) {
+    public AddConduitResult addConduit(Holder<Conduit<?, ?>> conduit, @Nullable Direction primaryConnectionSide, @Nullable Player player) {
         if (level == null) {
             return new AddConduitResult.Blocked();
         }
@@ -607,9 +607,15 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
             node.attach(new ConnectionHost(this, conduit));
         }
 
-        // Now attempt to make connections.
+        // Now attempt to make connections, starting from the "primary" side (clicked or facing direction)
+        if (primaryConnectionSide != null) {
+            tryConnectTo(primaryConnectionSide, conduit, false);
+        }
+
         for (Direction side : Direction.values()) {
-            tryConnectTo(side, conduit, false);
+            if (side != primaryConnectionSide) {
+                tryConnectTo(side, conduit, false);
+            }
         }
 
         if (level instanceof ServerLevel serverLevel) {
@@ -1278,8 +1284,9 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
                     connectionTag.putString("Side", side.getSerializedName());
                     connectionTag.putString("Status", getConnectionStatus(side, conduit).getSerializedName());
 
-                    var config = getConnectionConfig(side, conduit);
-                    if (!config.equals(config.type().getDefault())) {
+                    // Raw access to ensure we save the true data.
+                    var config = conduitConnections.get(conduit).configs.get(side);
+                    if (config != null && !config.equals(config.type().getDefault())) {
                         connectionTag.put("Config",
                                 ConnectionConfig.GENERIC_CODEC
                                         .encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), config)
