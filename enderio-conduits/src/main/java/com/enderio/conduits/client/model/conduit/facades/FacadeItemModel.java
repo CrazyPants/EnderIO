@@ -100,10 +100,12 @@ public class FacadeItemModel implements IDynamicBakedModel {
         if (paintData == null) {
             return List.of(RenderType.cutout());
         }
+
+        var paintStack = paintData.paint().asItem().getDefaultInstance();
         return Minecraft.getInstance()
                 .getItemRenderer()
-                .getModel(paintData.paint().asItem().getDefaultInstance(), null, null, 0)
-                .getRenderTypes(itemStack, fabulous);
+                .getModel(paintStack, null, null, 0)
+                .getRenderTypes(paintStack, fabulous);
     }
 
     @Override
