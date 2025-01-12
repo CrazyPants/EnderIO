@@ -82,7 +82,7 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
 
     @Override
     public boolean canConnectConduits(ConduitNode selfNode, ConduitNode otherNode) {
-        if (!isMultiFluid()) {
+        if (isMultiFluid()) {
             return true;
         }
 

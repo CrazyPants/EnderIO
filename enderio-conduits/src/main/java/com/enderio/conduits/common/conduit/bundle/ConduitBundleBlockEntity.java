@@ -866,8 +866,6 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
             if (!conduit.value().canConnectConduits(conduitNodes.get(conduit), otherNode)) {
                 return false;
             }
-
-            return false;
         }
 
         return isForcedConnection || conduitConnections.get(conduit).getStatus(side) != ConnectionStatus.DISABLED;
