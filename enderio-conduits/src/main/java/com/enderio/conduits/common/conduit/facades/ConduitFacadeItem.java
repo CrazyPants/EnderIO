@@ -35,7 +35,7 @@ public class ConduitFacadeItem extends BlockItem {
 
         // Allow placing from the edge of an adjacent block
         BlockState blockState = level.getBlockState(blockpos);
-        if (!blockState.isAir()) {
+        if (!blockState.canBeReplaced()) {
             // noinspection DataFlowIssue
             return blockState
                 .useItemOn(context.getItemInHand(), level, player, context.getHand(),

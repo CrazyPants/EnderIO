@@ -4,11 +4,9 @@ import com.enderio.base.api.filter.ItemStackFilter;
 import com.enderio.conduits.api.ColoredRedstoneProvider;
 import com.enderio.conduits.api.network.ConduitNetwork;
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.api.ticker.ChannelIOAwareConduitTicker;
 import com.enderio.conduits.api.ticker.NewIOAwareConduitTicker;
 import com.enderio.conduits.common.init.ConduitTypes;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 

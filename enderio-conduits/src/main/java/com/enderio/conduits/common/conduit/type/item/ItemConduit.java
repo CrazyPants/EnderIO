@@ -8,9 +8,7 @@ import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.bundle.SlotType;
-import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.menu.ConduitMenuExtension;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.common.init.ConduitLang;
@@ -21,6 +19,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
@@ -31,6 +30,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -135,6 +135,24 @@ public record ItemConduit(
                     .withPriority(oldSideConfig.priority));
             }
         }
+    }
+
+    @Override
+    @Nullable
+    public CompoundTag getExtraGuiData(ConduitBundleReader conduitBundle, ConduitNode node, Direction side) {
+        if (!node.isConnectedTo(side)) {
+            return null;
+        }
+
+        var config = node.getConnectionConfig(side, connectionConfigType());
+        if (!config.receiveRedstoneControl().isRedstoneSensitive()) {
+            return null;
+        }
+
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean("HasRedstoneSignal", node.hasRedstoneSignal(config.receiveRedstoneChannel()));
+        tag.putBoolean("HasRedstoneConduit", conduitBundle.hasConduitByType(ConduitTypes.REDSTONE.get()));
+        return tag;
     }
 
     @Override

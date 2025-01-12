@@ -1,6 +1,7 @@
 package com.enderio.conduits.api.bundle;
 
 import com.enderio.conduits.api.Conduit;
+import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.connection.ConnectionStatus;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
@@ -41,7 +42,11 @@ public interface ConduitBundleReader {
      * @return the client data tag, or null if there is none or the conduit doesn't sync extra data.
      */
     @Nullable
-    CompoundTag getConduitClientDataTag(Holder<Conduit<?, ?>> conduit);
+    CompoundTag getConduitExtraWorldData(Holder<Conduit<?, ?>> conduit);
+
+    // TODO: Docs
+    @Nullable
+    CompoundTag getConduitExtraGuiData(Direction side, Holder<Conduit<?, ?>> conduit);
 
     /**
      * @implNote compare conduits using {@link Conduit#canConnectToConduit(Holder)}
@@ -49,6 +54,9 @@ public interface ConduitBundleReader {
      * @return whether the bundle has this conduit, or another which is compatible.
      */
     boolean hasConduitByType(Holder<Conduit<?, ?>> conduit);
+
+    // TODO: Docs
+    boolean hasConduitByType(ConduitType<?> conduitType);
 
     /**
      * @param conduit the conduit to check for

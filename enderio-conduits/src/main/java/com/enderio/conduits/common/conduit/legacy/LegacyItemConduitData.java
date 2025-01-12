@@ -1,8 +1,9 @@
-package com.enderio.conduits.common.conduit.type.item;
+package com.enderio.conduits.common.conduit.legacy;
 
 import com.enderio.conduits.api.network.node.NodeData;
 import com.enderio.conduits.api.network.node.legacy.ConduitDataType;
 import com.enderio.conduits.api.network.node.legacy.ConduitData;
+import com.enderio.conduits.common.conduit.type.item.ItemConduitNodeData;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -18,32 +19,33 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ItemConduitData implements ConduitData<ItemConduitData> {
+@Deprecated(forRemoval = true, since = "7.2.0-alpha")
+public class LegacyItemConduitData implements ConduitData<LegacyItemConduitData> {
 
-    public static MapCodec<ItemConduitData> CODEC = RecordCodecBuilder.mapCodec(
+    public static MapCodec<LegacyItemConduitData> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
             Codec.unboundedMap(Direction.CODEC, ItemSidedData.CODEC)
                 .fieldOf("item_sided_data").forGetter(i -> i.itemSidedData)
-        ).apply(instance, ItemConduitData::new)
+        ).apply(instance, LegacyItemConduitData::new)
     );
 
-    public static StreamCodec<RegistryFriendlyByteBuf, ItemConduitData> STREAM_CODEC =
+    public static StreamCodec<RegistryFriendlyByteBuf, LegacyItemConduitData> STREAM_CODEC =
         ByteBufCodecs.map(i -> (Map<Direction, ItemSidedData>) new HashMap<Direction, ItemSidedData>(i),
                 Direction.STREAM_CODEC, ItemSidedData.STREAM_CODEC)
-            .map(ItemConduitData::new, i -> i.itemSidedData).cast();
+            .map(LegacyItemConduitData::new, i -> i.itemSidedData).cast();
 
     public Map<Direction, ItemSidedData> itemSidedData;
 
-    public ItemConduitData() {
+    public LegacyItemConduitData() {
         itemSidedData = new HashMap<>(Direction.values().length);
     }
 
-    public ItemConduitData(Map<Direction, ItemSidedData> itemSidedData) {
+    public LegacyItemConduitData(Map<Direction, ItemSidedData> itemSidedData) {
         this.itemSidedData = new HashMap<>(itemSidedData);
     }
 
     @Override
-    public ItemConduitData withClientChanges(ItemConduitData guiData) {
+    public LegacyItemConduitData withClientChanges(LegacyItemConduitData guiData) {
         for (Direction direction : Direction.values()) {
             compute(direction).applyGuiChanges(guiData.get(direction));
         }
@@ -67,7 +69,7 @@ public class ItemConduitData implements ConduitData<ItemConduitData> {
     }
 
     @Override
-    public ConduitDataType<ItemConduitData> type() {
+    public ConduitDataType<LegacyItemConduitData> type() {
         return ConduitTypes.Data.ITEM.get();
     }
 
@@ -86,7 +88,7 @@ public class ItemConduitData implements ConduitData<ItemConduitData> {
     }
 
     @Override
-    public ItemConduitData deepCopy() {
+    public LegacyItemConduitData deepCopy() {
         var newSidedData = new HashMap<Direction, ItemSidedData>(Direction.values().length);
         for (Direction direction : Direction.values()) {
             if (itemSidedData.containsKey(direction)) {
@@ -94,7 +96,7 @@ public class ItemConduitData implements ConduitData<ItemConduitData> {
             }
         }
 
-        return new ItemConduitData(newSidedData);
+        return new LegacyItemConduitData(newSidedData);
     }
 
     public static class ItemSidedData {

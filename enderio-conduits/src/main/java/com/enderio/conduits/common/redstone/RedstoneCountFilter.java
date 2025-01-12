@@ -1,6 +1,6 @@
 package com.enderio.conduits.common.redstone;
 
-import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitData;
+import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
 import com.enderio.conduits.common.init.ConduitComponents;
 import com.enderio.conduits.common.network.CountFilterPacket;
 import com.mojang.serialization.Codec;
@@ -22,16 +22,16 @@ public class RedstoneCountFilter implements RedstoneInsertFilter {
     }
 
     @Override
-    public int getOutputSignal(RedstoneConduitData data, DyeColor control) {
+    public int getOutputSignal(RedstoneConduitNetworkContext context, DyeColor control) {
         DyeColor channel = getChannel();
         int maxCount = getMaxCount();
         boolean deactivated = isDeactivated();
         int count = getCount();
-        if (data.isActive(channel) && deactivated) {
+        if (context.isActive(channel) && deactivated) {
             count++;
             deactivated = false;
         }
-        if (!data.isActive(channel)) {
+        if (!context.isActive(channel)) {
             deactivated = true;
         }
         if (count > maxCount) {

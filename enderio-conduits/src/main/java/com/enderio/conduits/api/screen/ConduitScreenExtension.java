@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 /**
  * Extend the conduit screen with additional widgets.
  */
+@Deprecated(forRemoval = true)
 public interface ConduitScreenExtension {
 
     @FunctionalInterface

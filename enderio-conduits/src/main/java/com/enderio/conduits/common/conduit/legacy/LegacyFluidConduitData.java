@@ -1,4 +1,4 @@
-package com.enderio.conduits.common.conduit.type.fluid;
+package com.enderio.conduits.common.conduit.legacy;
 
 import com.enderio.conduits.api.network.node.NodeData;
 import com.enderio.conduits.api.network.node.legacy.ConduitData;
@@ -18,33 +18,34 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class FluidConduitData implements ConduitData<FluidConduitData> {
+@Deprecated(forRemoval = true, since = "7.2.0-alpha")
+public class LegacyFluidConduitData implements ConduitData<LegacyFluidConduitData> {
 
-    public static MapCodec<FluidConduitData> CODEC = RecordCodecBuilder.mapCodec(
+    public static MapCodec<LegacyFluidConduitData> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
             Codec.BOOL.fieldOf("should_reset").forGetter(i -> i.shouldReset),
             BuiltInRegistries.FLUID.byNameCodec()
                 .optionalFieldOf("locked_fluid", Fluids.EMPTY)
                 .forGetter(i -> i.lockedFluid)
-        ).apply(instance, FluidConduitData::new)
+        ).apply(instance, LegacyFluidConduitData::new)
     );
 
-    public static StreamCodec<RegistryFriendlyByteBuf, FluidConduitData> STREAM_CODEC = StreamCodec.composite(
+    public static StreamCodec<RegistryFriendlyByteBuf, LegacyFluidConduitData> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.BOOL,
         i -> i.shouldReset,
         ByteBufCodecs.registry(Registries.FLUID),
         i -> i.lockedFluid,
-        FluidConduitData::new
+        LegacyFluidConduitData::new
     );
 
     private Fluid lockedFluid = Fluids.EMPTY;
     private boolean shouldReset = false;
 
-    public FluidConduitData() {
+    public LegacyFluidConduitData() {
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public FluidConduitData(boolean shouldReset, Fluid fluid) {
+    public LegacyFluidConduitData(boolean shouldReset, Fluid fluid) {
         this.shouldReset = shouldReset;
         this.lockedFluid = fluid;
     }
@@ -66,7 +67,7 @@ public class FluidConduitData implements ConduitData<FluidConduitData> {
     }
 
     @Override
-    public FluidConduitData withClientChanges(FluidConduitData guiData) {
+    public LegacyFluidConduitData withClientChanges(LegacyFluidConduitData guiData) {
         this.shouldReset = guiData.shouldReset;
 
         // TODO: Soon we will swap to records which will mean this will be a new instance.
@@ -75,12 +76,12 @@ public class FluidConduitData implements ConduitData<FluidConduitData> {
     }
 
     @Override
-    public FluidConduitData deepCopy() {
-        return new FluidConduitData(shouldReset, lockedFluid);
+    public LegacyFluidConduitData deepCopy() {
+        return new LegacyFluidConduitData(shouldReset, lockedFluid);
     }
 
     @Override
-    public ConduitDataType<FluidConduitData> type() {
+    public ConduitDataType<LegacyFluidConduitData> type() {
         return ConduitTypes.Data.FLUID.get();
     }
 

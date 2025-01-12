@@ -1,6 +1,6 @@
 package com.enderio.conduits.common.redstone;
 
-import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitData;
+import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.DyeColor;
@@ -14,8 +14,8 @@ public class RedstoneNOTFilter implements RedstoneInsertFilter, RedstoneExtractF
     }
 
     @Override
-    public int getOutputSignal(RedstoneConduitData data, DyeColor control) {
-        return data.isActive(control) ? 0 : 15;
+    public int getOutputSignal(RedstoneConduitNetworkContext context, DyeColor control) {
+        return context.isActive(control) ? 0 : 15;
     }
 
     @Override

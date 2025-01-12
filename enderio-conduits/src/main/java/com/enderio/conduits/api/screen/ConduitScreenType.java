@@ -1,7 +1,6 @@
 package com.enderio.conduits.api.screen;
 
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
-import com.enderio.conduits.api.menu.ConduitMenuDataAccess;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.ApiStatus;

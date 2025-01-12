@@ -1,6 +1,6 @@
 package com.enderio.conduits.client.gui.screen.types;
 
-import com.enderio.conduits.api.menu.ConduitMenuDataAccess;
+import com.enderio.conduits.api.screen.ConduitMenuDataAccess;
 import com.enderio.conduits.api.screen.ConduitScreenHelper;
 import com.enderio.conduits.api.screen.ConduitScreenType;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitConnectionConfig;

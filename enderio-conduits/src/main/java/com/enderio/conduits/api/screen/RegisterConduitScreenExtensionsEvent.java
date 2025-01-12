@@ -8,6 +8,7 @@ import net.neoforged.fml.event.IModBusEvent;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated(forRemoval = true)
 public class RegisterConduitScreenExtensionsEvent extends Event implements IModBusEvent {
     public interface ConduitScreenExtensionFactory {
         ConduitScreenExtension createExtension();

@@ -76,6 +76,9 @@ public class ConduitLang {
     public static final MutableComponent ITEM_EFFECTIVE_RATE_TOOLTIP = addTranslation("tooltip",
             EnderIO.loc("conduit.item.effective_rate"), "Effective Rate: %s Items/sec");
 
+    public static final Component CONDUIT_ERROR_NO_SCREEN_TYPE = addTranslation("gui", EnderIO.loc("conduit.error.no_screen_type"),
+        "Error: No screen type defined");
+
     public static final Component CONDUIT_ENABLED = addTranslation("gui", EnderIO.loc("conduit.enabled"), "Enabled");
     public static final Component CONDUIT_INSERT = addTranslation("gui", EnderIO.loc("conduit.insert"), "Insert");
     public static final Component CONDUIT_EXTRACT = addTranslation("gui", EnderIO.loc("conduit.extract"),

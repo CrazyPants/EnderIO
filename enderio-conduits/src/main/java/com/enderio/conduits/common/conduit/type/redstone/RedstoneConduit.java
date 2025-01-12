@@ -3,6 +3,7 @@ package com.enderio.conduits.common.conduit.type.redstone;
 import com.enderio.base.api.filter.ResourceFilter;
 import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
+import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitMenuData;
@@ -75,9 +76,9 @@ public record RedstoneConduit(
     }
 
     @Override
-    public ResourceLocation getTexture(@Nullable CompoundTag clientDataTag) {
-        if (clientDataTag != null) {
-            return clientDataTag.contains("IsActive") && clientDataTag.getBoolean("IsActive") ? activeTexture() : texture();
+    public ResourceLocation getTexture(@Nullable CompoundTag extraWorldData) {
+        if (extraWorldData != null) {
+            return extraWorldData.contains("IsActive") && extraWorldData.getBoolean("IsActive") ? activeTexture() : texture();
         }
 
         return texture();
@@ -115,12 +116,7 @@ public record RedstoneConduit(
     }
 
     @Override
-    public boolean hasClientDataTag() {
-        return true;
-    }
-
-    @Override
-    public CompoundTag getClientDataTag(ConduitNode node) {
+    public CompoundTag getExtraWorldData(ConduitBundleReader conduitBundle, ConduitNode node) {
         var tag = new CompoundTag();
 
         if (node.getNetwork() == null) {

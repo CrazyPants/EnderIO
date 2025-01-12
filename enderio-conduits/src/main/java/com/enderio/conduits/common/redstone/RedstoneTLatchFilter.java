@@ -1,6 +1,6 @@
 package com.enderio.conduits.common.redstone;
 
-import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitData;
+import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
 import com.enderio.conduits.common.init.ConduitComponents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -20,14 +20,14 @@ public class RedstoneTLatchFilter implements RedstoneInsertFilter {
     }
 
     @Override
-    public int getOutputSignal(RedstoneConduitData data, DyeColor control) {
+    public int getOutputSignal(RedstoneConduitNetworkContext context, DyeColor control) {
         boolean output = isActive();
-        if (data.isActive(control) && isDeactivated()) {
+        if (context.isActive(control) && isDeactivated()) {
             output = !output;
             setState(output, false);
         }
 
-        if (!data.isActive(control) && !isDeactivated()) {
+        if (!context.isActive(control) && !isDeactivated()) {
             setState(output, true);
         }
 

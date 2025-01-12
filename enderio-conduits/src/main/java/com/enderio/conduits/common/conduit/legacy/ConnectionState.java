@@ -1,4 +1,4 @@
-package com.enderio.conduits.common.conduit.connection;
+package com.enderio.conduits.common.conduit.legacy;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -7,6 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.apache.commons.lang3.NotImplementedException;
 
+@Deprecated(forRemoval = true, since = "7.2")
 public sealed interface ConnectionState permits StaticConnectionStates, DynamicConnectionState {
 
     Codec<ConnectionState> CODEC =

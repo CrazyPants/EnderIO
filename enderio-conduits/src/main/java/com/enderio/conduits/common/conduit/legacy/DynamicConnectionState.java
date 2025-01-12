@@ -1,4 +1,4 @@
-package com.enderio.conduits.common.conduit.connection;
+package com.enderio.conduits.common.conduit.legacy;
 
 import com.enderio.base.api.UseOnly;
 import com.enderio.base.api.misc.RedstoneControl;

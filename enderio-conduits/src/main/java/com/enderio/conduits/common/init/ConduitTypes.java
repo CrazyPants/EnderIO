@@ -12,15 +12,15 @@ import com.enderio.conduits.common.conduit.type.energy.EnergyConduitConnectionCo
 import com.enderio.conduits.common.conduit.type.energy.EnergyConduitNetworkContext;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduit;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduitConnectionConfig;
-import com.enderio.conduits.common.conduit.type.fluid.FluidConduitData;
+import com.enderio.conduits.common.conduit.legacy.LegacyFluidConduitData;
 import com.enderio.conduits.common.conduit.type.fluid.FluidConduitNetworkContext;
 import com.enderio.conduits.common.conduit.type.item.ItemConduit;
 import com.enderio.conduits.common.conduit.type.item.ItemConduitConnectionConfig;
-import com.enderio.conduits.common.conduit.type.item.ItemConduitData;
+import com.enderio.conduits.common.conduit.legacy.LegacyItemConduitData;
 import com.enderio.conduits.common.conduit.type.item.ItemConduitNodeData;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduit;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitConnectionConfig;
-import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitData;
+import com.enderio.conduits.common.conduit.legacy.LegacyRedstoneConduitData;
 import java.util.function.Supplier;
 
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
@@ -48,16 +48,16 @@ public class ConduitTypes {
         private static final DeferredRegister<ConduitDataType<?>> CONDUIT_DATA_TYPES = DeferredRegister
                 .create(EnderIOConduitsRegistries.CONDUIT_DATA_TYPE, EnderIO.NAMESPACE);
 
-        public static final Supplier<ConduitDataType<ItemConduitData>> ITEM = CONDUIT_DATA_TYPES.register("item",
-                () -> new ConduitDataType<>(ItemConduitData.CODEC, ItemConduitData.STREAM_CODEC, ItemConduitData::new));
+        public static final Supplier<ConduitDataType<LegacyItemConduitData>> ITEM = CONDUIT_DATA_TYPES.register("item",
+                () -> new ConduitDataType<>(LegacyItemConduitData.CODEC, LegacyItemConduitData.STREAM_CODEC, LegacyItemConduitData::new));
 
-        public static final Supplier<ConduitDataType<FluidConduitData>> FLUID = CONDUIT_DATA_TYPES.register("fluid",
-                () -> new ConduitDataType<>(FluidConduitData.CODEC, FluidConduitData.STREAM_CODEC,
-                        FluidConduitData::new));
+        public static final Supplier<ConduitDataType<LegacyFluidConduitData>> FLUID = CONDUIT_DATA_TYPES.register("fluid",
+                () -> new ConduitDataType<>(LegacyFluidConduitData.CODEC, LegacyFluidConduitData.STREAM_CODEC,
+                        LegacyFluidConduitData::new));
 
-        public static final Supplier<ConduitDataType<RedstoneConduitData>> REDSTONE = CONDUIT_DATA_TYPES
-                .register("redstone", () -> new ConduitDataType<>(RedstoneConduitData.CODEC,
-                        RedstoneConduitData.STREAM_CODEC, RedstoneConduitData::new));
+        public static final Supplier<ConduitDataType<LegacyRedstoneConduitData>> REDSTONE = CONDUIT_DATA_TYPES
+                .register("redstone", () -> new ConduitDataType<>(LegacyRedstoneConduitData.CODEC,
+                        LegacyRedstoneConduitData.STREAM_CODEC, LegacyRedstoneConduitData::new));
     }
 
     public static class ConnectionTypes {

@@ -32,17 +32,17 @@ public class FluidConduitModelModifier implements ConduitModelModifier {
     private static final ModelResourceLocation FLUID_MODEL = ModelResourceLocation.standalone(EnderIO.loc("block/extra/fluids"));
 
     @Override
-    public List<BakedQuad> createConnectionQuads(Holder<Conduit<?, ?>> conduit, @Nullable CompoundTag clientDataTag, @Nullable Direction facing, Direction connectionDirection, RandomSource rand,
+    public List<BakedQuad> createConnectionQuads(Holder<Conduit<?, ?>> conduit, @Nullable CompoundTag extraWorldData, @Nullable Direction facing, Direction connectionDirection, RandomSource rand,
         @Nullable RenderType type) {
         if (!(conduit.value() instanceof FluidConduit fluidConduit && fluidConduit.isMultiFluid())) {
             return List.of();
         }
 
-        if (clientDataTag == null || !clientDataTag.contains("LockedFluid")) {
+        if (extraWorldData == null || !extraWorldData.contains("LockedFluid")) {
             return List.of();
         }
 
-        ResourceLocation lockedFluidId = ResourceLocation.parse(clientDataTag.getString("LockedFluid"));
+        ResourceLocation lockedFluidId = ResourceLocation.parse(extraWorldData.getString("LockedFluid"));
         Fluid lockedFluid = BuiltInRegistries.FLUID.get(lockedFluidId);
 
         if (!lockedFluid.isSame(Fluids.EMPTY)) {

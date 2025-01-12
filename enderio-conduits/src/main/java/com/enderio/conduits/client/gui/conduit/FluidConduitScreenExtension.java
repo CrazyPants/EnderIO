@@ -3,8 +3,7 @@ package com.enderio.conduits.client.gui.conduit;
 import com.enderio.base.api.EnderIO;
 import com.enderio.conduits.api.network.node.legacy.ConduitDataAccessor;
 import com.enderio.conduits.api.screen.ConduitScreenExtension;
-import com.enderio.base.common.lang.EIOLang;
-import com.enderio.conduits.common.conduit.type.fluid.FluidConduitData;
+import com.enderio.conduits.common.conduit.legacy.LegacyFluidConduitData;
 import com.enderio.conduits.common.init.ConduitLang;
 import com.enderio.conduits.common.init.ConduitTypes;
 import com.enderio.core.common.util.TooltipUtil;
@@ -45,7 +44,7 @@ public final class FluidConduitScreenExtension implements ConduitScreenExtension
             new FluidWidget(widgetsStart.add(0, 20),
                 () -> conduitDataAccessor.getOrCreateData(ConduitTypes.Data.FLUID.get()).lockedFluid(),
                 () -> {
-                    FluidConduitData data = conduitDataAccessor.getOrCreateData(ConduitTypes.Data.FLUID.get());
+                    LegacyFluidConduitData data = conduitDataAccessor.getOrCreateData(ConduitTypes.Data.FLUID.get());
                     data.setShouldReset(true);
                     updateConduitData.sendUpdate();
                 })

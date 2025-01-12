@@ -6,9 +6,7 @@ import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitMenuData;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
-import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.menu.ConduitMenuExtension;
 import com.enderio.conduits.api.network.node.ConduitNode;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.bundle.SlotType;
@@ -39,6 +37,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public record FluidConduit(ResourceLocation texture, Component description, int transferRatePerTick,
         boolean isMultiFluid) implements Conduit<FluidConduit, FluidConduitConnectionConfig> {
@@ -89,7 +88,24 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
     }
 
     @Override
-    public boolean canConnectNodes(ConduitNode selfNode, ConduitNode otherNode) {
+    public boolean canConnectConduits(@Nullable CompoundTag selfRenderData, @Nullable CompoundTag otherRenderData) {
+        // If there's no data for one of the nodes, the network must be fresh or uninitialized.
+        if (selfRenderData == null || otherRenderData == null) {
+            return true;
+        }
+
+        if (selfRenderData.contains("LockedFluid") || otherRenderData.contains("LockedFluid")) {
+            return true;
+        }
+
+        var selfLockedFluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
+        var otherLockedFluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(selfRenderData.getString("LockedFluid")));
+
+        return selfLockedFluid.isSame(otherLockedFluid);
+    }
+
+    @Override
+    public boolean canConnectConduits(ConduitNode selfNode, ConduitNode otherNode) {
         // Ensure the networks are not locked to different fluids before connecting.
         var selfNetwork = selfNode.getNetwork();
         var otherNetwork = otherNode.getNetwork();
@@ -150,23 +166,22 @@ public record FluidConduit(ResourceLocation texture, Component description, int 
     }
 
     @Override
-    public boolean hasClientDataTag() {
-        return true;
-    }
-
-    @Override
-    public CompoundTag getClientDataTag(ConduitNode node) {
-        var tag = new CompoundTag();
-
+    @Nullable
+    public CompoundTag getExtraWorldData(ConduitBundleReader conduitBundle, ConduitNode node) {
         if (node.getNetwork() == null) {
-            return tag;
+            return null;
         }
 
         var context = node.getNetwork().getContext(FluidConduitNetworkContext.TYPE);
         if (context == null) {
-            return tag;
+            return null;
         }
 
+        if (context.lockedFluid().isSame(Fluids.EMPTY)) {
+            return null;
+        }
+
+        var tag = new CompoundTag();
         tag.putString("LockedFluid", BuiltInRegistries.FLUID.getKey(context.lockedFluid()).toString());
         return tag;
     }

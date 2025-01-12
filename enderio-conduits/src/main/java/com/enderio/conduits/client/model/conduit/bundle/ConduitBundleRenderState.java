@@ -3,17 +3,12 @@ package com.enderio.conduits.client.model.conduit.bundle;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.bundle.ConduitBundleReader;
 import com.enderio.conduits.api.connection.ConnectionStatus;
-import com.enderio.conduits.api.model.ConduitModelModifier;
-import com.enderio.conduits.client.model.conduit.modifier.ConduitModelModifiers;
 import com.enderio.conduits.common.conduit.OffsetHelper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.HashMultimap;
-import com.mojang.datafixers.util.Pair;
 import me.liliandev.ensure.ensures.EnsureSide;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -29,7 +24,7 @@ public class ConduitBundleRenderState {
 
     private Direction.Axis mainAxis;
     private List<Holder<Conduit<?, ?>>> conduits;
-    private Map<Holder<Conduit<?, ?>>, CompoundTag> conduitClientData;
+    private Map<Holder<Conduit<?, ?>>, CompoundTag> extraWorldData;
     private Map<Direction, List<Holder<Conduit<?, ?>>>> conduitsByDirection;
     private Map<Direction, Map<Holder<Conduit<?, ?>>, ConduitConnectionRenderState>> conduitConnections;
 
@@ -44,34 +39,17 @@ public class ConduitBundleRenderState {
         renderState.mainAxis = OffsetHelper.findMainAxis(bundle);
         renderState.conduits = List.copyOf(bundle.getConduits());
 
-        renderState.conduitClientData = new HashMap<>();
+        renderState.extraWorldData = new HashMap<>();
         for (var conduit : renderState.conduits) {
-            var tag = bundle.getConduitClientDataTag(conduit);
+            var tag = bundle.getConduitExtraWorldData(conduit);
             if (tag != null) {
-                renderState.conduitClientData.put(conduit, tag.copy());
-            }
-        }
-
-        HashMultimap<Direction, Holder<Conduit<?, ?>>> fakeConnections = HashMultimap.create();
-        for (var conduit : renderState.conduits) {
-            for (var side : Direction.values()) {
-                ConduitModelModifier conduitModelModifier = ConduitModelModifiers
-                    .getModifier(conduit.value().type());
-
-                if (conduitModelModifier != null && conduitModelModifier.shouldShowFakeConnection(bundle, side)) {
-                    fakeConnections.put(side, conduit);
-                }
+                renderState.extraWorldData.put(conduit, tag.copy());
             }
         }
 
         renderState.conduitsByDirection = new HashMap<>();
         for (var side : Direction.values()) {
-            var connected = new ArrayList<>(bundle.getConnectedConduits(side));
-            if (fakeConnections.containsKey(side)) {
-                connected.addAll(fakeConnections.get(side));
-            }
-
-            renderState.conduitsByDirection.put(side, connected);
+            renderState.conduitsByDirection.put(side, bundle.getConnectedConduits(side));
         }
 
         renderState.conduitConnections = new HashMap<>();
@@ -82,10 +60,6 @@ public class ConduitBundleRenderState {
                     var connectionConfig = bundle.getConnectionConfig(side, conduit);
                     var connectionRenderState = ConduitConnectionRenderState.of(conduit, connectionConfig);
                     conduits.put(conduit, connectionRenderState);
-                } else if (fakeConnections.containsKey(side)) {
-                    if (fakeConnections.get(side).contains(conduit)) {
-                        conduits.put(conduit, ConduitConnectionRenderState.fake());
-                    }
                 }
             }
 
@@ -109,8 +83,8 @@ public class ConduitBundleRenderState {
     }
 
     @Nullable
-    public CompoundTag getConduitClientDataTag(Holder<Conduit<?, ?>> conduit) {
-        return conduitClientData.get(conduit);
+    public CompoundTag getExtraWorldData(Holder<Conduit<?, ?>> conduit) {
+        return extraWorldData.get(conduit);
     }
 
     public List<Holder<Conduit<?, ?>>> getConnectedConduits(Direction side) {
@@ -130,7 +104,7 @@ public class ConduitBundleRenderState {
     }
 
     public ResourceLocation getTexture(Holder<Conduit<?, ?>> conduit) {
-        return conduit.value().getTexture(getConduitClientDataTag(conduit));
+        return conduit.value().getTexture(getExtraWorldData(conduit));
     }
 
     public boolean hasFacade() {

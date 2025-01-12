@@ -4,11 +4,11 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitCapabilities;
 import com.enderio.conduits.api.ConduitRedstoneSignalAware;
 import com.enderio.conduits.api.connection.ConnectionStatus;
-import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.client.model.conduit.facades.FacadeHelper;
 import com.enderio.conduits.client.particle.ConduitBreakParticle;
 import com.enderio.conduits.common.conduit.ConduitBlockItem;
 import com.enderio.conduits.api.bundle.AddConduitResult;
+import com.enderio.conduits.common.conduit.menu.ConduitMenu;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitConnectionConfig;
 import com.enderio.conduits.common.conduit.type.redstone.RedstoneConduitNetworkContext;
 import com.enderio.conduits.common.init.ConduitBlockEntities;
@@ -16,6 +16,7 @@ import com.enderio.conduits.common.init.ConduitComponents;
 import java.util.Optional;
 
 import com.enderio.conduits.common.init.ConduitTypes;
+import com.enderio.conduits.common.redstone.RedstoneInsertFilter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -54,9 +55,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.fml.loading.FMLLoader;
@@ -257,7 +256,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
         // TODO: Destroying the last conduit in the block has a laggy disconnect for the
         // neighbours...
 
-        HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);;
+        HitResult hit = player.pick(player.blockInteractionRange() + 5, 1, false);
 
         if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
             if (conduitBundle.hasFacade() && FacadeHelper.areFacadesVisible()) {
@@ -265,8 +264,10 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
                 level.playSound(player, pos, soundtype.getBreakSound(), SoundSource.BLOCKS,
                         (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 
-                if (!player.getAbilities().instabuild) {
-                    conduitBundle.dropFacadeItem();
+                if (!level.isClientSide()) {
+                    if (!player.getAbilities().instabuild) {
+                        conduitBundle.dropFacadeItem();
+                    }
                 }
 
                 int lightLevelBefore = level.getLightEmission(pos);
@@ -321,16 +322,16 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
                 level.playSound(player, pos, soundtype.getBreakSound(), SoundSource.BLOCKS,
                         (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 
+                if (level.isClientSide) {
+                    ConduitBreakParticle.addDestroyEffects(pos, state, conduit.value());
+                }
+
                 conduitBundle.removeConduit(conduit, player);
 
                 if (conduitBundle.isEmpty()) {
                     return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
                 } else {
                     level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(player, state));
-
-                    if (level.isClientSide) {
-                        ConduitBreakParticle.addDestroyEffects(pos, conduit.value());
-                    }
                     return false;
                 }
             }
@@ -354,13 +355,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
             if (conduitConnection != null) {
                 if (conduitBundle.getConnectionStatus(conduitConnection.getFirst(), conduitConnection.getSecond()) == ConnectionStatus.CONNECTED_BLOCK) {
                     if (player instanceof ServerPlayer serverPlayer) {
-                        serverPlayer.openMenu(conduitBundle.getMenuProvider(conduitConnection.getFirst(), conduitConnection.getSecond()),
-                            buf -> {
-                                buf.writeBlockPos(pos);
-                                buf.writeEnum(conduitConnection.getFirst());
-                                Conduit.STREAM_CODEC.encode(buf, conduitConnection.getSecond());
-                                ConnectionConfig.STREAM_CODEC.encode(buf, conduitBundle.getConnectionConfig(conduitConnection.getFirst(), conduitConnection.getSecond()));
-                            });
+                        ConduitMenu.openConduitMenu(serverPlayer, pos, conduitBundle, conduitConnection.getFirst(), conduitConnection.getSecond());
                     }
 
                     return InteractionResult.sidedSuccess(level.isClientSide());
@@ -408,36 +403,33 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        // Do not consult the bundle on the client.
-        if (!level.isClientSide()) {
-            // Attempt to add to the bundle
-            AddConduitResult addResult = conduitBundle.addConduit(conduit, player);
+        // Attempt to add to the bundle
+        AddConduitResult addResult = conduitBundle.addConduit(conduit, player);
 
-            if (addResult instanceof AddConduitResult.Upgrade upgradeResult) {
-                if (!player.getAbilities().instabuild) {
-                    stack.shrink(1);
-                    player.getInventory()
-                            .placeItemBackInInventory(ConduitBlockItem.getStackFor(upgradeResult.replacedConduit(), 1));
-                }
-            } else if (addResult instanceof AddConduitResult.Insert addedResult) {
-                if (!player.getAbilities().instabuild) {
-                    stack.shrink(1);
-                }
-            } else {
-                if (!FMLLoader.isProduction()) {
-                    throw new IllegalStateException(
-                            "ConduitBundleAccessor#canAddConduit returned true, but addConduit returned BLOCKED");
-                }
-
-                return ItemInteractionResult.FAIL;
+        if (addResult instanceof AddConduitResult.Upgrade(Holder<Conduit<?, ?>> replacedConduit)) {
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+                player.getInventory()
+                    .placeItemBackInInventory(ConduitBlockItem.getStackFor(replacedConduit, 1));
+            }
+        } else if (addResult instanceof AddConduitResult.Insert) {
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+        } else {
+            if (!FMLLoader.isProduction()) {
+                throw new IllegalStateException(
+                    "ConduitBundleAccessor#canAddConduit returned true, but addConduit returned BLOCKED");
             }
 
-            BlockState blockState = level.getBlockState(pos);
-            SoundType soundtype = blockState.getSoundType(level, pos, player);
-            level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
-                    (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-            level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, blockState));
+            return ItemInteractionResult.FAIL;
         }
+
+        BlockState blockState = level.getBlockState(pos);
+        SoundType soundtype = blockState.getSoundType(level, pos, player);
+        level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
+            (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+        level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, blockState));
 
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }
@@ -453,26 +445,24 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        if (!level.isClientSide()) {
-            int lightLevelBefore = level.getLightEmission(pos);
+        int lightLevelBefore = level.getLightEmission(pos);
 
-            conduitBundle.setFacadeProvider(stack);
-            if (!player.getAbilities().instabuild) {
-                stack.shrink(1);
-            }
-
-            // Handle light change
-            if (lightLevelBefore != level.getLightEmission(pos)) {
-                level.getLightEngine().checkBlock(pos);
-            }
-
-            // Block place effects
-            BlockState blockState = level.getBlockState(pos);
-            SoundType soundtype = blockState.getSoundType(level, pos, player);
-            level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
-                    (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-            level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, blockState));
+        conduitBundle.setFacadeProvider(stack);
+        if (!player.getAbilities().instabuild) {
+            stack.shrink(1);
         }
+
+        // Handle light change
+        if (lightLevelBefore != level.getLightEmission(pos)) {
+            level.getLightEngine().checkBlock(pos);
+        }
+
+        // Block place effects
+        BlockState blockState = level.getBlockState(pos);
+        SoundType soundtype = blockState.getSoundType(level, pos, player);
+        level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
+            (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+        level.gameEvent(GameEvent.BLOCK_PLACE, pos, GameEvent.Context.of(player, blockState));
 
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }
@@ -519,7 +509,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
 
     private int getNetworkSignal(BlockGetter level, BlockPos pos, Direction direction, boolean isDirectSignal) {
         if (level.getBlockEntity(pos) instanceof ConduitBundleBlockEntity conduitBundle) {
-            // TODO: Do we need to have signals on client side? If so we need to put this into the client NBT.
+            // No client redstone, network is server-only.
             if (conduitBundle.getLevel().isClientSide()) {
                 return 0;
             }
@@ -553,6 +543,10 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
             var context = network.getContext(RedstoneConduitNetworkContext.TYPE);
             if (context == null) {
                 return 0;
+            }
+
+            if (node.getInsertFilter(direction) instanceof RedstoneInsertFilter redstoneInsertFilter) {
+                return redstoneInsertFilter.getOutputSignal(context, config.sendColor());
             }
 
             return context.getSignal(config.sendColor());

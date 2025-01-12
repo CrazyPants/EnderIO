@@ -1,7 +1,6 @@
 package com.enderio.conduits.common.conduit.type.energy;
 
 import com.enderio.conduits.api.network.node.ConduitNode;
-import com.enderio.conduits.common.init.Conduits;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public record EnergyConduitStorage(

@@ -1,6 +1,7 @@
 {
   "block.enderio.conduit": "Conduit Bundle",
   "gui.enderio.conduit.enabled": "Enabled",
+  "gui.enderio.conduit.error.no_screen_type": "Error: No screen type defined",
   "gui.enderio.conduit.extract": "Extract",
   "gui.enderio.conduit.input": "Input",
   "gui.enderio.conduit.insert": "Insert",

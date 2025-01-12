@@ -2,7 +2,6 @@ package com.enderio.conduits.client.model.conduit.bundle;
 
 import static com.enderio.conduits.client.ConduitClientSetup.*;
 
-import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.model.ConduitModelModifier;
 import com.enderio.conduits.client.ConduitFacadeColor;
@@ -31,11 +30,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.SingleThreadedRandomSource;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.IQuadTransformer;
@@ -100,7 +97,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
                 var connectedTypes = bundleState.getConnectedConduits(direction);
                 for (int i = 0; i < connectedTypes.size(); i++) {
                     Holder<Conduit<?, ?>> conduit = connectedTypes.get(i);
-                    CompoundTag clientData = bundleState.getConduitClientDataTag(conduit);
+                    CompoundTag extraWorldData = bundleState.getExtraWorldData(conduit);
 
                     Vec3i offset = OffsetHelper.translationFor(direction.getAxis(),
                             OffsetHelper.offsetConduit(i, connectedTypes.size()));
@@ -116,7 +113,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
                         .getModifier(conduit.value().type());
                     if (conduitModelModifier != null) {
                         quads.addAll(rotationTranslation.process(conduitModelModifier.createConnectionQuads(conduit,
-                                clientData, side, direction, rand, renderType)));
+                                extraWorldData, side, direction, rand, renderType)));
                     }
 
                     if (isEnd) {
@@ -143,8 +140,7 @@ public class ConduitBundleModel implements IDynamicBakedModel {
                             }
 
                             // TODO: Need support for dual-color redstone control.
-                            if (connectionState.redstoneControl() == RedstoneControl.ACTIVE_WITH_SIGNAL
-                                    || connectionState.redstoneControl() == RedstoneControl.ACTIVE_WITHOUT_SIGNAL) {
+                            if (connectionState.isRedstoneSensitive()) {
                                 quads.addAll(rotationTranslation
                                         .andThen(new ColorQuadTransformer(null, connectionState.redstoneChannel()))
                                         .process(modelOf(CONDUIT_IO_REDSTONE).getQuads(state, preRotation, rand,
@@ -329,19 +325,25 @@ public class ConduitBundleModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon(ModelData data) {
-        // TODO temp particle fix
+        // This is only used for facades.
         ConduitBundleRenderState bundleState = data.get(ConduitBundleRenderState.PROPERTY);
 
-        if (bundleState == null || bundleState.conduits().isEmpty()) {
+        if (bundleState == null) {
             return ModelHelper.getMissingTexture();
         }
 
-        if (bundleState.hasFacade()) {
+        if (bundleState.hasFacade() && FacadeHelper.areFacadesVisible()) {
             return Minecraft.getInstance()
                     .getBlockRenderer()
                     .getBlockModel(bundleState.facade())
                     .getParticleIcon(data.get(FACADE_MODEL_DATA));
         }
+
+        // Shouldn't be called anymore, but sensible fallback to have:
+        if (bundleState.conduits().isEmpty()) {
+            return ModelHelper.getMissingTexture();
+        }
+
         return sprite(bundleState.getTexture(bundleState.conduits().getFirst()));
     }
 

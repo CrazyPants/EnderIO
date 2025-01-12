@@ -4,8 +4,10 @@ import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.ConduitType;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.screen.ConduitScreenType;
+import com.enderio.conduits.api.screen.RegisterConduitScreenTypesEvent;
 import com.enderio.conduits.common.init.ConduitTypes;
 import me.liliandev.ensure.ensures.EnsureSide;
+import net.neoforged.fml.ModLoader;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -15,10 +17,9 @@ public class ConduitScreenTypes {
 
     @EnsureSide(EnsureSide.Side.CLIENT)
     public static void init() {
-        SCREEN_TYPES = Map.of(
-            ConduitTypes.ITEM.get(), new ItemConduitScreenType(),
-            ConduitTypes.REDSTONE.get(), new RedstoneConduitScreenType()
-        );
+        var event = new RegisterConduitScreenTypesEvent();
+        ModLoader.postEvent(event);
+        SCREEN_TYPES = Map.copyOf(event.getScreenTypes());
     }
 
     @EnsureSide(EnsureSide.Side.CLIENT)

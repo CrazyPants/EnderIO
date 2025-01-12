@@ -4,6 +4,7 @@ import com.enderio.base.api.misc.RedstoneControl;
 import com.enderio.conduits.api.Conduit;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
+import com.enderio.conduits.api.connection.config.RedstoneSensitiveConnectionConfig;
 import com.enderio.conduits.api.connection.config.io.ChanneledIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
 import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
@@ -18,12 +19,12 @@ public record ConduitConnectionRenderState(
     DyeColor inputChannel,
     boolean canOutput,
     DyeColor outputChannel,
-    RedstoneControl redstoneControl,
+    boolean isRedstoneSensitive,
     DyeColor redstoneChannel
 ) {
 
     public static ConduitConnectionRenderState fake() {
-        return new ConduitConnectionRenderState(false, DyeColor.GREEN, false, DyeColor.GREEN, RedstoneControl.ALWAYS_ACTIVE, DyeColor.RED);
+        return new ConduitConnectionRenderState(false, DyeColor.GREEN, false, DyeColor.GREEN, false, DyeColor.RED);
     }
 
     @EnsureSide(EnsureSide.Side.CLIENT)
@@ -39,14 +40,6 @@ public record ConduitConnectionRenderState(
             if (ioConnectionConfig instanceof ChanneledIOConnectionConfig channeledIOConnectionConfig) {
                 inputChannel = channeledIOConnectionConfig.insertChannel();
                 outputChannel = channeledIOConnectionConfig.extractChannel();
-            } else {
-                ConduitModelModifier conduitModelModifier = ConduitModelModifiers
-                    .getModifier(conduit.value().type());
-
-                if (conduitModelModifier != null) {
-                    inputChannel = conduitModelModifier.getDefaultArrowColor();
-                    outputChannel = conduitModelModifier.getDefaultArrowColor();
-                }
             }
         } else if (connectionConfig instanceof NewIOConnectionConfig ioConnectionConfig) {
             // TODO: Tidy the language here.
@@ -54,16 +47,23 @@ public record ConduitConnectionRenderState(
             canOutput = ioConnectionConfig.isReceive();
             inputChannel = ioConnectionConfig.sendColor();
             outputChannel = ioConnectionConfig.receiveColor();
-
-            // TODO: Need support for the new redstone control system.
         }
 
-        RedstoneControl redstoneControl = RedstoneControl.ALWAYS_ACTIVE;
+        boolean isRedstoneSensitive = false;
         DyeColor redstoneChannel = DyeColor.RED;
 
         if (connectionConfig instanceof RedstoneControlledConnection redstoneControlledConnection) {
-            redstoneControl = redstoneControlledConnection.redstoneControl();
-            redstoneChannel = redstoneControlledConnection.redstoneChannel();
+            if (redstoneControlledConnection.redstoneControl().isRedstoneSensitive()) {
+                isRedstoneSensitive = true;
+                redstoneChannel = redstoneControlledConnection.redstoneChannel();
+            }
+        } else if (connectionConfig instanceof RedstoneSensitiveConnectionConfig redstoneSensitiveConfig) {
+            // TODO: Support for multiple colours
+            var channelColors = redstoneSensitiveConfig.getRedstoneSignalColors();
+            if (!channelColors.isEmpty()) {
+                isRedstoneSensitive = true;
+                redstoneChannel = channelColors.getFirst();
+            }
         }
 
         return new ConduitConnectionRenderState(
@@ -71,7 +71,7 @@ public record ConduitConnectionRenderState(
             inputChannel,
             canOutput,
             outputChannel,
-            redstoneControl,
+            isRedstoneSensitive,
             redstoneChannel
         );
     }

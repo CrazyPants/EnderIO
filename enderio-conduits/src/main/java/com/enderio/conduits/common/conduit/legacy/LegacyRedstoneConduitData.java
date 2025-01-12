@@ -1,4 +1,4 @@
-package com.enderio.conduits.common.conduit.type.redstone;
+package com.enderio.conduits.common.conduit.legacy;
 
 import com.enderio.conduits.api.network.node.NodeData;
 import com.enderio.conduits.api.network.node.legacy.ConduitData;
@@ -18,36 +18,37 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class RedstoneConduitData implements ConduitData<RedstoneConduitData> {
+@Deprecated(forRemoval = true, since = "7.2")
+public class LegacyRedstoneConduitData implements ConduitData<LegacyRedstoneConduitData> {
 
-    public static MapCodec<RedstoneConduitData> CODEC = RecordCodecBuilder.mapCodec(
+    public static MapCodec<LegacyRedstoneConduitData> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
             Codec.BOOL.fieldOf("is_active").forGetter(i -> i.isActive),
             Codec.unboundedMap(DyeColor.CODEC, Codec.INT).fieldOf("active_colors").forGetter(i -> i.activeColors)
-        ).apply(instance, RedstoneConduitData::new)
+        ).apply(instance, LegacyRedstoneConduitData::new)
     );
 
-    public static StreamCodec<RegistryFriendlyByteBuf, RedstoneConduitData> STREAM_CODEC = StreamCodec.composite(
+    public static StreamCodec<RegistryFriendlyByteBuf, LegacyRedstoneConduitData> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.BOOL,
         r -> r.isActive,
         ByteBufCodecs.map(HashMap::new, DyeColor.STREAM_CODEC, ByteBufCodecs.INT),
         r -> r.activeColors,
-        RedstoneConduitData::new
+        LegacyRedstoneConduitData::new
     );
 
     private boolean isActive = false;
     private final EnumMap<DyeColor, Integer> activeColors = new EnumMap<>(DyeColor.class);
 
-    public RedstoneConduitData() {
+    public LegacyRedstoneConduitData() {
     }
 
-    private RedstoneConduitData(boolean isActive, Map<DyeColor, Integer> activeColors) {
+    private LegacyRedstoneConduitData(boolean isActive, Map<DyeColor, Integer> activeColors) {
         this.isActive = isActive;
         this.activeColors.putAll(activeColors);
     }
 
     @Override
-    public ConduitDataType<RedstoneConduitData> type() {
+    public ConduitDataType<LegacyRedstoneConduitData> type() {
         return ConduitTypes.Data.REDSTONE.get();
     }
 
@@ -87,8 +88,8 @@ public class RedstoneConduitData implements ConduitData<RedstoneConduitData> {
     }
 
     @Override
-    public RedstoneConduitData deepCopy() {
-        return new RedstoneConduitData(isActive, new EnumMap<>(activeColors));
+    public LegacyRedstoneConduitData deepCopy() {
+        return new LegacyRedstoneConduitData(isActive, new EnumMap<>(activeColors));
     }
 
     @Override

@@ -17,22 +17,9 @@ import java.util.List;
 public interface ConduitModelModifier {
 
     /**
-     * Used when the connection config does not support coloured connections.
-     * @return the colour to render arrows if not specified by the connection config.
-     */
-    @Deprecated(forRemoval = true)
-    default DyeColor getDefaultArrowColor() {
-        return DyeColor.GREEN;
-    }
-
-    default boolean shouldShowFakeConnection(ConduitBundleReader reader, Direction side) {
-        return false;
-    }
-
-    /**
      * Create additional quads to be rendered at the point of conduit connection.
      */
-    default List<BakedQuad> createConnectionQuads(Holder<Conduit<?, ?>> conduit, @Nullable CompoundTag clientDataTag, @Nullable Direction facing, Direction connectionDirection, RandomSource rand,
+    default List<BakedQuad> createConnectionQuads(Holder<Conduit<?, ?>> conduit, @Nullable CompoundTag extraWorldData, @Nullable Direction facing, Direction connectionDirection, RandomSource rand,
                                                   @Nullable RenderType type) {
         return List.of();
     }

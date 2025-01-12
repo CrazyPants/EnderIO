@@ -29,7 +29,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.BlockCapability;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 
 public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, TConnectionConfig extends ConnectionConfig> extends Comparable<TConduit>, TooltipProvider {
@@ -105,9 +104,20 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
 
     /**
      * This can be used to prevent connection between nodes with incompatible data.
+     * Warning: If you are unable to determine if the conduit is connectable, always return false - otherwise the client visual can desync.
+     * @apiNote only called on the server side, should mirror the behaviour of {@link #canConnectConduits(ConduitNode, ConduitNode)} for seamless block placement.
      * @return true if both nodes are compatible.
      */
-    default boolean canConnectNodes(ConduitNode selfNode, ConduitNode otherNode) {
+    default boolean canConnectConduits(@Nullable CompoundTag selfRenderData, @Nullable CompoundTag otherRenderData) {
+        return true;
+    }
+
+    /**
+     * This can be used to prevent connection between nodes with incompatible data.
+     * @apiNote only called on the server side. For seamless block placement, implement {@link #canConnectConduits(CompoundTag, CompoundTag)}
+     * @return true if both nodes are compatible.
+     */
+    default boolean canConnectConduits(ConduitNode selfNode, ConduitNode otherNode) {
         return true;
     }
 
@@ -132,9 +142,9 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
 
     /**
      * Gets the conduit texture to display, given the data.
-     * @param clientDataTag client data from {@link #getClientDataTag(ConduitNode)}.
+     * @param extraWorldData client data from {@link #getExtraWorldData(ConduitBundleReader, ConduitNode)}.
      */
-    default ResourceLocation getTexture(@Nullable CompoundTag clientDataTag) {
+    default ResourceLocation getTexture(@Nullable CompoundTag extraWorldData) {
         return texture();
     }
 
@@ -191,16 +201,18 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
 
     // region Custom Sync
 
-    default boolean hasClientDataTag() {
-        return false;
+    @Nullable
+    default CompoundTag getExtraGuiData(ConduitBundleReader conduitBundle, ConduitNode node, Direction side) {
+        return null;
     }
 
     /**
      * Create a custom tag for syncing data from node data or network context to the client for extra behaviours.
      * @return custom sync data.
      */
-    default CompoundTag getClientDataTag(ConduitNode node) {
-        throw new NotImplementedException();
+    @Nullable
+    default CompoundTag getExtraWorldData(ConduitBundleReader conduitBundle, ConduitNode node) {
+        return null;
     }
 
     // endregion

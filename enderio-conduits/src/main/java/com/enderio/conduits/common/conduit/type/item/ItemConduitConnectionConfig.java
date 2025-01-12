@@ -6,8 +6,7 @@ import com.enderio.conduits.api.ConduitRedstoneSignalAware;
 import com.enderio.conduits.api.connection.config.ConnectionConfig;
 import com.enderio.conduits.api.connection.config.NewIOConnectionConfig;
 import com.enderio.conduits.api.connection.config.ConnectionConfigType;
-import com.enderio.conduits.api.connection.config.io.IOConnectionConfig;
-import com.enderio.conduits.api.connection.config.redstone.RedstoneControlledConnection;
+import com.enderio.conduits.api.connection.config.RedstoneSensitiveConnectionConfig;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,6 +14,8 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
+
+import java.util.List;
 
 public record ItemConduitConnectionConfig(
     boolean isSend,
@@ -26,7 +27,7 @@ public record ItemConduitConnectionConfig(
     boolean isRoundRobin,
     boolean isSelfFeed,
     int priority
-) implements NewIOConnectionConfig {
+) implements NewIOConnectionConfig, RedstoneSensitiveConnectionConfig {
 
     public static ItemConduitConnectionConfig DEFAULT = new ItemConduitConnectionConfig(false, DyeColor.GREEN, true, DyeColor.GREEN,
         RedstoneControl.NEVER_ACTIVE, DyeColor.RED, false, false, 0);
@@ -91,7 +92,7 @@ public record ItemConduitConnectionConfig(
 
     @Override
     public ConnectionConfig reconnected() {
-        return new ItemConduitConnectionConfig(DEFAULT.isSend, DEFAULT.sendColor, DEFAULT.isReceive, DEFAULT.receiveColor, receiveRedstoneControl,
+        return new ItemConduitConnectionConfig(DEFAULT.isSend, sendColor, DEFAULT.isReceive, receiveColor, receiveRedstoneControl,
             receiveRedstoneChannel, isRoundRobin, isSelfFeed, priority);
     }
 
@@ -135,5 +136,14 @@ public record ItemConduitConnectionConfig(
     @Override
     public ConnectionConfigType<ItemConduitConnectionConfig> type() {
         return TYPE;
+    }
+
+    @Override
+    public List<DyeColor> getRedstoneSignalColors() {
+        if (receiveRedstoneControl.isRedstoneSensitive()) {
+            return List.of(receiveRedstoneChannel);
+        }
+
+        return List.of();
     }
 }

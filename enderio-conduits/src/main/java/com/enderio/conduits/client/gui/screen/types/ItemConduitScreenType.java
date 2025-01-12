@@ -2,7 +2,7 @@ package com.enderio.conduits.client.gui.screen.types;
 
 import com.enderio.base.api.EnderIO;
 import com.enderio.base.common.lang.EIOLang;
-import com.enderio.conduits.api.menu.ConduitMenuDataAccess;
+import com.enderio.conduits.api.screen.ConduitMenuDataAccess;
 import com.enderio.conduits.api.screen.ConduitScreenHelper;
 import com.enderio.conduits.api.screen.ConduitScreenType;
 import com.enderio.conduits.common.conduit.type.item.ItemConduitConnectionConfig;
@@ -55,7 +55,7 @@ public class ItemConduitScreenType extends ConduitScreenType<ItemConduitConnecti
         screen.addRedstoneControlPicker(90, 40, EIOLang.REDSTONE_MODE, () -> dataAccess.getConnectionConfig().receiveRedstoneControl(),
             value -> dataAccess.updateConnectionConfig(config -> config.withReceiveRedstoneControl(value)));
 
-        // TODO: Show redstone signal indicators (somehow)
+        // TODO: Show redstone signal indicators using the extra NBT payload.
     }
 
     @Override
