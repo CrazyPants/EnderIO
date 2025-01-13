@@ -76,7 +76,7 @@ public interface Conduit<TConduit extends Conduit<TConduit, TConnectionConfig>, 
      * @implNote if a conduit has a menu, you must also register a {@link com.enderio.conduits.api.screen.ConduitScreenType} for it.
      * @return whether this conduit has a menu.
      */
-    // boolean hasMenu();
+    boolean hasMenu();
 
     // region Conduit Checks
 

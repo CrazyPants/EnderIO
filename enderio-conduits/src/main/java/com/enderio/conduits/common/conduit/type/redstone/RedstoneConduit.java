@@ -54,6 +54,11 @@ public record RedstoneConduit(ResourceLocation texture, ResourceLocation activeT
     }
 
     @Override
+    public boolean hasMenu() {
+        return true;
+    }
+
+    @Override
     public boolean canApplyFilter(SlotType slotType, ResourceFilter resourceFilter) {
         return switch (slotType) {
         case FILTER_EXTRACT -> resourceFilter instanceof RedstoneExtractFilter;

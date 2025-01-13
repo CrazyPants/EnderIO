@@ -56,6 +56,11 @@ public record ItemConduit(ResourceLocation texture, Component description, int t
     }
 
     @Override
+    public boolean hasMenu() {
+        return true;
+    }
+
+    @Override
     public boolean canApplyFilter(SlotType slotType, ResourceFilter resourceFilter) {
         return resourceFilter instanceof ItemStackFilter;
     }

@@ -254,12 +254,16 @@ public final class ConduitBundleBlockEntity extends EnderBlockEntity
     }
 
     @Override
-    public List<Holder<Conduit<?, ?>>> getAllPossibleConnectedCondutis(Direction side) {
-        return conduits.stream().filter(c -> canBeOrIsConnection(side, c)).toList();
+    public List<Holder<Conduit<?, ?>>> getAllOpenableConduits(Direction side) {
+        return conduits.stream().filter(c -> canOpenScreen(side, c)).toList();
     }
 
-    public boolean canBeOrIsConnection(Direction side, Holder<Conduit<?, ?>> conduit) {
+    public boolean canOpenScreen(Direction side, Holder<Conduit<?, ?>> conduit) {
         if (level == null) {
+            return false;
+        }
+
+        if (!conduit.value().hasMenu()) {
             return false;
         }
 

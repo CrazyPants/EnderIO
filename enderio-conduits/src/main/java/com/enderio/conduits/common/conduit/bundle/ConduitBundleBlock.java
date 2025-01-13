@@ -360,8 +360,7 @@ public class ConduitBundleBlock extends Block implements EntityBlock {
             var conduitConnection = conduitBundle.getShape().getConnectionFromHit(pos, hitResult);
 
             if (conduitConnection != null) {
-                if (conduitBundle.getConnectionStatus(conduitConnection.getFirst(),
-                        conduitConnection.getSecond()) == ConnectionStatus.CONNECTED_BLOCK) {
+                if (conduitBundle.canOpenScreen(conduitConnection.getFirst(), conduitConnection.getSecond())) {
                     if (player instanceof ServerPlayer serverPlayer) {
                         ConduitMenu.openConduitMenu(serverPlayer, conduitBundle, conduitConnection.getFirst(),
                                 conduitConnection.getSecond());

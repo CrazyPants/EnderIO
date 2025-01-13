@@ -111,7 +111,7 @@ public class ConduitMenu extends BaseEnderMenu {
     }
 
     public List<Holder<Conduit<?, ?>>> getConnectedConduits() {
-        return connectionAccessor.getAllPossibleConnectedCondutis(side);
+        return connectionAccessor.getAllOpenableConduits(side);
     }
 
     @EnsureSide(EnsureSide.Side.CLIENT)
@@ -157,7 +157,7 @@ public class ConduitMenu extends BaseEnderMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return connectionAccessor.stillValid(player) && connectionAccessor.canBeOrIsConnection(side, selectedConduit);
+        return connectionAccessor.stillValid(player) && connectionAccessor.canOpenScreen(side, selectedConduit);
     }
 
     @Override
@@ -209,7 +209,7 @@ public class ConduitMenu extends BaseEnderMenu {
                 this.remoteExtraGuiData = extraGuiData;
             }
 
-            var conduitList = connectionAccessor.getAllPossibleConnectedCondutis(side);
+            var conduitList = connectionAccessor.getAllOpenableConduits(side);
             if (conduitListHashCode != conduitList.hashCode()) {
                 PacketDistributor.sendToPlayer(serverPlayer, new S2CConduitListPacket(containerId, conduitList));
                 conduitListHashCode = conduitList.hashCode();
@@ -218,13 +218,13 @@ public class ConduitMenu extends BaseEnderMenu {
     }
 
     public interface ConnectionAccessor {
-        List<Holder<Conduit<?, ?>>> getAllPossibleConnectedCondutis(Direction side);
+        List<Holder<Conduit<?, ?>>> getAllOpenableConduits(Direction side);
 
         ConnectionConfig getConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit);
 
         void setConnectionConfig(Direction side, Holder<Conduit<?, ?>> conduit, ConnectionConfig config);
 
-        boolean canBeOrIsConnection(Direction side, Holder<Conduit<?, ?>> conduit);
+        boolean canOpenScreen(Direction side, Holder<Conduit<?, ?>> conduit);
 
         @Nullable
         CompoundTag getConduitExtraGuiData(Direction side, Holder<Conduit<?, ?>> conduit);
@@ -256,7 +256,7 @@ public class ConduitMenu extends BaseEnderMenu {
         private static void writeStartingSyncData(ConduitBundleBlockEntity conduitBundle, Direction side,
                 Holder<Conduit<?, ?>> conduit, RegistryFriendlyByteBuf buf) {
             Conduit.STREAM_CODEC.apply(ByteBufCodecs.list(ConduitBundleBlockEntity.MAX_CONDUITS))
-                    .encode(buf, conduitBundle.getAllPossibleConnectedCondutis(side));
+                    .encode(buf, conduitBundle.getAllOpenableConduits(side));
 
             ConnectionConfig.STREAM_CODEC.encode(buf, conduitBundle.getConnectionConfig(side, conduit));
 
@@ -267,7 +267,7 @@ public class ConduitMenu extends BaseEnderMenu {
         }
 
         @Override
-        public List<Holder<Conduit<?, ?>>> getAllPossibleConnectedCondutis(Direction side) {
+        public List<Holder<Conduit<?, ?>>> getAllOpenableConduits(Direction side) {
             return connectedConduits;
         }
 
@@ -282,7 +282,7 @@ public class ConduitMenu extends BaseEnderMenu {
         }
 
         @Override
-        public boolean canBeOrIsConnection(Direction side, Holder<Conduit<?, ?>> conduit) {
+        public boolean canOpenScreen(Direction side, Holder<Conduit<?, ?>> conduit) {
             return true;
         }
 
