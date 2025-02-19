@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "enderio:block/wireless_charger_active",
+    "east": "enderio:block/wireless_charger_active",
+    "north": "enderio:block/wireless_charger_active",
+    "particle": "enderio:block/wireless_charger_active",
+    "south": "enderio:block/wireless_charger_active",
+    "up": "enderio:block/wireless_charger_active",
+    "west": "enderio:block/wireless_charger_active"
+  }
+}

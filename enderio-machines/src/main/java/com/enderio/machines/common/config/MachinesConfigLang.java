@@ -42,6 +42,7 @@ public class MachinesConfigLang {
         addTranslation("advanced", "Advanced");
 
         addTranslation("wiredCharger", "Wired Charger");
+        addTranslation("wirelessCharger", "Wireless Charger");
         addTranslation("soulEngine", "Soul Engine");
         addTranslation("drain", "Drain");
         addTranslation("inhibitor", "Inhibitor Obelisk");
@@ -79,6 +80,7 @@ public class MachinesConfigLang {
 
     private static void addTranslation(String key, String translation) {
         // TODO: More translation options in Regilite
-        EnderIOMachines.REGILITE.addTranslation(() -> EnderIOMachines.MODULE_MOD_ID + "." + "configuration" + "." + key, translation);
+        EnderIOMachines.REGILITE.addTranslation(() -> EnderIOMachines.MODULE_MOD_ID + "." + "configuration" + "." + key,
+                translation);
     }
 }

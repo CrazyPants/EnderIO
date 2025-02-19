@@ -41,6 +41,7 @@ import com.enderio.machines.common.blocks.vacuum.chest.VacuumChestBlockEntity;
 import com.enderio.machines.common.blocks.vacuum.xp.XPVacuumBlockEntity;
 import com.enderio.machines.common.blocks.vat.VatBlockEntity;
 import com.enderio.machines.common.blocks.wired_charger.WiredChargerBlockEntity;
+import com.enderio.machines.common.blocks.wireless_charger.WirelessChargerBlockEntity;
 import com.enderio.regilite.holder.RegiliteBlockEntity;
 import com.enderio.regilite.registry.BlockEntityRegistry;
 import com.google.common.collect.ImmutableMap;
@@ -131,6 +132,10 @@ public class MachineBlockEntities {
 
     public static final RegiliteBlockEntity<WiredChargerBlockEntity> WIRED_CHARGER = register("wired_charger",
             WiredChargerBlockEntity::new, MachineBlocks.WIRED_CHARGER)
+                    .apply(MachineBlockEntities::poweredMachineBlockEntityCapabilities);
+
+    public static final RegiliteBlockEntity<WirelessChargerBlockEntity> WIRELESS_CHARGER = register("wireless_charger",
+            WirelessChargerBlockEntity::new, MachineBlocks.WIRELESS_CHARGER)
                     .apply(MachineBlockEntities::poweredMachineBlockEntityCapabilities);
 
     public static final RegiliteBlockEntity<PaintingMachineBlockEntity> PAINTING_MACHINE = register("painting_machine",

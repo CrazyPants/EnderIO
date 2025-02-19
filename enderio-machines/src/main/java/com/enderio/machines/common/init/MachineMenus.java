@@ -23,6 +23,7 @@ import com.enderio.machines.client.gui.screen.TravelAnchorScreen;
 import com.enderio.machines.client.gui.screen.VacuumChestScreen;
 import com.enderio.machines.client.gui.screen.VatScreen;
 import com.enderio.machines.client.gui.screen.WiredChargerScreen;
+import com.enderio.machines.client.gui.screen.WirelessChargerScreen;
 import com.enderio.machines.client.gui.screen.XPObeliskScreen;
 import com.enderio.machines.client.gui.screen.XPVacuumScreen;
 import com.enderio.machines.common.blocks.alloy.AlloySmelterMenu;
@@ -48,6 +49,7 @@ import com.enderio.machines.common.blocks.vacuum.chest.VacuumChestMenu;
 import com.enderio.machines.common.blocks.vacuum.xp.XPVacuumMenu;
 import com.enderio.machines.common.blocks.vat.VatMenu;
 import com.enderio.machines.common.blocks.wired_charger.WiredChargerMenu;
+import com.enderio.machines.common.blocks.wireless_charger.WirelessChargerMenu;
 import com.enderio.machines.common.menu.CapacitorBankMenu;
 import com.enderio.regilite.holder.RegiliteMenu;
 import com.enderio.regilite.registry.MenuRegistry;
@@ -89,6 +91,8 @@ public class MachineMenus {
             () -> DrainScreen::new);
     public static final RegiliteMenu<WiredChargerMenu> WIRED_CHARGER = MENU_REGISTRY.registerMenu("wired_charger",
             WiredChargerMenu::new, () -> WiredChargerScreen::new);
+    public static final RegiliteMenu<WirelessChargerMenu> WIRELESS_CHARGER = MENU_REGISTRY
+            .registerMenu("wireless_charger", WirelessChargerMenu::new, () -> WirelessChargerScreen::new);
     public static final RegiliteMenu<PaintingMachineMenu> PAINTING_MACHINE = MENU_REGISTRY
             .registerMenu("painting_machine", PaintingMachineMenu::new, () -> PaintingMachineScreen::new);
     public static final RegiliteMenu<CapacitorBankMenu> CAPACITOR_BANK = MENU_REGISTRY.registerMenu("capacitor_bank",

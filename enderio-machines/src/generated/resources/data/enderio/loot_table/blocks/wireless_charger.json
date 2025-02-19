@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "source": "block_entity"
+            }
+          ],
+          "name": "enderio:wireless_charger"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "enderio:blocks/wireless_charger"
+}

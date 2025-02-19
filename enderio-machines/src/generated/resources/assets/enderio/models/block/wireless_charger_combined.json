@@ -1,0 +1,19 @@
+{
+  "parent": "minecraft:block/block",
+  "children": {
+    "machine": {
+      "parent": "enderio:block/wireless_charger"
+    },
+    "overlay": {
+      "parent": "enderio:block/io_overlay"
+    }
+  },
+  "item_render_order": [
+    "machine",
+    "overlay"
+  ],
+  "loader": "neoforge:composite",
+  "textures": {
+    "particle": "enderio:block/wireless_charger_front"
+  }
+}
