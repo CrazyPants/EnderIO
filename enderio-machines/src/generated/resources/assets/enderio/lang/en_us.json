@@ -40,6 +40,7 @@
   "enderio_machines.configuration.aversion": "Aversion Obelisk",
   "enderio_machines.configuration.aversionRangeColor": "Aversion Obelisk Range Color",
   "enderio_machines.configuration.baseLevelCost": "Base Level Cost",
+  "enderio_machines.configuration.baseRange": "Base range",
   "enderio_machines.configuration.basic": "Basic",
   "enderio_machines.configuration.blocks": "Blocks",
   "enderio_machines.configuration.burnSpeed": "Burn Speed",

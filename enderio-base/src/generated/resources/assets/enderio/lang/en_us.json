@@ -255,6 +255,7 @@
   "gui.enderio.ioconfig.none": "None",
   "gui.enderio.ioconfig.pull": "Pull",
   "gui.enderio.ioconfig.push": "Push",
+  "gui.enderio.max_range": "Maximum Range",
   "gui.enderio.no_soulbound": "Bind a soul to the item to be able to use it",
   "gui.enderio.nocap.desc": "Insert any capacitor so \n this machine can work!",
   "gui.enderio.nocap.title": "Capacitor Missing",

@@ -61,6 +61,9 @@ public class MachinesConfigLang {
         addTranslation("spawnType", "Spawn Type");
         addTranslation("maxSpawners", "Max Spawners");
 
+        // Wireless Charger
+        addTranslation("baseRange", "Base range");
+
         // -- Client --
 
         // Blocks

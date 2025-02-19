@@ -12,6 +12,7 @@ public class MachinesCommonConfig {
     public final ModConfigSpec.ConfigValue<Integer> MAX_SPAWNERS;
     public final ModConfigSpec.ConfigValue<SpawnerMachineTask.SpawnType> SPAWN_TYPE;
     public final ModConfigSpec.IntValue SPAWN_AMOUNT;
+    public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_RANGE;
 
     public MachinesCommonConfig(ModConfigSpec.Builder builder) {
         ENERGY = new EnergyConfig(builder);
@@ -37,6 +38,10 @@ public class MachinesCommonConfig {
         MAX_SPAWNERS = builder
                 .comment("The maximum amount of spawners before the spawners suffers a loss of efficiency")
                 .defineInRange("maxSpawners", 10, 0, Integer.MAX_VALUE);
+        builder.pop();
+
+        builder.push("wirelessCharger");
+        WIRELESS_CHARGER_RANGE = builder.comment("Base range").define("baseRange", 16);
         builder.pop();
     }
 }
