@@ -22,11 +22,6 @@ public class WirelessChargerScreen extends MachineScreen<WirelessChargerMenu> {
     private static final int WIDTH = 176;
     private static final int HEIGHT = 166;
 
-    private static final ResourceLocation PLUS = EnderIO.loc("buttons/plus_small");
-    private static final ResourceLocation MINUS = EnderIO.loc("buttons/minus_small");
-    private static final WidgetSprites PLUS_SPRITES = new WidgetSprites(PLUS, PLUS);
-    private static final WidgetSprites MINUS_SPRITES = new WidgetSprites(MINUS, MINUS);
-
     public WirelessChargerScreen(WirelessChargerMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         imageWidth = WIDTH;
@@ -51,11 +46,11 @@ public class WirelessChargerScreen extends MachineScreen<WirelessChargerMenu> {
                 EIOLang.HIDE_RANGE, EIOLang.SHOW_RANGE, menu::isRangeVisible,
                 (ignored) -> handleButtonPress(AversionObeliskMenu.VISIBILITY_BUTTON_ID)));
 
-        addRenderableWidget(new ImageButton(leftPos + imageWidth - 2 * 16, topPos + rangeOffset + 1, 8, 8, PLUS_SPRITES,
+        addRenderableWidget(EIOCommonWidgets.createRangeIncrease(leftPos + imageWidth - 2 * 16, topPos + rangeOffset + 1,
                 (b) -> handleButtonPress(AversionObeliskMenu.INCREASE_BUTTON_ID)));
 
-        addRenderableWidget(new ImageButton(leftPos + imageWidth - 2 * 16, topPos + rangeOffset + 9, 8, 8,
-                MINUS_SPRITES, (b) -> handleButtonPress(AversionObeliskMenu.DECREASE_BUTTON_ID)));
+        addRenderableWidget(EIOCommonWidgets.createRangeDecrease(leftPos + imageWidth - 2 * 16, topPos + rangeOffset + 9,
+            (b) -> handleButtonPress(AversionObeliskMenu.DECREASE_BUTTON_ID)));
 
         addRenderableWidget(
                 new ActivityWidget(leftPos + imageWidth - 6 - 16, topPos + rangeOffset + 16, menu::getMachineStates));

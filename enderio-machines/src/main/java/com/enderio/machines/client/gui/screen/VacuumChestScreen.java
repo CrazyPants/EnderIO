@@ -20,11 +20,6 @@ public class VacuumChestScreen extends MachineScreen<VacuumChestMenu> {
     private static final int WIDTH = 176;
     private static final int HEIGHT = 206;
 
-    private static final ResourceLocation PLUS = EnderIO.loc("buttons/plus_small");
-    private static final ResourceLocation MINUS = EnderIO.loc("buttons/minus_small");
-    private static final WidgetSprites PLUS_SPRITES = new WidgetSprites(PLUS, PLUS);
-    private static final WidgetSprites MINUS_SPRITES = new WidgetSprites(MINUS, MINUS);
-
     public VacuumChestScreen(VacuumChestMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         imageWidth = WIDTH;
@@ -44,9 +39,9 @@ public class VacuumChestScreen extends MachineScreen<VacuumChestMenu> {
                 EIOLang.HIDE_RANGE, EIOLang.SHOW_RANGE, menu::isRangeVisible,
                 (ignored) -> handleButtonPress(VacuumChestMenu.VISIBILITY_BUTTON_ID)));
 
-        addRenderableWidget(new ImageButton(leftPos + imageWidth - 8 - 8, topPos + 86, 8, 8, PLUS_SPRITES,
+        addRenderableWidget(EIOCommonWidgets.createRangeIncrease(leftPos + imageWidth - 8 - 8, topPos + 86,
                 (b) -> handleButtonPress(VacuumChestMenu.INCREASE_BUTTON_ID)));
-        addRenderableWidget(new ImageButton(leftPos + imageWidth - 8 - 8, topPos + 94, 8, 8, MINUS_SPRITES,
+        addRenderableWidget(EIOCommonWidgets.createRangeDecrease(leftPos + imageWidth - 8 - 8, topPos + 94,
                 (b) -> handleButtonPress(VacuumChestMenu.DECREASE_BUTTON_ID)));
 
         addRenderableWidget(

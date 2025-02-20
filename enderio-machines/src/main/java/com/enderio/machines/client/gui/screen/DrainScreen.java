@@ -22,11 +22,6 @@ public class DrainScreen extends MachineScreen<DrainMenu> {
     private static final int WIDTH = 176;
     private static final int HEIGHT = 166;
 
-    private static final ResourceLocation PLUS = EnderIO.loc("buttons/plus_small");
-    private static final ResourceLocation MINUS = EnderIO.loc("buttons/minus_small");
-    private static final WidgetSprites PLUS_SPRITES = new WidgetSprites(PLUS, PLUS);
-    private static final WidgetSprites MINUS_SPRITES = new WidgetSprites(MINUS, MINUS);
-
     public DrainScreen(DrainMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         imageWidth = WIDTH;
@@ -49,9 +44,9 @@ public class DrainScreen extends MachineScreen<DrainMenu> {
                 EIOLang.HIDE_RANGE, EIOLang.SHOW_RANGE, menu::isRangeVisible,
                 (ignore) -> handleButtonPress(DrainMenu.VISIBILITY_BUTTON_ID)));
 
-        addRenderableWidget(new ImageButton(leftPos + imageWidth - 2 * 16, topPos + 2 + 16 * 2, 8, 8, PLUS_SPRITES,
+        addRenderableWidget(EIOCommonWidgets.createRangeIncrease(leftPos + imageWidth - 2 * 16, topPos + 2 + 16 * 2,
                 (b) -> handleButtonPress(DrainMenu.INCREASE_BUTTON_ID)));
-        addRenderableWidget(new ImageButton(leftPos + imageWidth - 2 * 16, topPos + 2 + 16 * 2 + 8, 8, 8, MINUS_SPRITES,
+        addRenderableWidget(EIOCommonWidgets.createRangeDecrease(leftPos + imageWidth - 2 * 16, topPos + 2 + 16 * 2 + 8,
                 (b) -> handleButtonPress(DrainMenu.DECREASE_BUTTON_ID)));
 
         addRenderableWidget(new ActivityWidget(leftPos + imageWidth - 6 - 16, topPos + 16 * 4, menu::getMachineStates));
