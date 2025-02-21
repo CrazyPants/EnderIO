@@ -8,8 +8,6 @@ import com.enderio.machines.client.gui.screen.base.MachineScreen;
 import com.enderio.machines.client.gui.widget.FluidStackStaticWidget;
 import com.enderio.machines.common.blocks.vacuum.xp.XPVacuumMenu;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,7 +17,6 @@ public class XPVacuumScreen extends MachineScreen<XPVacuumMenu> {
     private static final ResourceLocation XP_VACUUM_BG = EnderIO.loc("textures/gui/screen/xp_vacuum.png");
     private static final int WIDTH = 176;
     private static final int HEIGHT = 166;
-
 
     public XPVacuumScreen(XPVacuumMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);

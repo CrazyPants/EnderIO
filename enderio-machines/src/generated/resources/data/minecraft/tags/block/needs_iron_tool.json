@@ -25,6 +25,7 @@
     "enderio:xp_obelisk",
     "enderio:inhibitor_obelisk",
     "enderio:aversion_obelisk",
-    "enderio:relocator_obelisk"
+    "enderio:relocator_obelisk",
+    "enderio:wireless_charger_antenna"
   ]
 }

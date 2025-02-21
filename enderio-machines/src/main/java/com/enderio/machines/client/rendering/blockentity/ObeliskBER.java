@@ -39,7 +39,7 @@ public class ObeliskBER implements BlockEntityRenderer<ObeliskBlockEntity> {
         Vec3 position = minecraft.player.position();
         float f1 = (float) (Mth.atan2(position.z - blockEntity.getBlockPos().getZ() - 0.5D,
                 position.x - blockEntity.getBlockPos().getX() - 0.5D) * 180.0f / Math.PI + 90);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-f1));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-f1 + 180));
         ItemStack stack = new ItemStack(supplier.get());
         BakedModel bakedmodel = minecraft.getItemRenderer().getModel(stack, blockEntity.getLevel(), null, 0);
         minecraft.getItemRenderer()

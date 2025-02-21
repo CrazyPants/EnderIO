@@ -10,8 +10,6 @@ import com.enderio.machines.client.gui.widget.CapacitorEnergyWidget;
 import com.enderio.machines.common.blocks.obelisks.aversion.AversionObeliskMenu;
 import com.enderio.machines.common.blocks.wireless_charger.WirelessChargerMenu;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -46,11 +44,11 @@ public class WirelessChargerScreen extends MachineScreen<WirelessChargerMenu> {
                 EIOLang.HIDE_RANGE, EIOLang.SHOW_RANGE, menu::isRangeVisible,
                 (ignored) -> handleButtonPress(AversionObeliskMenu.VISIBILITY_BUTTON_ID)));
 
-        addRenderableWidget(EIOCommonWidgets.createRangeIncrease(leftPos + imageWidth - 2 * 16, topPos + rangeOffset + 1,
-                (b) -> handleButtonPress(AversionObeliskMenu.INCREASE_BUTTON_ID)));
+        addRenderableWidget(EIOCommonWidgets.createRangeIncrease(leftPos + imageWidth - 2 * 16,
+                topPos + rangeOffset + 1, (b) -> handleButtonPress(AversionObeliskMenu.INCREASE_BUTTON_ID)));
 
-        addRenderableWidget(EIOCommonWidgets.createRangeDecrease(leftPos + imageWidth - 2 * 16, topPos + rangeOffset + 9,
-            (b) -> handleButtonPress(AversionObeliskMenu.DECREASE_BUTTON_ID)));
+        addRenderableWidget(EIOCommonWidgets.createRangeDecrease(leftPos + imageWidth - 2 * 16,
+                topPos + rangeOffset + 9, (b) -> handleButtonPress(AversionObeliskMenu.DECREASE_BUTTON_ID)));
 
         addRenderableWidget(
                 new ActivityWidget(leftPos + imageWidth - 6 - 16, topPos + rangeOffset + 16, menu::getMachineStates));

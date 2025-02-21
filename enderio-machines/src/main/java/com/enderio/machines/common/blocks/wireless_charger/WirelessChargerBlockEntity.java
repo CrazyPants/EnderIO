@@ -88,6 +88,11 @@ public class WirelessChargerBlockEntity extends PoweredMachineBlockEntity implem
     }
 
     @Override
+    public void neighborChanged(Block neighborBlock, BlockPos neighborPos) {
+        super.neighborChanged(neighborBlock, neighborPos);
+    }
+
+    @Override
     public void serverTick() {
         super.serverTick();
         if (isActive()) {

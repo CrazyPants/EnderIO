@@ -3,6 +3,7 @@ package com.enderio.machines.common.init;
 import com.enderio.base.api.EnderIO;
 import com.enderio.base.api.attachment.StoredEntityData;
 import com.enderio.base.client.paint.PaintedBlockColor;
+import com.enderio.base.common.block.WirelessAntennaBlock;
 import com.enderio.base.common.init.EIOCreativeTabs;
 import com.enderio.base.common.init.EIODataComponents;
 import com.enderio.base.common.paint.item.PaintedBlockItem;
@@ -366,6 +367,18 @@ public class MachineBlocks {
                                 .addCapability(Capabilities.EnergyStorage.ITEM,
                                         CapacitorBankItem.ENERGY_STORAGE_PROVIDER));
     }
+
+    public static final RegiliteBlock<WirelessAntennaBlock> WIRELESS_CHARGER_ANTENNA = BLOCK_REGISTRY
+            .registerBlock("wireless_charger_antenna", WirelessAntennaBlock::new,
+                    BlockBehaviour.Properties.of()
+                            .strength(2.5f, 8)
+                            .isViewBlocking((pState, pLevel, pPos) -> false)
+                            .noOcclusion())
+            .setLootTable(MachinesLootTable::copyComponents)
+            .addBlockTags(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+            .setBlockStateProvider((prov, ctx) -> prov.simpleBlock(ctx.get(),
+                    prov.models().getExistingFile(EnderIO.loc("block/" + ctx.getName()))))
+            .createBlockItem(ITEM_REGISTRY, item -> item.setTab((EIOCreativeTabs.MACHINES)));
 
     public static void register(IEventBus bus) {
         BLOCK_REGISTRY.register(bus);

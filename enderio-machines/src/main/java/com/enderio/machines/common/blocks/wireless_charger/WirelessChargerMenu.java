@@ -39,19 +39,19 @@ public class WirelessChargerMenu extends PoweredMachineMenu<WirelessChargerBlock
         // noinspection DuplicatedCode
         var blockEntity = getBlockEntity();
         return switch (id) {
-            case INCREASE_BUTTON_ID -> {
-                blockEntity.increaseRange();
-                yield true;
-            }
-            case DECREASE_BUTTON_ID -> {
-                blockEntity.decreaseRange();
-                yield true;
-            }
-            case VISIBILITY_BUTTON_ID -> {
-                blockEntity.setRangeVisible(!isRangeVisible());
-                yield true;
-            }
-            default -> false;
+        case INCREASE_BUTTON_ID -> {
+            blockEntity.increaseRange();
+            yield true;
+        }
+        case DECREASE_BUTTON_ID -> {
+            blockEntity.decreaseRange();
+            yield true;
+        }
+        case VISIBILITY_BUTTON_ID -> {
+            blockEntity.setRangeVisible(!isRangeVisible());
+            yield true;
+        }
+        default -> false;
         };
     }
 
