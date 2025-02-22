@@ -27,6 +27,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -90,6 +91,31 @@ public class WirelessChargerBlockEntity extends PoweredMachineBlockEntity implem
     @Override
     public void neighborChanged(Block neighborBlock, BlockPos neighborPos) {
         super.neighborChanged(neighborBlock, neighborPos);
+        updateRange();
+    }
+
+    public void setLevel(Level level) {
+        super.setLevel(level);
+//        updatePowerState();
+//        updateCapacitorState();
+        updateRange();
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+//        updatePowerState();
+        updateRange();
+    }
+//    @Override
+//    public void onLoad() {
+//        super.onLoad();
+////        updatePowerState();
+////        updateCapacitorState();
+//    }
+
+    private void updateRange() {
+
     }
 
     @Override
