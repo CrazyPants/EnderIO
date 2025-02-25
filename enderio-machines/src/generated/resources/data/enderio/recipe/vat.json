@@ -12,7 +12,7 @@
       "tag": "c:ingots/dark_steel"
     },
     "T": {
-      "item": "enderio:pressurized_fluid_tank"
+      "item": "enderio:fluid_tank"
     },
     "V": {
       "item": "enderio:void_chassis"

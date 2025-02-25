@@ -430,7 +430,7 @@ public class MachineRecipeProvider extends RecipeProvider {
                 .define('B', EIOTags.Items.INGOTS_COPPER_ALLOY)
                 .define('F', Blocks.FURNACE)
                 .define('I', EIOTags.Items.INGOTS_DARK_STEEL)
-                .define('T', MachineBlocks.PRESSURIZED_FLUID_TANK)
+                .define('T', MachineBlocks.FLUID_TANK)
                 .define('V', EIOBlocks.VOID_CHASSIS.get())
                 .pattern("BFB")
                 .pattern("TVT")
