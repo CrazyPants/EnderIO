@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "tag": "c:ingots/copper_alloy"
+    },
+    "F": {
+      "item": "minecraft:furnace"
+    },
+    "I": {
+      "tag": "c:ingots/dark_steel"
+    },
+    "T": {
+      "item": "enderio:pressurized_fluid_tank"
+    },
+    "V": {
+      "item": "enderio:void_chassis"
+    }
+  },
+  "pattern": [
+    "BFB",
+    "TVT",
+    "IFI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "enderio:vat"
+  }
+}
