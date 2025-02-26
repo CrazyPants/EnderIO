@@ -5,6 +5,7 @@ import com.enderio.base.api.capacitor.CapacitorModifier;
 import com.enderio.base.api.capacitor.QuadraticScalable;
 import com.enderio.base.api.io.IOMode;
 import com.enderio.base.api.io.energy.EnergyIOMode;
+import com.enderio.base.common.block.WirelessAntennaBlock;
 import com.enderio.machines.common.MachineNBTKeys;
 import com.enderio.machines.common.attachment.ActionRange;
 import com.enderio.machines.common.attachment.RangedActor;
@@ -27,12 +28,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,6 +45,8 @@ public class WirelessChargerBlockEntity extends PoweredMachineBlockEntity implem
     public static final QuadraticScalable USAGE = new QuadraticScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.ENERGY.WIRELESS_CHARGER_USAGE);
 
+    private final ModConfigSpec.ConfigValue<Integer> energyUpkeep;
+
     private ActionRange actionRange;
 
     private @javax.annotation.Nullable AABB bounds;
@@ -52,6 +55,7 @@ public class WirelessChargerBlockEntity extends PoweredMachineBlockEntity implem
         super(MachineBlockEntities.WIRELESS_CHARGER.get(), worldPosition, blockState, true, CapacitorSupport.REQUIRED,
                 EnergyIOMode.Input, CAPACITY, USAGE);
         actionRange = new ActionRange(MachinesConfig.COMMON.WIRELESS_CHARGER_RANGE.get(), false);
+        energyUpkeep = MachinesConfig.COMMON.ENERGY.WIRELESS_CHARGER_UPKEEP;
     }
 
     @Override
@@ -91,37 +95,20 @@ public class WirelessChargerBlockEntity extends PoweredMachineBlockEntity implem
     @Override
     public void neighborChanged(Block neighborBlock, BlockPos neighborPos) {
         super.neighborChanged(neighborBlock, neighborPos);
-        updateRange();
-    }
-
-    public void setLevel(Level level) {
-        super.setLevel(level);
-//        updatePowerState();
-//        updateCapacitorState();
-        updateRange();
-    }
-
-    @Override
-    public void setChanged() {
-        super.setChanged();
-//        updatePowerState();
-        updateRange();
-    }
-//    @Override
-//    public void onLoad() {
-//        super.onLoad();
-////        updatePowerState();
-////        updateCapacitorState();
-//    }
-
-    private void updateRange() {
-
+        if (level != null && !level.isClientSide() && getBlockPos().above().equals(neighborPos)) {
+            int maxRange = getMaxRange();
+            if (getRangeExtension() > 0 || actionRange.range() > maxRange) {
+                // Antenna placed or removed from the top so update range
+                setActionRange(new ActionRange(maxRange, actionRange.isVisible()));
+            }
+        }
     }
 
     @Override
     public void serverTick() {
         super.serverTick();
         if (isActive()) {
+            getEnergyStorage().consumeEnergy(energyUpkeep.get());
             chargeItem();
         }
     }
@@ -138,6 +125,9 @@ public class WirelessChargerBlockEntity extends PoweredMachineBlockEntity implem
     @Override
     public void onLoad() {
         super.onLoad();
+        if (level != null && !level.isClientSide() && actionRange.range() > getMaxRange()) {
+            setActionRange(new ActionRange(getMaxRange(), actionRange.isVisible()));
+        }
         updateBounds();
     }
 
@@ -160,7 +150,6 @@ public class WirelessChargerBlockEntity extends PoweredMachineBlockEntity implem
     @Override
     protected void applyImplicitComponents(DataComponentInput components) {
         super.applyImplicitComponents(components);
-
         var actionRange = components.get(MachineDataComponents.ACTION_RANGE);
         if (actionRange != null) {
             this.actionRange = actionRange;
@@ -185,17 +174,23 @@ public class WirelessChargerBlockEntity extends PoweredMachineBlockEntity implem
     }
 
     @Override
-    public boolean canAct() {
-        return super.canAct();
+    public int getMaxRange() {
+        return MachinesConfig.COMMON.WIRELESS_CHARGER_RANGE.get() + getRangeExtension();
     }
 
     private void updateBounds() {
         bounds = new AABB(getBlockPos()).inflate(getRange());
     }
 
-    @Override
-    public int getMaxRange() {
-        return MachinesConfig.COMMON.WIRELESS_CHARGER_RANGE.get();
+    private int getRangeExtension() {
+        int rangeExtension = 0;
+        if (level != null) {
+            BlockState bs = level.getBlockState(getBlockPos().above());
+            if (bs.hasProperty(WirelessAntennaBlock.WIRELESS_RANGE)) {
+                rangeExtension = bs.getValue(WirelessAntennaBlock.WIRELESS_RANGE);
+            }
+        }
+        return rangeExtension;
     }
 
     @Override

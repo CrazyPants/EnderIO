@@ -13,6 +13,8 @@ public class MachinesCommonConfig {
     public final ModConfigSpec.ConfigValue<SpawnerMachineTask.SpawnType> SPAWN_TYPE;
     public final ModConfigSpec.IntValue SPAWN_AMOUNT;
     public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_RANGE;
+    public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_ANTENNA_RANGE;
+    public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_ANTENNA_RANGE_2;
 
     public MachinesCommonConfig(ModConfigSpec.Builder builder) {
         ENERGY = new EnergyConfig(builder);
@@ -42,6 +44,9 @@ public class MachinesCommonConfig {
 
         builder.push("wirelessCharger");
         WIRELESS_CHARGER_RANGE = builder.comment("Base range").define("baseRange", 16);
+        WIRELESS_CHARGER_ANTENNA_RANGE = builder.comment("Pulsating Antenna range")
+                .define("pulsatingRangeExtension", 16);
+        WIRELESS_CHARGER_ANTENNA_RANGE_2 = builder.comment("Vibrant Antenna range").define("vibrantRangeExtension", 32);
         builder.pop();
     }
 }

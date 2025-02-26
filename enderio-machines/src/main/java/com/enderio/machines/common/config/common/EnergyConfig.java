@@ -39,6 +39,7 @@ public class EnergyConfig {
     public final ModConfigSpec.ConfigValue<Integer> WIRED_CHARGER_USAGE;
     public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_CAPACITY;
     public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_USAGE;
+    public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_UPKEEP;
     public final ModConfigSpec.ConfigValue<Integer> SOUL_ENGINE_CAPACITY;
     public final ModConfigSpec.ConfigValue<Integer> SOUL_ENGINE_BURN_SPEED;
     public final ModConfigSpec.ConfigValue<Double> SOUL_ENGINE_GENERATION;
@@ -165,8 +166,10 @@ public class EnergyConfig {
         builder.push("wirelessCharger");
         WIRELESS_CHARGER_CAPACITY = builder.comment("The base energy capacity in uI.")
                 .defineInRange("capacity", 128_000, 1, Integer.MAX_VALUE);
-        WIRELESS_CHARGER_USAGE = builder.comment("The base energy consumption in uI/t.")
-                .defineInRange("usage", 60, 1, Integer.MAX_VALUE);
+        WIRELESS_CHARGER_UPKEEP = builder.comment("The base energy consumption in uI/t.")
+                .defineInRange("energyUpkeep", 2, 1, Integer.MAX_VALUE);
+        WIRELESS_CHARGER_USAGE = builder.comment("The charge speed in uI/t.")
+                .defineInRange("chargeRate", 60, 1, Integer.MAX_VALUE);
         builder.pop();
 
         builder.push("soulEngine");
