@@ -239,26 +239,26 @@ public class MachineRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, MachineBlocks.WIRELESS_CHARGER_ANTENNA.get())
-            .define('C', EIOTags.Items.INGOTS_COPPER_ALLOY)
-            .define('S', EIOTags.Items.INGOTS_PULSATING_ALLOY)
-            .define('E', EIOItems.ENDER_RESONATOR.get())
-            .pattern(" S ")
-            .pattern(" S ")
-            .pattern("CEC")
-            .unlockedBy("has_ingredient",
-                InventoryChangeTrigger.TriggerInstance.hasItems(EIOBlocks.VOID_CHASSIS.get()))
-            .save(recipeOutput);
+                .define('C', EIOTags.Items.INGOTS_COPPER_ALLOY)
+                .define('S', EIOTags.Items.INGOTS_PULSATING_ALLOY)
+                .define('E', EIOItems.ENDER_RESONATOR.get())
+                .pattern(" S ")
+                .pattern(" S ")
+                .pattern("CEC")
+                .unlockedBy("has_ingredient",
+                        InventoryChangeTrigger.TriggerInstance.hasItems(EIOBlocks.VOID_CHASSIS.get()))
+                .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, MachineBlocks.WIRELESS_CHARGER_ANTENNA_ADVANCED.get())
-            .define('C', EIOTags.Items.INGOTS_COPPER_ALLOY)
-            .define('S', EIOTags.Items.INGOTS_VIBRANT_ALLOY)
-            .define('E', EIOItems.SENTIENT_ENDER.get())
-            .pattern(" S ")
-            .pattern(" S ")
-            .pattern("CEC")
-            .unlockedBy("has_ingredient",
-                InventoryChangeTrigger.TriggerInstance.hasItems(EIOBlocks.VOID_CHASSIS.get()))
-            .save(recipeOutput);
+                .define('C', EIOTags.Items.INGOTS_COPPER_ALLOY)
+                .define('S', EIOTags.Items.INGOTS_VIBRANT_ALLOY)
+                .define('E', EIOItems.SENTIENT_ENDER.get())
+                .pattern(" S ")
+                .pattern(" S ")
+                .pattern("CEC")
+                .unlockedBy("has_ingredient",
+                        InventoryChangeTrigger.TriggerInstance.hasItems(EIOBlocks.VOID_CHASSIS.get()))
+                .save(recipeOutput);
 
         ShapedEntityStorageRecipeBuilder.shaped(RecipeCategory.MISC, MachineBlocks.POWERED_SPAWNER)
                 .define('I', EIOTags.Items.INGOTS_SOULARIUM) // TODO Maybe also soulchains?
