@@ -3,7 +3,6 @@ package com.enderio.machines.common.init;
 import com.enderio.base.api.EnderIO;
 import com.enderio.base.api.attachment.StoredEntityData;
 import com.enderio.base.client.paint.PaintedBlockColor;
-import com.enderio.base.common.block.WirelessAntennaBlock;
 import com.enderio.base.common.init.EIOCreativeTabs;
 import com.enderio.base.common.init.EIODataComponents;
 import com.enderio.base.common.paint.item.PaintedBlockItem;
@@ -38,6 +37,7 @@ import com.enderio.machines.common.blocks.travel_anchor.TravelAnchorBlockEntity;
 import com.enderio.machines.common.blocks.vacuum.chest.VacuumChestBlockEntity;
 import com.enderio.machines.common.blocks.vacuum.xp.XPVacuumBlockEntity;
 import com.enderio.machines.common.blocks.vat.VatBlock;
+import com.enderio.machines.common.blocks.wireless_charger.WirelessAntennaBlock;
 import com.enderio.machines.common.config.MachinesConfig;
 import com.enderio.machines.common.item.CapacitorBankItem;
 import com.enderio.machines.data.loot.MachinesLootTable;
@@ -142,6 +142,14 @@ public class MachineBlocks {
 
     public static final RegiliteBlock<ProgressMachineBlock<?>> WIRELESS_CHARGER = progressMachine("wireless_charger",
             () -> MachineBlockEntities.WIRELESS_CHARGER);
+
+    public static final RegiliteBlock<WirelessAntennaBlock> WIRELESS_CHARGER_ANTENNA = wirelessAntenna(
+            "wireless_charger_antenna", "Pulsating Wireless Antenna",
+            MachinesConfig.COMMON.WIRELESS_CHARGER_ANTENNA_RANGE);
+
+    public static final RegiliteBlock<WirelessAntennaBlock> WIRELESS_CHARGER_ANTENNA_ADVANCED = wirelessAntenna(
+            "wireless_charger_antenna_advanced", "Vibrant Wireless Antenna",
+            MachinesConfig.COMMON.WIRELESS_CHARGER_ANTENNA_RANGE_2);
 
     public static final RegiliteBlock<LegacyMachineBlock> CREATIVE_POWER = BLOCK_REGISTRY
             .registerBlock("creative_power",
@@ -369,14 +377,6 @@ public class MachineBlocks {
                                 .addCapability(Capabilities.EnergyStorage.ITEM,
                                         CapacitorBankItem.ENERGY_STORAGE_PROVIDER));
     }
-
-    public static final RegiliteBlock<WirelessAntennaBlock> WIRELESS_CHARGER_ANTENNA = wirelessAntenna(
-            "wireless_charger_antenna", "Pulsating Wireless Antenna",
-            MachinesConfig.COMMON.WIRELESS_CHARGER_ANTENNA_RANGE);
-
-    public static final RegiliteBlock<WirelessAntennaBlock> WIRELESS_CHARGER_ANTENNA_ADVANCED = wirelessAntenna(
-            "wireless_charger_antenna_advanced", "Vibrant Wireless Antenna",
-            MachinesConfig.COMMON.WIRELESS_CHARGER_ANTENNA_RANGE_2);
 
     private static RegiliteBlock<WirelessAntennaBlock> wirelessAntenna(String name, String translation,
             ModConfigSpec.ConfigValue<Integer> range) {

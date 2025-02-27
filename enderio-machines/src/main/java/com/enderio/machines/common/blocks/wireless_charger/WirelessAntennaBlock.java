@@ -1,4 +1,4 @@
-package com.enderio.base.common.block;
+package com.enderio.machines.common.blocks.wireless_charger;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -35,7 +35,9 @@ public class WirelessAntennaBlock extends Block {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(WIRELESS_RANGE, rangeExtension.get());
+        return this.defaultBlockState()
+                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(WIRELESS_RANGE, rangeExtension.get());
     }
 
 }

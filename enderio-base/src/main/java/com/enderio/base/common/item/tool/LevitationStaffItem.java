@@ -19,8 +19,9 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 public class LevitationStaffItem extends PoweredToggledItem {
 
-    public static final ICapabilityProvider<ItemStack, Void, IFluidHandlerItem> FLUID_HANDLER_PROVIDER
-        = (stack, v) -> new StrictFluidHandlerItemStack(EIODataComponents.ITEM_FLUID_CONTENT, stack, 1000, EIOTags.Fluids.STAFF_OF_LEVITY_FUEL);
+    public static final ICapabilityProvider<ItemStack, Void, IFluidHandlerItem> FLUID_HANDLER_PROVIDER = (stack,
+            v) -> new StrictFluidHandlerItemStack(EIODataComponents.ITEM_FLUID_CONTENT, stack, 1000,
+                    EIOTags.Fluids.STAFF_OF_LEVITY_FUEL);
 
     public LevitationStaffItem(Properties pProperties) {
         super(pProperties);
@@ -44,7 +45,7 @@ public class LevitationStaffItem extends PoweredToggledItem {
 
         var fluidHandler = pStack.getCapability(Capabilities.FluidHandler.ITEM);
         if (fluidHandler != null) {
-            //TODO: Config for consumption amount
+            // TODO: Config for consumption amount
             return !fluidHandler.drain(1, IFluidHandler.FluidAction.SIMULATE).isEmpty();
         }
 
@@ -57,7 +58,7 @@ public class LevitationStaffItem extends PoweredToggledItem {
 
         var fluidHandler = pStack.getCapability(Capabilities.FluidHandler.ITEM);
         if (fluidHandler != null) {
-            //TODO: Config for consumption amount
+            // TODO: Config for consumption amount
             fluidHandler.drain(1, IFluidHandler.FluidAction.EXECUTE);
         }
     }
@@ -69,13 +70,15 @@ public class LevitationStaffItem extends PoweredToggledItem {
         var fluidHandler = pStack.getCapability(Capabilities.FluidHandler.ITEM);
         if (fluidHandler != null) {
             if (fluidHandler instanceof StrictFluidHandlerItemStack strictFluidHandlerItemStack) {
-                strictFluidHandlerItemStack.setFluid(new FluidStack(EIOFluids.VAPOR_OF_LEVITY.getSource(), fluidHandler.getTankCapacity(0)));
+                strictFluidHandlerItemStack.setFluid(
+                        new FluidStack(EIOFluids.VAPOR_OF_LEVITY.getSource(), fluidHandler.getTankCapacity(0)));
             }
         }
     }
 
     @Override
-    protected void onTickWhenActive(Player player, ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
+    protected void onTickWhenActive(Player player, ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId,
+            boolean pIsSelected) {
         player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 1));
     }
 

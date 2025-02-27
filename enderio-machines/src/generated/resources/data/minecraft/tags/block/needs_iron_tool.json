@@ -8,6 +8,8 @@
     "enderio:painting_machine",
     "enderio:wired_charger",
     "enderio:wireless_charger",
+    "enderio:wireless_charger_antenna",
+    "enderio:wireless_charger_antenna_advanced",
     "enderio:stirling_generator",
     "enderio:sag_mill",
     "enderio:slice_and_splice",
@@ -25,8 +27,6 @@
     "enderio:xp_obelisk",
     "enderio:inhibitor_obelisk",
     "enderio:aversion_obelisk",
-    "enderio:relocator_obelisk",
-    "enderio:wireless_charger_antenna",
-    "enderio:wireless_charger_antenna_advanced"
+    "enderio:relocator_obelisk"
   ]
 }

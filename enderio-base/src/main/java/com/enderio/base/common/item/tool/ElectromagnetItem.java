@@ -3,6 +3,7 @@ package com.enderio.base.common.item.tool;
 import com.enderio.base.common.config.BaseConfig;
 import com.enderio.base.common.tag.EIOTags;
 import com.enderio.base.common.util.AttractionUtil;
+import java.util.List;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -10,8 +11,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-
-import java.util.List;
 
 public class ElectromagnetItem extends PoweredToggledItem {
 
@@ -53,14 +52,15 @@ public class ElectromagnetItem extends PoweredToggledItem {
     }
 
     @Override
-    protected void onTickWhenActive(Player player, ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
+    protected void onTickWhenActive(Player player, ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId,
+            boolean pIsSelected) {
         if (player.isSpectator()) {
             return;
         }
-        
+
         int range = getRange();
-        AABB bounds = new AABB(player.getX() - range, player.getY() - range, player.getZ() - range, player.getX() + range, player.getY() + range,
-            player.getZ() + range);
+        AABB bounds = new AABB(player.getX() - range, player.getY() - range, player.getZ() - range,
+                player.getX() + range, player.getY() + range, player.getZ() + range);
 
         List<Entity> toMove = pLevel.getEntities(player, bounds, this::isMagnetable);
 
@@ -70,8 +70,8 @@ public class ElectromagnetItem extends PoweredToggledItem {
         }
 
         for (Entity entity : toMove) {
-            if (AttractionUtil.moveToPos(pEntity, player.getX(), player.getY() + player.getEyeHeight() * .75f, player.getZ(), SPEED, SPEED_4,
-                COLLISION_DISTANCE_SQ)) {
+            if (AttractionUtil.moveToPos(pEntity, player.getX(), player.getY() + player.getEyeHeight() * .75f,
+                    player.getZ(), SPEED, SPEED_4, COLLISION_DISTANCE_SQ)) {
                 entity.playerTouch(player);
 
             }

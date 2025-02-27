@@ -42,7 +42,6 @@ public class MachinesConfigLang {
         addTranslation("advanced", "Advanced");
 
         addTranslation("wiredCharger", "Wired Charger");
-        addTranslation("wirelessCharger", "Wireless Charger");
         addTranslation("soulEngine", "Soul Engine");
         addTranslation("drain", "Drain");
         addTranslation("inhibitor", "Inhibitor Obelisk");
@@ -62,7 +61,12 @@ public class MachinesConfigLang {
         addTranslation("maxSpawners", "Max Spawners");
 
         // Wireless Charger
-        addTranslation("baseRange", "Base range");
+        addTranslation("wirelessCharger", "Wireless Charger");
+        addTranslation("baseRange", "Base Range");
+        addTranslation("energyUpkeep", "Upkeep Cost (\u00B5I/t)");
+        addTranslation("chargeRate", "Charge Speed (\u00B5I/t)");
+        addTranslation("pulsatingRangeExtension", "Pulsating Antenna range extension");
+        addTranslation("vibrantRangeExtension", "Vibrant Antenna range extension");
 
         // -- Client --
 
