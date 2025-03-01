@@ -24,6 +24,10 @@ public class MachineEnergyStorage implements IMachineEnergyStorage, INBTSerializ
 
     private int energyStored;
 
+    private int energyRecieved;
+    private int energyUsed;
+    private int previousEnergy = -1;
+
     private final Supplier<Integer> capacity;
     private final Supplier<Integer> usageRate;
 
@@ -46,12 +50,39 @@ public class MachineEnergyStorage implements IMachineEnergyStorage, INBTSerializ
 
     // Override in BE
     protected void onContentsChanged() {
-
+      if(previousEnergy < 0) {
+          previousEnergy = energyStored;
+          return;
+      }
+      if(energyStored > previousEnergy) {
+          energyRecieved += energyStored - previousEnergy;
+      } else if(energyStored < previousEnergy) {
+          energyUsed += previousEnergy - energyStored;
+      }
+      previousEnergy = energyStored;
     }
 
     @Override
     public int getEnergyStored() {
         return Math.min(energyStored, getMaxEnergyStored());
+    }
+
+
+    @Override
+    public void resetEnergyChanges() {
+        energyRecieved = 0;
+        energyStored = 0;
+        previousEnergy = energyStored;
+    }
+
+    @Override
+    public int getEnergyReceived() {
+        return energyRecieved;
+    }
+
+    @Override
+    public int getEnergyUsed() {
+        return energyStored;
     }
 
     /**
@@ -168,12 +199,16 @@ public class MachineEnergyStorage implements IMachineEnergyStorage, INBTSerializ
     public CompoundTag serializeNBT(HolderLookup.Provider lookupProvider) {
         CompoundTag tag = new CompoundTag();
         tag.putInt(MachineNBTKeys.ENERGY_STORED, getEnergyStored());
+        tag.putInt(MachineNBTKeys.ENERGY_RECEiVED, energyRecieved);
+        tag.putInt(MachineNBTKeys.ENERGY_USED, energyUsed);
         return tag;
     }
 
     @Override
     public void deserializeNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
         energyStored = nbt.getInt(MachineNBTKeys.ENERGY_STORED);
+        energyRecieved = nbt.getInt(MachineNBTKeys.ENERGY_RECEiVED);
+        energyUsed = nbt.getInt(MachineNBTKeys.ENERGY_USED);
     }
 
     private record Sided(MachineEnergyStorage wrapped, Direction side) implements IEnergyStorage {

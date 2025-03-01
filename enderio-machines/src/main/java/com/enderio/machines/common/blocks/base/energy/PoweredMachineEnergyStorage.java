@@ -2,22 +2,32 @@ package com.enderio.machines.common.blocks.base.energy;
 
 import com.enderio.base.api.io.IOConfigurable;
 import com.enderio.base.api.io.energy.EnergyIOMode;
+import com.enderio.machines.common.MachineNBTKeys;
 import com.enderio.machines.common.blocks.base.blockentity.PoweredMachineBlockEntity;
 import com.enderio.machines.common.config.MachinesConfig;
 import com.enderio.machines.common.io.energy.IMachineEnergyStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
-public class PoweredMachineEnergyStorage implements IEnergyStorage, INBTSerializable<IntTag>, IMachineEnergyStorage {
+public class PoweredMachineEnergyStorage implements IEnergyStorage, INBTSerializable<CompoundTag>, IMachineEnergyStorage {
 
     private final PoweredMachineBlockEntity machine;
 
     private int energyStored;
+    private int energyRecieved;
+    private int energyUsed;
+    private int previousEnergy = -1;
+
+    private int energyUsedSnap;
+    private int energyRecievedSnap = -1;
+
+
 
     public PoweredMachineEnergyStorage(PoweredMachineBlockEntity machine) {
         this.machine = machine;
@@ -30,7 +40,40 @@ public class PoweredMachineEnergyStorage implements IEnergyStorage, INBTSerializ
 
     public void setEnergyStored(int energyStored) {
         this.energyStored = energyStored;
+        onContentsChanged();
         machine.setChanged();
+    }
+
+    protected void onContentsChanged() {
+        if(previousEnergy < 0) {
+            previousEnergy = energyStored;
+            return;
+        }
+        if(energyStored > previousEnergy) {
+            energyRecieved += energyStored - previousEnergy;
+        } else if(energyStored < previousEnergy) {
+            energyUsed += previousEnergy - energyStored;
+        }
+        previousEnergy = energyStored;
+    }
+
+    @Override
+    public void resetEnergyChanges() {
+        energyUsedSnap = energyUsed;
+        energyRecievedSnap = energyRecieved;
+        energyRecieved = 0;
+        energyUsed = 0;
+        previousEnergy = energyStored;
+    }
+
+    @Override
+    public int getEnergyReceived() {
+        return energyRecievedSnap;
+    }
+
+    @Override
+    public int getEnergyUsed() {
+        return energyUsedSnap;
     }
 
     @Override
@@ -154,13 +197,19 @@ public class PoweredMachineEnergyStorage implements IEnergyStorage, INBTSerializ
     }
 
     @Override
-    public IntTag serializeNBT(HolderLookup.Provider provider) {
-        return IntTag.valueOf(energyStored);
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt(MachineNBTKeys.ENERGY_STORED, getEnergyStored());
+        tag.putInt(MachineNBTKeys.ENERGY_RECEiVED, energyRecieved);
+        tag.putInt(MachineNBTKeys.ENERGY_USED, energyUsed);
+        return tag;
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, IntTag intTag) {
-        energyStored = intTag.getAsInt();
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        energyStored = nbt.getInt(MachineNBTKeys.ENERGY_STORED);
+        energyRecieved = nbt.getInt(MachineNBTKeys.ENERGY_RECEiVED);
+        energyUsed = nbt.getInt(MachineNBTKeys.ENERGY_USED);
     }
 
     // endregion

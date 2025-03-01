@@ -59,6 +59,21 @@ public class LargeImmutableMachineEnergyStorage implements IMachineEnergyStorage
         throw new NotImplementedException();
     }
 
+    @Override
+    public int getEnergyReceived() {
+        return 0;
+    }
+
+    @Override
+    public int getEnergyUsed() {
+        return 0;
+    }
+
+    @Override
+    public void resetEnergyChanges() {
+
+    }
+
     /**
      * @deprecated This storage is immutable.
      */

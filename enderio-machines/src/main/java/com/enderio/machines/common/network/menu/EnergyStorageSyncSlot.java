@@ -2,10 +2,13 @@ package com.enderio.machines.common.network.menu;
 
 import com.enderio.core.common.network.menu.SyncSlot;
 import com.enderio.core.common.network.menu.payload.IntSlotPayload;
+import com.enderio.core.common.network.menu.payload.ListSlotPayload;
 import com.enderio.core.common.network.menu.payload.PairSlotPayload;
 import com.enderio.core.common.network.menu.payload.SlotPayload;
 import com.enderio.core.common.network.menu.payload.SlotPayloadType;
 import com.enderio.machines.common.blocks.base.energy.EnergyStorageInfo;
+
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -15,7 +18,7 @@ public abstract class EnergyStorageSyncSlot implements SyncSlot {
 
     public static EnergyStorageSyncSlot standalone() {
         return new EnergyStorageSyncSlot() {
-            private EnergyStorageInfo value = new EnergyStorageInfo(0, 0);
+            private EnergyStorageInfo value = new EnergyStorageInfo(0, 0, 0, 0);
 
             @Override
             public EnergyStorageInfo get() {
@@ -72,11 +75,12 @@ public abstract class EnergyStorageSyncSlot implements SyncSlot {
             return ChangeType.NONE;
         }
 
-        var changeType = lastValue == null || currentValue.maxEnergyStored() != lastValue.maxEnergyStored()
-                ? ChangeType.FULL
-                : ChangeType.PARTIAL;
-        lastValue = currentValue;
-        return changeType;
+//        var changeType = lastValue == null || currentValue.maxEnergyStored() != lastValue.maxEnergyStored()
+//                ? ChangeType.FULL
+//                : ChangeType.PARTIAL;
+//        lastValue = currentValue;
+//        return changeType;
+        return ChangeType.FULL;
     }
 
     @Override
@@ -87,8 +91,12 @@ public abstract class EnergyStorageSyncSlot implements SyncSlot {
             return new IntSlotPayload(value.energyStored());
         }
 
-        return new PairSlotPayload(new IntSlotPayload(value.energyStored()),
-                new IntSlotPayload(value.maxEnergyStored()));
+//        return new PairSlotPayload(new IntSlotPayload(value.energyStored()),
+//                new IntSlotPayload(value.maxEnergyStored()));
+        return new ListSlotPayload(List.of(new IntSlotPayload(value.energyStored()),
+                            new IntSlotPayload(value.maxEnergyStored()),
+            new IntSlotPayload(value.energyReceived()),
+            new IntSlotPayload(value.energyUsed())));
     }
 
     @Override
@@ -102,7 +110,19 @@ public abstract class EnergyStorageSyncSlot implements SyncSlot {
             }
 
             set(new EnergyStorageInfo(((IntSlotPayload) pairSlotPayload.left()).value(),
-                    ((IntSlotPayload) pairSlotPayload.right()).value()));
+                    ((IntSlotPayload) pairSlotPayload.right()).value(), 0, 0));
+        } else if (payload instanceof ListSlotPayload listSlotPayload) {
+//            if (pairSlotPayload.left().type() != SlotPayloadType.INT
+//                || pairSlotPayload.right().type() != SlotPayloadType.INT) {
+//                return;
+//            }
+            List<SlotPayload> vals = listSlotPayload.contents();
+            if(vals.size() != 4) {
+                return;
+            }
+            EnergyStorageInfo esi = new EnergyStorageInfo(((IntSlotPayload) vals.get(0)).value(), ((IntSlotPayload) vals.get(1)).value(),
+                ((IntSlotPayload) vals.get(2)).value(), ((IntSlotPayload) vals.get(3)).value());
+            set(esi);
         }
     }
 }

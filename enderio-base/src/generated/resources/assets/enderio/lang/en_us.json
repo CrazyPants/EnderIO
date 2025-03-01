@@ -279,6 +279,8 @@
   "info.enderio.coordinate_selector.no_block": "No block in range",
   "info.enderio.coordinate_selector.no_paper": "No paper in inventory",
   "info.enderio.energy.amount": "%s µI",
+  "info.enderio.energy.in": "In %s µI/T",
+  "info.enderio.energy.out": "Out %s µI/T",
   "info.enderio.too_many_levels": "You have more than 21862 levels, that's too much XP.",
   "item.enderio.advanced_filter": "Advanced Filter",
   "item.enderio.animal_token": "Animal Token",

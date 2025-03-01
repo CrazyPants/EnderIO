@@ -212,6 +212,12 @@ public class EIOLang {
 
     public static final MutableComponent ENERGY_AMOUNT = addTranslation("info", EnderIO.loc("energy.amount"),
             "%s \u00B5I");
+
+    public static final MutableComponent ENERGY_IN = addTranslation("info", EnderIO.loc("energy.in"),
+        "In %s \u00B5I/T");
+    public static final MutableComponent ENERGY_OUT = addTranslation("info", EnderIO.loc("energy.out"),
+        "Out %s \u00B5I/T");
+
     public static final Component RANGE = addTranslation("gui", EnderIO.loc("range"), "Range");
     public static final Component SHOW_RANGE = addTranslation("gui", EnderIO.loc("range.show"), "Show Range");
     public static final Component HIDE_RANGE = addTranslation("gui", EnderIO.loc("range.hide"), "Hide Range");

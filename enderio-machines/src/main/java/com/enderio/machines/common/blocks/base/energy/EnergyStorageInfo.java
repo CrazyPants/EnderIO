@@ -5,14 +5,14 @@ import com.enderio.base.api.io.energy.EnergyIOMode;
 import com.enderio.machines.common.io.energy.IMachineEnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
-public record EnergyStorageInfo(int energyStored, int maxEnergyStored) implements IMachineEnergyStorage {
+public record EnergyStorageInfo(int energyStored, int maxEnergyStored, int energyReceived, int energyUsed) implements IMachineEnergyStorage {
 
-    public static EnergyStorageInfo of(IEnergyStorage storage) {
-        return new EnergyStorageInfo(storage.getEnergyStored(), storage.getMaxEnergyStored());
+    public static EnergyStorageInfo of(IMachineEnergyStorage storage) {
+        return new EnergyStorageInfo(storage.getEnergyStored(), storage.getMaxEnergyStored(), storage.getEnergyReceived(), storage.getEnergyUsed());
     }
 
     public EnergyStorageInfo withEnergyStored(int energyStored) {
-        return new EnergyStorageInfo(energyStored, maxEnergyStored);
+        return new EnergyStorageInfo(energyStored, maxEnergyStored, energyReceived, energyUsed);
     }
 
     // TODO: IMachineEnergyStorage is temporary to support the existing energy
@@ -56,6 +56,21 @@ public record EnergyStorageInfo(int energyStored, int maxEnergyStored) implement
 
     @Override
     public EnergyIOMode getIOMode() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getEnergyReceived() {
+        return energyReceived;
+    }
+
+    @Override
+    public int getEnergyUsed() {
+        return energyUsed;
+    }
+
+    @Override
+    public void resetEnergyChanges() {
         throw new UnsupportedOperationException();
     }
 

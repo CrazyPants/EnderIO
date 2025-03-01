@@ -16,6 +16,8 @@ public class CoreNBTKeys {
     // region Energy Storage
 
     public static final String ENERGY_STORED = "EnergyStored";
+    public static final String ENERGY_RECEiVED = "EnergyReceived";
+    public static final String ENERGY_USED = "EnergyUsed";
     public static final String ENERGY_MAX_STORED = "MaxEnergyStored";
 
     // endregion

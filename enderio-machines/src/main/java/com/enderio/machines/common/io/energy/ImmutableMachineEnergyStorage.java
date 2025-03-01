@@ -13,20 +13,24 @@ public class ImmutableMachineEnergyStorage implements IMachineEnergyStorage {
     /**
      * A default value, storing no energy.
      */
-    public static final ImmutableMachineEnergyStorage EMPTY = new ImmutableMachineEnergyStorage(0, 0, 0);
+    public static final ImmutableMachineEnergyStorage EMPTY = new ImmutableMachineEnergyStorage(0, 0, 0, 0, 0);
 
     private final int energyStored;
     private final int maxEnergyStored;
     private final int maxEnergyUse;
+    private final int energyReceived;
+    private final int energyUsed;
 
-    public ImmutableMachineEnergyStorage(int energyStored, int maxEnergyStored, int maxEnergyUse) {
+    public ImmutableMachineEnergyStorage(int energyStored, int maxEnergyStored, int maxEnergyUse, int energyReceived, int energyUsed) {
         this.energyStored = energyStored;
         this.maxEnergyStored = maxEnergyStored;
         this.maxEnergyUse = maxEnergyUse;
+        this.energyReceived = energyReceived;
+        this.energyUsed = energyUsed;
     }
 
     public ImmutableMachineEnergyStorage(IMachineEnergyStorage storage) {
-        this(storage.getEnergyStored(), storage.getMaxEnergyStored(), storage.getMaxEnergyUse());
+        this(storage.getEnergyStored(), storage.getMaxEnergyStored(), storage.getMaxEnergyUse(), storage.getEnergyReceived(), storage.getEnergyUsed());
     }
 
     @Override
@@ -54,6 +58,20 @@ public class ImmutableMachineEnergyStorage implements IMachineEnergyStorage {
     @Override
     public EnergyIOMode getIOMode() {
         throw new NotImplementedException();
+    }
+
+    @Override
+    public int getEnergyReceived() {
+        return energyReceived;
+    }
+
+    @Override
+    public int getEnergyUsed() {
+        return energyUsed;
+    }
+
+    @Override
+    public void resetEnergyChanges() {
     }
 
     /**

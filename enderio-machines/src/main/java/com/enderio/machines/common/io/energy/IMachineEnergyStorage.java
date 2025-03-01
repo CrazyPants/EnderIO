@@ -2,6 +2,7 @@ package com.enderio.machines.common.io.energy;
 
 import com.enderio.base.api.io.IOConfigurable;
 import com.enderio.base.api.io.energy.EnergyIOMode;
+import net.minecraft.util.Tuple;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
 /**
@@ -61,4 +62,10 @@ public interface IMachineEnergyStorage extends IEnergyStorage {
      * Determines how the IO config modifies behaviour.
      */
     EnergyIOMode getIOMode();
+
+    int getEnergyReceived();
+
+    int getEnergyUsed();
+
+    void resetEnergyChanges();
 }

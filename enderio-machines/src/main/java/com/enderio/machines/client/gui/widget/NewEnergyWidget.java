@@ -63,6 +63,12 @@ public class NewEnergyWidget extends EIOWidget {
             guiGraphics.renderTooltip(minecraft.font,
                 TooltipUtil.withArgs(EIOLang.ENERGY_AMOUNT, fmt.format(getEnergyStored(storage)) + "/" + fmt.format(
                getMaxEnergyStored(storage))), mouseX, mouseY);
+
+            guiGraphics.renderTooltip(minecraft.font, TooltipUtil.withArgs(EIOLang.ENERGY_IN, fmt.format(storage.getEnergyReceived())), mouseX,
+                mouseY + minecraft.font.lineHeight + 1);
+
+            guiGraphics.renderTooltip(minecraft.font, TooltipUtil.withArgs(EIOLang.ENERGY_OUT, fmt.format(storage.getEnergyUsed())), mouseX,
+                mouseY + minecraft.font.lineHeight * 2 + 2);
         }
     }
 

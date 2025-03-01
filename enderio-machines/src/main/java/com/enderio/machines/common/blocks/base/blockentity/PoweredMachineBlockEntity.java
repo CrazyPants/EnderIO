@@ -62,6 +62,13 @@ public abstract class PoweredMachineBlockEntity extends MachineBlockEntity imple
         }
 
         energyStorage = createEnergyStorage();
+
+    }
+
+    @Override
+    public void serverTick() {
+        super.serverTick();
+        energyStorage.resetEnergyChanges();
     }
 
     // TODO: Temporary to support the primitive alloy smelter in its current form.
@@ -279,18 +286,20 @@ public abstract class PoweredMachineBlockEntity extends MachineBlockEntity imple
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-
+        CompoundTag energyTag = null;
+        //support legacy
         if (tag.contains(MachineNBTKeys.ENERGY_STORED, Tag.TAG_INT)) {
-            energyStorage.deserializeNBT(registries, (IntTag) tag.get(MachineNBTKeys.ENERGY_STORED));
-        } else if (tag.contains(MachineNBTKeys.ENERGY, Tag.TAG_COMPOUND)) {
-            // SUPPORT LEGACY STORAGE FORMAT
-            CompoundTag energyTag = tag.getCompound(MachineNBTKeys.ENERGY);
-
-            if (energyTag.contains(MachineNBTKeys.ENERGY_STORED)) {
-                energyStorage.setEnergyStored(energyTag.getInt(MachineNBTKeys.ENERGY_STORED));
+            IntTag intTag = (IntTag) tag.get(MachineNBTKeys.ENERGY_STORED);
+            if(intTag != null) {
+                energyTag = new CompoundTag();
+                energyTag.putInt(MachineNBTKeys.ENERGY_STORED, intTag.getAsInt());
             }
+        } else if (tag.contains(MachineNBTKeys.ENERGY_STORED, Tag.TAG_COMPOUND)) {
+            energyTag = tag.getCompound(MachineNBTKeys.ENERGY_STORED);
         }
-
+        if(energyTag != null) {
+            energyStorage.deserializeNBT(registries, energyTag);
+        }
         updateCapacitorData();
     }
 
