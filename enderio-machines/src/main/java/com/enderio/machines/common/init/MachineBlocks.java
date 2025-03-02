@@ -25,6 +25,7 @@ import com.enderio.machines.common.blocks.block_detector.BlockDetectorBlock;
 import com.enderio.machines.common.blocks.enchanter.EnchanterBlock;
 import com.enderio.machines.common.blocks.fluid_tank.FluidTankBlock;
 import com.enderio.machines.common.blocks.fluid_tank.FluidTankBlockItem;
+import com.enderio.machines.common.blocks.obelisks.attractor.AttractorObeliskBlockEntity;
 import com.enderio.machines.common.blocks.obelisks.aversion.AversionObeliskBlockEntity;
 import com.enderio.machines.common.blocks.obelisks.inhibitor.InhibitorObeliskBlockEntity;
 import com.enderio.machines.common.blocks.obelisks.relocator.RelocatorObeliskBlockEntity;
@@ -313,6 +314,19 @@ public class MachineBlocks {
     public static final RegiliteBlock<MachineBlock<RelocatorObeliskBlockEntity>> RELOCATOR_OBELISK = BLOCK_REGISTRY
             .registerBlock("relocator_obelisk",
                     props -> new MachineBlock<>(MachineBlockEntities.RELOCATOR_OBELISK::get, props),
+                    BlockBehaviour.Properties.of()
+                            .strength(2.5f, 8)
+                            .isViewBlocking((pState, pLevel, pPos) -> false)
+                            .noOcclusion())
+            .setLootTable(MachinesLootTable::copyComponents)
+            .addBlockTags(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+            .setBlockStateProvider((prov, ctx) -> prov.simpleBlock(ctx.get(),
+                    prov.models().getExistingFile(EnderIO.loc("block/" + ctx.getName()))))
+            .createBlockItem(ITEM_REGISTRY, item -> item.setTab((EIOCreativeTabs.MACHINES)));
+
+    public static final RegiliteBlock<MachineBlock<AttractorObeliskBlockEntity>> ATTRACTOR_OBELISK = BLOCK_REGISTRY
+            .registerBlock("attractor_obelisk",
+                    props -> new MachineBlock<>(MachineBlockEntities.ATTRACTOR_OBELISK::get, props),
                     BlockBehaviour.Properties.of()
                             .strength(2.5f, 8)
                             .isViewBlocking((pState, pLevel, pPos) -> false)

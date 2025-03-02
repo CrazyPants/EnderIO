@@ -47,6 +47,7 @@ public class MachinesConfigLang {
         addTranslation("inhibitor", "Inhibitor Obelisk");
         addTranslation("aversion", "Aversion Obelisk");
         addTranslation("relocator", "Relocator Obelisk");
+        addTranslation("attractor", "Attractor Obelisk");
 
         // Enchanter
         addTranslation("enchanter", "Enchanter");

@@ -2,6 +2,7 @@ package com.enderio.machines.common.init;
 
 import com.enderio.machines.EnderIOMachines;
 import com.enderio.machines.client.gui.screen.AlloySmelterScreen;
+import com.enderio.machines.client.gui.screen.AttractorObeliskScreen;
 import com.enderio.machines.client.gui.screen.AversionObeliskScreen;
 import com.enderio.machines.client.gui.screen.CapacitorBankScreen;
 import com.enderio.machines.client.gui.screen.CrafterScreen;
@@ -33,6 +34,7 @@ import com.enderio.machines.common.blocks.drain.DrainMenu;
 import com.enderio.machines.common.blocks.enchanter.EnchanterMenu;
 import com.enderio.machines.common.blocks.fluid_tank.FluidTankMenu;
 import com.enderio.machines.common.blocks.impulse_hopper.ImpulseHopperMenu;
+import com.enderio.machines.common.blocks.obelisks.attractor.AttractorObeliskMenu;
 import com.enderio.machines.common.blocks.obelisks.aversion.AversionObeliskMenu;
 import com.enderio.machines.common.blocks.obelisks.inhibitor.InhibitorObeliskMenu;
 import com.enderio.machines.common.blocks.obelisks.relocator.RelocatorObeliskMenu;
@@ -109,6 +111,8 @@ public class MachineMenus {
             .registerMenu("aversion_obelisk", AversionObeliskMenu::new, () -> AversionObeliskScreen::new);
     public static final RegiliteMenu<RelocatorObeliskMenu> RELOCATOR_OBELISK = MENU_REGISTRY
             .registerMenu("relocator_obelisk", RelocatorObeliskMenu::new, () -> RelocatorObeliskScreen::new);
+    public static final RegiliteMenu<AttractorObeliskMenu> ATTRACTOR_OBELISK = MENU_REGISTRY
+            .registerMenu("attractor_obelisk", AttractorObeliskMenu::new, () -> AttractorObeliskScreen::new);
     public static final RegiliteMenu<VatMenu> VAT = MENU_REGISTRY.registerMenu("vat", VatMenu::new,
             () -> VatScreen::new);
 
