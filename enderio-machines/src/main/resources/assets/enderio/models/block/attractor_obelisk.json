@@ -1,0 +1,24 @@
+{
+	"credit": "Made with Blockbench",
+    "parent": "minecraft:block/block",
+	"textures": {
+		"bottom": "enderio:block/soul_machine_bottom",
+		"side": "enderio:block/soul_machine_side",
+		"top": "enderio:block/soul_machine_top",
+		"particle": "enderio:block/soul_machine_bottom"
+	},
+	"elements": [
+		{
+			"from": [5, 0, 5],
+			"to": [11, 6, 11],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#top"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom"}
+			}
+		}
+	]
+}
