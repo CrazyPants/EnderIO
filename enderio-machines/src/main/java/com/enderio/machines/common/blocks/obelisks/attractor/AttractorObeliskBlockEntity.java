@@ -12,22 +12,31 @@ import com.enderio.machines.common.blocks.obelisks.ObeliskBlockEntity;
 import com.enderio.machines.common.config.MachinesConfig;
 import com.enderio.machines.common.init.MachineBlockEntities;
 import com.enderio.machines.common.obelisk.ObeliskAreaManager;
-import java.util.List;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.monster.Ghast;
+import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.UUID;
 
 public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObeliskBlockEntity> {
 
@@ -37,6 +46,7 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
             MachinesConfig.COMMON.ENERGY.ATTRACTOR_USAGE);
 
     private Vec3 targetPos = new Vec3(0, 0, 0);
+    private GameProfile fakePlayerID;
 
     public AttractorObeliskBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(MachineBlockEntities.ATTRACTOR_OBELISK.get(), worldPosition, blockState, false, CapacitorSupport.REQUIRED,
@@ -77,42 +87,64 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        if (level instanceof ServerLevel) {
+        if (level instanceof ServerLevel sl) {
             targetPos = new Vec3(worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5);
+            fakePlayerID = new GameProfile(UUID.randomUUID(), "attractor" + targetPos);
         }
     }
 
     @Override
     public void serverTick() {
         super.serverTick();
+        if(canAct()) {
+            doAttract();
+        }
+    }
+
+    private void doAttract() {
         if (level == null) {
             return;
         }
-        AABB bnds = getAABB();
-        if (bnds == null) {
+        AABB aabb = getAABB();
+        if (aabb == null) {
             return;
         }
-        ItemStack filterStack = FILTER.getItemStack(this);
         @Nullable
-        ResourceFilter cap = filterStack.getCapability(EIOCapabilities.Filter.ITEM);
+        ResourceFilter cap = FILTER.getItemStack(this).getCapability(EIOCapabilities.Filter.ITEM);
         if (!(cap instanceof EntityFilter filter)) {
             return;
         }
-
-        List<LivingEntity> filteredEntities = level.getEntities(EntityTypeTest.forClass(LivingEntity.class), bnds,
-                filter);
-//        List<LivingEntity> filteredEntities = level.getEntities(EntityTypeTest.forClass(LivingEntity.class), bnds, livingEntity -> true);
-        for (LivingEntity ent : filteredEntities) {
-            if (ent instanceof PathfinderMob mob) {
-                attractMob(mob);
-            } else if (!(ent instanceof Player)) {
-                System.out.println("AttractorObeliskBlockEntity.serverTick: Couldn't do: " + ent);
+        float speed = 1.0F;
+        List<Mob> filteredEntities = level.getEntities(EntityTypeTest.forClass(Mob.class), aabb, filter);
+//        List<Mob> filteredEntities = level.getEntities(EntityTypeTest.forClass(Mob.class), aabb, ent -> true);
+        for (Mob mob : filteredEntities) {
+            if (mob instanceof WitherBoss) {
+                mob.goalSelector.disableControlFlag(Goal.Flag.TARGET);
+                mob.goalSelector.disableControlFlag(Goal.Flag.LOOK);
+                mob.setTarget(null);
+                directPull(mob, 2.25f);
+            } else if(mob instanceof PathfinderMob) {
+                attractMob(mob, speed);
+            } else if (useTarget(mob)) {
+                setTarget(mob);
+            } else if (mob instanceof Ghast) {
+                directPull(mob, speed);
             }
         }
     }
 
-    public void attractMob(PathfinderMob mob) {
-        float speed = 1.0F;
+    private boolean useTarget(Mob mob) {
+        return mob instanceof Slime || mob instanceof Phantom;
+    }
+
+    private void setTarget(Mob mob) {
+        assert level != null;
+        FakePlayer fakePlayer = FakePlayerFactory.get((ServerLevel) level, fakePlayerID);
+        fakePlayer.setPos(targetPos.x, targetPos.y, targetPos.z);
+        mob.setTarget(fakePlayer);
+    }
+
+    private void attractMob(Mob mob, float speed) {
         mob.goalSelector.enableControlFlag(Goal.Flag.MOVE);
         Vec3 moveOffset = targetPos.subtract(mob.getX(), mob.getY(), mob.getZ());
         // keep them 1 block away
@@ -121,12 +153,14 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
                 .moveTo(mob.getX() + moveOffset.x, mob.getY() + moveOffset.y, mob.getZ() + moveOffset.z, speed);
     }
 
-    private void directPull(LivingEntity ent) {
-        Vec3 entPos = ent.getPosition(0);
-        Vec3 myPos = new Vec3(worldPosition.getX() + 0.5, worldPosition.getY(), worldPosition.getZ() + 0.5);
-        Vec3 dir = myPos.subtract(entPos).normalize();
-        dir = dir.scale(0.1);
-        ent.setDeltaMovement(dir);
+    private void directPull(LivingEntity mob, float speed) {
+        Vec3 dir = targetPos.subtract( new Vec3(mob.xo, mob.yo, mob.zo)).normalize();
+        dir = dir.scale(speed * 0.1);
+        AABB aabb = mob.getBoundingBox();
+        aabb.move(dir);
+        if(level != null && level.noCollision(mob, aabb)) {
+            mob.setDeltaMovement(dir);
+        }
     }
 
 }
