@@ -15,6 +15,9 @@ public class MachinesCommonConfig {
     public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_RANGE;
     public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_ANTENNA_RANGE;
     public final ModConfigSpec.ConfigValue<Integer> WIRELESS_CHARGER_ANTENNA_RANGE_2;
+    public final ModConfigSpec.ConfigValue<Integer> ATTRACTOR_RANGE;
+    public final ModConfigSpec.ConfigValue<Integer> INHIBITOR_RANGE;
+
 
     public MachinesCommonConfig(ModConfigSpec.Builder builder) {
         ENERGY = new EnergyConfig(builder);
@@ -47,6 +50,13 @@ public class MachinesCommonConfig {
         WIRELESS_CHARGER_ANTENNA_RANGE = builder.comment("Pulsating Antenna range")
                 .define("pulsatingRangeExtension", 16);
         WIRELESS_CHARGER_ANTENNA_RANGE_2 = builder.comment("Vibrant Antenna range").define("vibrantRangeExtension", 32);
+        builder.pop();
+
+        builder.push("obelisks");
+        ATTRACTOR_RANGE = builder.comment("Attractor Obelisk base range")
+            .define("attractorRange", 8);
+        INHIBITOR_RANGE = builder.comment("Inhibitor Obelisk base range")
+            .define("inhibitorRange", 8);
         builder.pop();
     }
 }

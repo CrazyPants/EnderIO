@@ -71,6 +71,7 @@
   "enderio_machines.configuration.maxEntities": "Max Entities",
   "enderio_machines.configuration.maxSpawners": "Max Spawners",
   "enderio_machines.configuration.neighbourTransparency": "Neighbour Transparency",
+  "enderio_machines.configuration.obelisks": "Obelisks",
   "enderio_machines.configuration.paintingMachine": "Painting Machine",
   "enderio_machines.configuration.photovoltaicCellRates": "Photovoltaic Cell Rates",
   "enderio_machines.configuration.poweredSpawner": "Powered Spawner",

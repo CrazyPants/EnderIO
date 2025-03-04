@@ -234,12 +234,14 @@ public abstract class PoweredMachineBlockEntity extends MachineBlockEntity imple
         return layout.getCapacitorSlot();
     }
 
-    private void updateCapacitorData() {
+    protected void updateCapacitorData() {
         isCapacitorDataDirty = false;
 
         if (supportsCapacitor()) {
             capacitorData = getCapacitorItem().getOrDefault(EIODataComponents.CAPACITOR_DATA, CapacitorData.NONE);
-
+            if(isCapacitorInstalled() && energyStorage.getEnergyStored() > energyStorage.getMaxEnergyStored()) {
+                energyStorage.setEnergyStored(energyStorage.getMaxEnergyStored());
+            }
             updateCapacitorState();
         }
     }

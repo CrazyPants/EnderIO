@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class AversionObeliskScreen extends MachineScreen<AversionObeliskMenu> {
 
-    public static final ResourceLocation BG_TEXTURE = EnderIO.loc("textures/gui/screen/inhibitor.png");
+    public static final ResourceLocation BG_TEXTURE = EnderIO.loc("textures/gui/screen/aversion.png");
     private static final int WIDTH = 176;
     private static final int HEIGHT = 166;
 

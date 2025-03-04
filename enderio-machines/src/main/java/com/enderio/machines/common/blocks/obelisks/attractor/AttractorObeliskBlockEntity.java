@@ -1,6 +1,7 @@
 package com.enderio.machines.common.blocks.obelisks.attractor;
 
 import com.enderio.base.api.capacitor.CapacitorModifier;
+import com.enderio.base.api.capacitor.LinearScalable;
 import com.enderio.base.api.capacitor.QuadraticScalable;
 import com.enderio.base.api.filter.EntityFilter;
 import com.enderio.base.api.filter.ResourceFilter;
@@ -44,6 +45,8 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
             MachinesConfig.COMMON.ENERGY.ATTRACTOR_CAPACITY);
     private static final QuadraticScalable ENERGY_USAGE = new QuadraticScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.ENERGY.ATTRACTOR_USAGE);
+    private static final LinearScalable RANGE = new LinearScalable(CapacitorModifier.ENERGY_USE, MachinesConfig.COMMON.ATTRACTOR_RANGE);
+
 
     private Vec3 targetPos = new Vec3(0, 0, 0);
     private GameProfile fakePlayerID;
@@ -76,7 +79,7 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
 
     @Override
     public int getMaxRange() {
-        return 32;
+        return RANGE.scaleI(this::getCapacitorData).get();
     }
 
     @Override
@@ -101,6 +104,11 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
         }
     }
 
+    @Override
+    public boolean canAct() {
+        return super.canAct() && FILTER.getItemStack(this).getCapability(EIOCapabilities.Filter.ITEM) instanceof EntityFilter;
+    }
+
     private void doAttract() {
         if (level == null) {
             return;
@@ -116,7 +124,6 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
         }
         float speed = 1.0F;
         List<Mob> filteredEntities = level.getEntities(EntityTypeTest.forClass(Mob.class), aabb, filter);
-//        List<Mob> filteredEntities = level.getEntities(EntityTypeTest.forClass(Mob.class), aabb, ent -> true);
         for (Mob mob : filteredEntities) {
             if (mob instanceof WitherBoss) {
                 mob.goalSelector.disableControlFlag(Goal.Flag.TARGET);

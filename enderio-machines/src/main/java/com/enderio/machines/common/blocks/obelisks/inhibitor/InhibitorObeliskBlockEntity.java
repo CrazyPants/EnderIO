@@ -1,8 +1,11 @@
 package com.enderio.machines.common.blocks.obelisks.inhibitor;
 
 import com.enderio.base.api.capacitor.CapacitorModifier;
+import com.enderio.base.api.capacitor.LinearScalable;
 import com.enderio.base.api.capacitor.QuadraticScalable;
+import com.enderio.base.api.filter.EntityFilter;
 import com.enderio.base.api.io.energy.EnergyIOMode;
+import com.enderio.base.common.init.EIOCapabilities;
 import com.enderio.machines.common.blocks.base.blockentity.flags.CapacitorSupport;
 import com.enderio.machines.common.blocks.base.inventory.MachineInventoryLayout;
 import com.enderio.machines.common.blocks.obelisks.ObeliskBlockEntity;
@@ -25,6 +28,7 @@ public class InhibitorObeliskBlockEntity extends ObeliskBlockEntity<InhibitorObe
             MachinesConfig.COMMON.ENERGY.INHIBITOR_CAPACITY);
     private static final QuadraticScalable ENERGY_USAGE = new QuadraticScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.ENERGY.INHIBITOR_USAGE);
+    private static final LinearScalable RANGE = new LinearScalable(CapacitorModifier.ENERGY_USE, MachinesConfig.COMMON.INHIBITOR_RANGE);
 
     public InhibitorObeliskBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(MachineBlockEntities.INHIBITOR_OBELISK.get(), worldPosition, blockState, false, CapacitorSupport.REQUIRED,
@@ -49,7 +53,7 @@ public class InhibitorObeliskBlockEntity extends ObeliskBlockEntity<InhibitorObe
 
     @Override
     public int getMaxRange() {
-        return 32;
+        return RANGE.scaleI(this::getCapacitorData).get();
     }
 
     @Override

@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +28,8 @@ public class AversionObeliskBlockEntity extends ObeliskBlockEntity<AversionObeli
             MachinesConfig.COMMON.ENERGY.AVERSION_CAPACITY);
     private static final QuadraticScalable ENERGY_USAGE = new QuadraticScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.ENERGY.AVERSION_USAGE);
+    private static final ModConfigSpec.ConfigValue<Integer> perSpawnUse = MachinesConfig.COMMON.ENERGY.AVERSION_USAGE;
+
 
     public AversionObeliskBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(MachineBlockEntities.AVERSION_OBELISK.get(), worldPosition, blockState, false, CapacitorSupport.REQUIRED,
@@ -64,6 +67,11 @@ public class AversionObeliskBlockEntity extends ObeliskBlockEntity<AversionObeli
         return MachinesConfig.CLIENT.BLOCKS.AVERSION_RANGE_COLOR.get();
     }
 
+    @Override
+    public boolean canAct() {
+        return super.canAct() && FILTER.getItemStack(this).getCapability(EIOCapabilities.Filter.ITEM) instanceof EntityFilter;
+    }
+
     public boolean handleSpawnEvent(FinalizeSpawnEvent event) {
         if (!isActive() || getAABB() == null) {
             return false;
@@ -76,7 +84,7 @@ public class AversionObeliskBlockEntity extends ObeliskBlockEntity<AversionObeli
         }
 
         if (isActive() && getAABB().contains(event.getX(), event.getY(), event.getZ())) {
-            int cost = ENERGY_USAGE.base().get(); // TODO scale on entity and range? The issue is that it needs the
+            int cost = ENERGY_USAGE.base().get(); // TODO scale on entity? The issue is that it needs the
                                                   // energy "now" and can't wait for it like other machines
             int energy = getEnergyStorage().consumeEnergy(cost, true);
             if (energy == cost) {

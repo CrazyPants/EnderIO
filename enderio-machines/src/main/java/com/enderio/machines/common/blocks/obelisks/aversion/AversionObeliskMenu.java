@@ -22,7 +22,7 @@ public class AversionObeliskMenu extends ObeliskMenu<AversionObeliskBlockEntity>
 
     private void addSlots() {
         addCapacitorSlot(12, 60);
-        addSlot(new MachineSlot(getMachineInventory(), AversionObeliskBlockEntity.FILTER, 40, 60));
+        addSlot(new MachineSlot(getMachineInventory(), AversionObeliskBlockEntity.FILTER, 81, 31));
 
         addPlayerInventorySlots(8, 84);
     }

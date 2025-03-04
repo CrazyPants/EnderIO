@@ -111,9 +111,34 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
     }
 
     @Override
+    protected void updateCapacitorData() {
+        if(level == null || level.isClientSide()) {
+            super.updateCapacitorData();
+            return;
+        }
+
+        int oldMaxRange = getMaxRange();
+        super.updateCapacitorData();
+        int newMaxRange = getMaxRange();
+        if(newMaxRange != oldMaxRange) {
+            int newRange = getRange();
+            if(newRange <= 0) {
+                newRange = newMaxRange;
+            } else {
+                newRange = Math.min(getRange(), newMaxRange);
+            }
+            setActionRange(new ActionRange(newRange, getActionRange().isVisible()));
+        }
+    }
+
+    @Override
     public void serverTick() {
         updateMachineState(MachineState.ACTIVE, isActive()); // No powered model state, so it needs to be done manually
         super.serverTick();
+        if(canAct()) {
+            int amount = (int)Math.ceil(getMaxEnergyUse() * ((float)getRange()/getMaxRange()));
+            getEnergyStorage().consumeEnergy(amount);
+        }
     }
 
     @Override
