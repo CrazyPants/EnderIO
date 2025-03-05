@@ -123,6 +123,7 @@
   "gui.enderio.energy_equivalence": "A unit of energy, equivalent to FE.",
   "gui.enderio.full_power": "The energy storage is full",
   "gui.enderio.full_tank": "The tank is full",
+  "gui.enderio.generator.efficiency": "Efficiency %s%%",
   "gui.enderio.generator.generating": "Generating %s µI/t ",
   "gui.enderio.idle": "The machine is idle",
   "gui.enderio.input_empty": "There is no item in the input",

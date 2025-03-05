@@ -56,7 +56,12 @@ public class StirlingGeneratorScreen extends MachineScreen<StirlingGeneratorMenu
         if (MachineLang.GENERATING.getContents() instanceof TranslatableContents translatableContents) {
             int generating = menu.getBurnProgress() > 0 ? getMenu().getBlockEntity().getGenerationRate() : 0;
             MutableComponent comp = Component.translatable(translatableContents.getKey(), generating);
-            guiGraphics.drawString(font, comp, imageWidth / 2 - font.width(EIOLang.MAX_RANGE) / 2, 15, 0, false);
+            guiGraphics.drawString(font, comp, imageWidth / 2 - font.width(comp.getString()) / 2, 9, 0, false);
+            if (MachineLang.FUEL_EFFICIENCY.getContents() instanceof TranslatableContents conts) {
+                comp = Component.translatable(conts.getKey(), getMenu().getBlockEntity().getFuelEfficiency());
+                guiGraphics.drawString(font, comp, imageWidth / 2 - font.width(comp.getString()) / 2,
+                        9 + font.lineHeight + 2, 0, false);
+            }
         }
         super.renderLabels(guiGraphics, pMouseX, pMouseY);
     }

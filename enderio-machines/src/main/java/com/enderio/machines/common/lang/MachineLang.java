@@ -98,6 +98,8 @@ public class MachineLang {
             "Upkeep %s \u00B5I/t ");
     public static final MutableComponent GENERATING = addTranslation("gui", EnderIO.loc("generator.generating"),
             "Generating %s \u00B5I/t ");
+    public static final MutableComponent FUEL_EFFICIENCY = addTranslation("gui", EnderIO.loc("generator.efficiency"),
+            "Efficiency %s%%");
 
     // GUI BUTTONS
     public static final Component RETRIEVE_1 = addTranslation("gui", EnderIO.loc("button.retrieve_1_level"),

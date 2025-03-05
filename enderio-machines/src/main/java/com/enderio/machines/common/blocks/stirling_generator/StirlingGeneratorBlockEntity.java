@@ -54,6 +54,10 @@ public class StirlingGeneratorBlockEntity extends PoweredMachineBlockEntity {
         return GENERATION_SPEED.scaleI(this::getCapacitorData).get();
     }
 
+    public int getFuelEfficiency() {
+        return FUEL_EFFICIENCY.scaleI(this::getCapacitorData).get();
+    }
+
     @Override
     public MachineInventoryLayout createInventoryLayout() {
         return MachineInventoryLayout.builder()
@@ -86,7 +90,7 @@ public class StirlingGeneratorBlockEntity extends PoweredMachineBlockEntity {
 
                     if (burningTime > 0) {
                         float burnSpeed = MachinesConfig.COMMON.ENERGY.STIRLING_GENERATOR_BURN_SPEED.get().floatValue();
-                        float efficiency = FUEL_EFFICIENCY.scaleF(this::getCapacitorData).get() / 100.0f;
+                        float efficiency = getFuelEfficiency() / 100.0f;
 
                         burnTime = (int) Math.floor(burningTime * burnSpeed * efficiency);
                         burnDuration = burnTime;
