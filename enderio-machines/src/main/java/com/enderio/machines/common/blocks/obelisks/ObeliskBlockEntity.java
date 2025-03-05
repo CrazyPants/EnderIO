@@ -2,8 +2,10 @@ package com.enderio.machines.common.blocks.obelisks;
 
 import com.enderio.base.api.UseOnly;
 import com.enderio.base.api.capacitor.CapacitorScalable;
+import com.enderio.base.api.filter.EntityFilter;
 import com.enderio.base.api.io.IOMode;
 import com.enderio.base.api.io.energy.EnergyIOMode;
+import com.enderio.base.common.init.EIOCapabilities;
 import com.enderio.machines.common.MachineNBTKeys;
 import com.enderio.machines.common.attachment.ActionRange;
 import com.enderio.machines.common.attachment.RangedActor;
@@ -36,15 +38,18 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
     private @Nullable AABB aabb;
     public static SingleSlotAccess FILTER = new SingleSlotAccess();
 
-    private static final ActionRange DEFAULT_RANGE = new ActionRange(5, false);
+    private boolean requiresFilter;
+
+    private static final ActionRange DEFAULT_RANGE = new ActionRange(0, false);
 
     private ActionRange actionRange = DEFAULT_RANGE;
 
     public ObeliskBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState,
             boolean isIoConfigMutable, CapacitorSupport capacitorSupport, EnergyIOMode energyIOMode,
-            CapacitorScalable scalableEnergyCapacity, CapacitorScalable scalableMaxEnergyUse) {
+            CapacitorScalable scalableEnergyCapacity, CapacitorScalable scalableMaxEnergyUse, boolean requiresFilter) {
         super(type, worldPosition, blockState, isIoConfigMutable, capacitorSupport, energyIOMode,
                 scalableEnergyCapacity, scalableMaxEnergyUse);
+        this.requiresFilter = requiresFilter;
     }
 
     @Nullable
@@ -90,7 +95,15 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
 
     @Override
     public boolean isActive() {
-        return canAct();
+        return canAct() && getEnergyStorage().getEnergyStored() >= 0 && (!requiresFilter || getEntityFilter() != null);
+    }
+
+    @Nullable
+    protected EntityFilter getEntityFilter() {
+        if (FILTER.getItemStack(this).getCapability(EIOCapabilities.Filter.ITEM) instanceof EntityFilter filter) {
+            return filter;
+        }
+        return null;
     }
 
     @Override
@@ -112,7 +125,7 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
 
     @Override
     protected void updateCapacitorData() {
-        if(level == null || level.isClientSide()) {
+        if (level == null || level.isClientSide()) {
             super.updateCapacitorData();
             return;
         }
@@ -120,11 +133,14 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
         int oldMaxRange = getMaxRange();
         super.updateCapacitorData();
         int newMaxRange = getMaxRange();
-        if(newMaxRange != oldMaxRange) {
+        if (newMaxRange != oldMaxRange) {
             int newRange = getRange();
-            if(newRange <= 0) {
+            if (newRange <= 0 || getRange() == oldMaxRange) {
+                // If the range was 0 (not cap) or was already at max auto increase to the new
+                // max
                 newRange = newMaxRange;
             } else {
+                // Either reduced the max or had a custom range so just ensure it's in bounds
                 newRange = Math.min(getRange(), newMaxRange);
             }
             setActionRange(new ActionRange(newRange, getActionRange().isVisible()));
@@ -135,10 +151,14 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
     public void serverTick() {
         updateMachineState(MachineState.ACTIVE, isActive()); // No powered model state, so it needs to be done manually
         super.serverTick();
-        if(canAct()) {
-            int amount = (int)Math.ceil(getMaxEnergyUse() * ((float)getRange()/getMaxRange()));
+        if (isActive()) {
+            int amount = getPerTickEnergyCost();
             getEnergyStorage().consumeEnergy(amount);
         }
+    }
+
+    public int getPerTickEnergyCost() {
+        return (int) Math.ceil(getMaxEnergyUse() * ((float) getRange() / getMaxRange()));
     }
 
     @Override
@@ -154,6 +174,10 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
 
     public @Nullable AABB getAABB() {
         return aabb;
+    }
+
+    public boolean requiresFilter() {
+        return requiresFilter;
     }
 
     @Override

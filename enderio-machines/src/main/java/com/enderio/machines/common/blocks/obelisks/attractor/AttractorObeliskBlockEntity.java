@@ -14,6 +14,8 @@ import com.enderio.machines.common.config.MachinesConfig;
 import com.enderio.machines.common.init.MachineBlockEntities;
 import com.enderio.machines.common.obelisk.ObeliskAreaManager;
 import com.mojang.authlib.GameProfile;
+import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,24 +38,21 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.UUID;
-
 public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObeliskBlockEntity> {
 
     private static final QuadraticScalable ENERGY_CAPACITY = new QuadraticScalable(CapacitorModifier.ENERGY_CAPACITY,
             MachinesConfig.COMMON.ENERGY.ATTRACTOR_CAPACITY);
     private static final QuadraticScalable ENERGY_USAGE = new QuadraticScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.ENERGY.ATTRACTOR_USAGE);
-    private static final LinearScalable RANGE = new LinearScalable(CapacitorModifier.ENERGY_USE, MachinesConfig.COMMON.ATTRACTOR_RANGE);
-
+    private static final LinearScalable RANGE = new LinearScalable(CapacitorModifier.ENERGY_USE,
+            MachinesConfig.COMMON.ATTRACTOR_RANGE);
 
     private Vec3 targetPos = new Vec3(0, 0, 0);
     private GameProfile fakePlayerID;
 
     public AttractorObeliskBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(MachineBlockEntities.ATTRACTOR_OBELISK.get(), worldPosition, blockState, false, CapacitorSupport.REQUIRED,
-                EnergyIOMode.Input, ENERGY_CAPACITY, ENERGY_USAGE);
+                EnergyIOMode.Input, ENERGY_CAPACITY, ENERGY_USAGE, true);
     }
 
     @Override
@@ -99,14 +98,9 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
     @Override
     public void serverTick() {
         super.serverTick();
-        if(canAct()) {
+        if (isActive()) {
             doAttract();
         }
-    }
-
-    @Override
-    public boolean canAct() {
-        return super.canAct() && FILTER.getItemStack(this).getCapability(EIOCapabilities.Filter.ITEM) instanceof EntityFilter;
     }
 
     private void doAttract() {
@@ -130,7 +124,7 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
                 mob.goalSelector.disableControlFlag(Goal.Flag.LOOK);
                 mob.setTarget(null);
                 directPull(mob, 2.25f);
-            } else if(mob instanceof PathfinderMob) {
+            } else if (mob instanceof PathfinderMob) {
                 attractMob(mob, speed);
             } else if (useTarget(mob)) {
                 setTarget(mob);
@@ -161,11 +155,11 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
     }
 
     private void directPull(LivingEntity mob, float speed) {
-        Vec3 dir = targetPos.subtract( new Vec3(mob.xo, mob.yo, mob.zo)).normalize();
+        Vec3 dir = targetPos.subtract(new Vec3(mob.xo, mob.yo, mob.zo)).normalize();
         dir = dir.scale(speed * 0.1);
         AABB aabb = mob.getBoundingBox();
         aabb.move(dir);
-        if(level != null && level.noCollision(mob, aabb)) {
+        if (level != null && level.noCollision(mob, aabb)) {
             mob.setDeltaMovement(dir);
         }
     }

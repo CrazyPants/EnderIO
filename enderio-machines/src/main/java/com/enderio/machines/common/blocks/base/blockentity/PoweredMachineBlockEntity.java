@@ -239,7 +239,7 @@ public abstract class PoweredMachineBlockEntity extends MachineBlockEntity imple
 
         if (supportsCapacitor()) {
             capacitorData = getCapacitorItem().getOrDefault(EIODataComponents.CAPACITOR_DATA, CapacitorData.NONE);
-            if(isCapacitorInstalled() && energyStorage.getEnergyStored() > energyStorage.getMaxEnergyStored()) {
+            if (isCapacitorInstalled() && energyStorage.getEnergyStored() > energyStorage.getMaxEnergyStored()) {
                 energyStorage.setEnergyStored(energyStorage.getMaxEnergyStored());
             }
             updateCapacitorState();

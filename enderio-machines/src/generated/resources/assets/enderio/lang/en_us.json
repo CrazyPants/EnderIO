@@ -128,6 +128,7 @@
   "gui.enderio.no_capacitor": "Install a capacitor to be able to use the machine",
   "gui.enderio.no_power": "There is not enough power to use the machine",
   "gui.enderio.no_source": "The Drain needs a source block under it to work",
+  "gui.enderio.obelisk.upkeep_cost": "Upkeep %s µI/t ",
   "gui.enderio.output_full": "There is not enough room for the output",
   "gui.enderio.progress": "Progress %s%%",
   "gui.enderio.sag_mill_chance": "Chance: %s%%",

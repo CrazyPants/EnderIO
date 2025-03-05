@@ -1,6 +1,7 @@
 package com.enderio.machines.common.blocks.obelisks.relocator;
 
 import com.enderio.base.api.capacitor.CapacitorModifier;
+import com.enderio.base.api.capacitor.LinearScalable;
 import com.enderio.base.api.capacitor.QuadraticScalable;
 import com.enderio.base.api.filter.EntityFilter;
 import com.enderio.base.api.io.energy.EnergyIOMode;
@@ -30,10 +31,12 @@ public class RelocatorObeliskBlockEntity extends ObeliskBlockEntity<RelocatorObe
             MachinesConfig.COMMON.ENERGY.RELOCATOR_CAPACITY);
     private static final QuadraticScalable ENERGY_USAGE = new QuadraticScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.ENERGY.RELOCATOR_USAGE);
+    private static final LinearScalable RANGE = new LinearScalable(CapacitorModifier.ENERGY_USE,
+            MachinesConfig.COMMON.RELOCATOR_RANGE);
 
     public RelocatorObeliskBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(MachineBlockEntities.RELOCATOR_OBELISK.get(), worldPosition, blockState, false, CapacitorSupport.REQUIRED,
-                EnergyIOMode.Input, ENERGY_CAPACITY, ENERGY_USAGE);
+                EnergyIOMode.Input, ENERGY_CAPACITY, ENERGY_USAGE, true);
     }
 
     @Override
@@ -59,7 +62,7 @@ public class RelocatorObeliskBlockEntity extends ObeliskBlockEntity<RelocatorObe
 
     @Override
     public int getMaxRange() {
-        return 32;
+        return RANGE.scaleI(this::getCapacitorData).get();
     }
 
     @Override
@@ -68,30 +71,24 @@ public class RelocatorObeliskBlockEntity extends ObeliskBlockEntity<RelocatorObe
     }
 
     public boolean handleSpawnEvent(FinalizeSpawnEvent event) {
-        if (FILTER.getItemStack(this).getCapability(EIOCapabilities.Filter.ITEM) instanceof EntityFilter entityFilter) {
-            if (!entityFilter.test(event.getEntity())) {
-                return false;
+        if (!isActive()) {
+            return false;
+        }
+        EntityFilter filter = getEntityFilter();
+        if (filter == null || !filter.test(event.getEntity())) {
+            return false;
+        }
+        if (getAABB() != null && getAABB().contains(event.getX(), event.getY(), event.getZ())) {
+            RandomSource randomsource = level.getRandom(); // TODO proper checks for valid spawn?
+            double x = getBlockPos().getX() + (randomsource.nextDouble() - randomsource.nextDouble()) * 5 + 0.5D;
+            double y = getBlockPos().getY() + randomsource.nextInt(3) - 1;
+            double z = getBlockPos().getZ() + (randomsource.nextDouble() - randomsource.nextDouble()) * 5 + 0.5D;
+            EntityTeleportEvent telEvent = new EntityTeleportEvent(event.getEntity(), x, y, z);
+            if (!NeoForge.EVENT_BUS.post(telEvent).isCanceled()) {
+                event.getEntity().teleportTo(x, y, z);
+                return true;
             }
         }
-
-        if (isActive() && getAABB().contains(event.getX(), event.getY(), event.getZ())) {
-            int cost = ENERGY_USAGE.base().get(); // TODO scale on entity and range? The issue is that it needs the
-                                                  // energy "now" and can't wait for it like other machines
-            int energy = getEnergyStorage().consumeEnergy(cost, true);
-            if (energy == cost) {
-                RandomSource randomsource = level.getRandom(); // TODO proper checks for valid spawn?
-                double x = getBlockPos().getX() + (randomsource.nextDouble() - randomsource.nextDouble()) * 5 + 0.5D;
-                double y = getBlockPos().getY() + randomsource.nextInt(3) - 1;
-                double z = getBlockPos().getZ() + (randomsource.nextDouble() - randomsource.nextDouble()) * 5 + 0.5D;
-                EntityTeleportEvent telEvent = new EntityTeleportEvent(event.getEntity(), x, y, z);
-                if (!NeoForge.EVENT_BUS.post(telEvent).isCanceled()) {
-                    event.getEntity().teleportTo(x, y, z);
-                    getEnergyStorage().consumeEnergy(cost, false);
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 }

@@ -69,9 +69,8 @@ public class MachinesConfigLang {
         addTranslation("pulsatingRangeExtension", "Pulsating Antenna range extension");
         addTranslation("vibrantRangeExtension", "Vibrant Antenna range extension");
 
-        //Obelisks
+        // Obelisks
         addTranslation("obelisks", "Obelisks");
-
 
         // -- Client --
 
