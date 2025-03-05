@@ -96,6 +96,8 @@ public class MachineLang {
             "If you are looking for connected textures on the capacitor bank, you might want to install Athena on your client");
     public static final MutableComponent OBELISK_UPKEEP = addTranslation("gui", EnderIO.loc("obelisk.upkeep_cost"),
             "Upkeep %s \u00B5I/t ");
+    public static final MutableComponent GENERATING = addTranslation("gui", EnderIO.loc("generator.generating"),
+            "Generating %s \u00B5I/t ");
 
     // GUI BUTTONS
     public static final Component RETRIEVE_1 = addTranslation("gui", EnderIO.loc("button.retrieve_1_level"),

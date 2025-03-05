@@ -68,10 +68,14 @@ public class SoulEngineScreen extends MachineScreen<SoulEngineMenu> {
             if (data != null) {
                 double burnRate = menu.getBlockEntity().getBurnRate();
                 float genRate = menu.getBlockEntity().getGenerationRate();
+                double tickPerMb = data.tickpermb() / burnRate;
+                float energyPerMb = data.powerpermb() * genRate;
+                int generating = (int) Math.ceil(energyPerMb / tickPerMb);
+
                 guiGraphics.drawString(font, data.tickpermb() / burnRate + " t/mb", imageWidth / 2f + 12, 40, 4210752,
                         false);
-                guiGraphics.drawString(font, (int) (data.powerpermb() * genRate) + " µI/mb", imageWidth / 2f + 12, 50,
-                        4210752, false);
+                guiGraphics.drawString(font, (int) (energyPerMb) + " µI/mb", imageWidth / 2f + 12, 50, 4210752, false);
+                guiGraphics.drawString(font, generating + " µI/t", imageWidth / 2f + 12, 60, 4210752, false);
 
             }
         }
