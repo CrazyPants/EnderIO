@@ -25,7 +25,7 @@ public class InhibitorObeliskBlockEntity extends ObeliskBlockEntity<InhibitorObe
 
     private static final QuadraticScalable ENERGY_CAPACITY = new QuadraticScalable(CapacitorModifier.ENERGY_CAPACITY,
             MachinesConfig.COMMON.ENERGY.INHIBITOR_CAPACITY);
-    private static final QuadraticScalable ENERGY_USAGE = new QuadraticScalable(CapacitorModifier.ENERGY_USE,
+    private static final LinearScalable ENERGY_USAGE = new LinearScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.ENERGY.INHIBITOR_USAGE);
     private static final LinearScalable RANGE = new LinearScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.INHIBITOR_RANGE);

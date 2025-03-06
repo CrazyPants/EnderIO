@@ -29,7 +29,7 @@ public class RelocatorObeliskBlockEntity extends ObeliskBlockEntity<RelocatorObe
 
     private static final QuadraticScalable ENERGY_CAPACITY = new QuadraticScalable(CapacitorModifier.ENERGY_CAPACITY,
             MachinesConfig.COMMON.ENERGY.RELOCATOR_CAPACITY);
-    private static final QuadraticScalable ENERGY_USAGE = new QuadraticScalable(CapacitorModifier.ENERGY_USE,
+    private static final LinearScalable ENERGY_USAGE = new LinearScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.ENERGY.RELOCATOR_USAGE);
     private static final LinearScalable RANGE = new LinearScalable(CapacitorModifier.ENERGY_USE,
             MachinesConfig.COMMON.RELOCATOR_RANGE);
