@@ -459,6 +459,20 @@ public class MachineRecipeProvider extends RecipeProvider {
                                 .hasItems(ItemPredicate.Builder.item().of(MachineBlocks.AVERSION_OBELISK).build()))
                 .save(recipeOutput);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, MachineBlocks.ATTRACTOR_OBELISK.get())
+                .define('M', EIOItems.ELECTROMAGNET)
+                .define('E', EIOTags.Items.INGOTS_ENERGETIC_ALLOY)
+                .define('G', EIOItems.GEAR_ENERGIZED)
+                .define('I', EIOTags.Items.INGOTS_SOULARIUM)
+                .define('C', EIOBlocks.ENSOULED_CHASSIS)
+                .pattern(" M ")
+                .pattern("EGE")
+                .pattern("ICI")
+                .unlockedBy("has_ingredient",
+                        InventoryChangeTrigger.TriggerInstance
+                                .hasItems(ItemPredicate.Builder.item().of(EIOItems.ENDER_CRYSTAL).build()))
+                .save(recipeOutput);
+
         // TODO: Enable once the block detector has a model.
         /*
          * ShapedRecipeBuilder .shaped(RecipeCategory.MISC,

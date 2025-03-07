@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "enderio:ensouled_chassis"
+    },
+    "E": {
+      "tag": "c:ingots/energetic_alloy"
+    },
+    "G": {
+      "item": "enderio:energized_gear"
+    },
+    "I": {
+      "tag": "c:ingots/soularium"
+    },
+    "M": {
+      "item": "enderio:electromagnet"
+    }
+  },
+  "pattern": [
+    " M ",
+    "EGE",
+    "ICI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "enderio:attractor_obelisk"
+  }
+}

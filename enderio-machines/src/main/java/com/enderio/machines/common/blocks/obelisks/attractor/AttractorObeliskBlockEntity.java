@@ -119,6 +119,7 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
         float speed = 1.0F;
         List<Mob> filteredEntities = level.getEntities(EntityTypeTest.forClass(Mob.class), aabb, filter);
         for (Mob mob : filteredEntities) {
+            // TODO: Config option for attracting bosses
             if (mob instanceof WitherBoss) {
                 mob.goalSelector.disableControlFlag(Goal.Flag.TARGET);
                 mob.goalSelector.disableControlFlag(Goal.Flag.LOOK);
