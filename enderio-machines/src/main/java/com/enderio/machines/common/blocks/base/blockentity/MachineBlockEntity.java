@@ -400,8 +400,9 @@ public abstract class MachineBlockEntity extends EIOBlockEntity
             return;
         }
 
-        states.remove(state);
-        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        if (states.remove(state)) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        }
     }
 
     // endregion

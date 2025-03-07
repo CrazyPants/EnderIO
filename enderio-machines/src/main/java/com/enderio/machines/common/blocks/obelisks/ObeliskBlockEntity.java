@@ -13,9 +13,11 @@ import com.enderio.machines.common.blocks.base.blockentity.PoweredMachineBlockEn
 import com.enderio.machines.common.blocks.base.blockentity.flags.CapacitorSupport;
 import com.enderio.machines.common.blocks.base.inventory.SingleSlotAccess;
 import com.enderio.machines.common.blocks.base.state.MachineState;
+import com.enderio.machines.common.blocks.base.state.MachineStateType;
 import com.enderio.machines.common.init.MachineAttachments;
 import com.enderio.machines.common.init.MachineDataComponents;
 import com.enderio.machines.common.io.IOConfig;
+import com.enderio.machines.common.lang.MachineLang;
 import com.enderio.machines.common.obelisk.ObeliskAreaManager;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -66,6 +68,7 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
                 manager.register((T) this);
             }
         }
+        updateFilterState();
     }
 
     @Override
@@ -123,6 +126,11 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
         }
     }
 
+    protected void updateFilterState() {
+        updateMachineState(new MachineState(MachineStateType.ERROR, MachineLang.NO_SOUL_FILTER),
+                requiresFilter && getEntityFilter() == null);
+    }
+
     @Override
     protected void updateCapacitorData() {
         if (level == null || level.isClientSide()) {
@@ -145,6 +153,12 @@ public abstract class ObeliskBlockEntity<T extends ObeliskBlockEntity<T>> extend
             }
             setActionRange(new ActionRange(newRange, getActionRange().isVisible()));
         }
+    }
+
+    @Override
+    protected void onInventoryContentsChanged(int slot) {
+        super.onInventoryContentsChanged(slot);
+        updateFilterState();
     }
 
     @Override

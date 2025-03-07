@@ -100,6 +100,8 @@ public class MachineLang {
             "Generating %s \u00B5I/t ");
     public static final MutableComponent FUEL_EFFICIENCY = addTranslation("gui", EnderIO.loc("generator.efficiency"),
             "Efficiency %s%%");
+    public static final MutableComponent NO_SOUL_FILTER = addTranslation("gui", EnderIO.loc("obelisk.no_soul_filter"),
+            "No Soul Filter Installed");
 
     // GUI BUTTONS
     public static final Component RETRIEVE_1 = addTranslation("gui", EnderIO.loc("button.retrieve_1_level"),
