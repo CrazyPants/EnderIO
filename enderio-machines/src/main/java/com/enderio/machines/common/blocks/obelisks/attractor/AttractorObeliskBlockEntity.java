@@ -26,6 +26,7 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -116,21 +117,22 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
         if (!(cap instanceof EntityFilter filter)) {
             return;
         }
-        float speed = 1.0F;
+
         List<Mob> filteredEntities = level.getEntities(EntityTypeTest.forClass(Mob.class), aabb, filter);
         for (Mob mob : filteredEntities) {
-            // TODO: Config option for attracting bosses
-            if (mob instanceof WitherBoss) {
+            if(!MachinesConfig.COMMON.ATTRACTOR_PULL_BOSSES.get() && (mob instanceof WitherBoss || mob instanceof Warden)) {
+              //ignore
+            } else if (mob instanceof WitherBoss) {
                 mob.goalSelector.disableControlFlag(Goal.Flag.TARGET);
                 mob.goalSelector.disableControlFlag(Goal.Flag.LOOK);
                 mob.setTarget(null);
                 directPull(mob, 2.25f);
             } else if (mob instanceof PathfinderMob) {
-                attractMob(mob, speed);
+                attractMob(mob);
             } else if (useTarget(mob)) {
                 setTarget(mob);
             } else if (mob instanceof Ghast) {
-                directPull(mob, speed);
+                directPull(mob, 1);
             }
         }
     }
@@ -146,18 +148,18 @@ public class AttractorObeliskBlockEntity extends ObeliskBlockEntity<AttractorObe
         mob.setTarget(fakePlayer);
     }
 
-    private void attractMob(Mob mob, float speed) {
+    private void attractMob(Mob mob) {
         mob.goalSelector.enableControlFlag(Goal.Flag.MOVE);
         Vec3 moveOffset = targetPos.subtract(mob.getX(), mob.getY(), mob.getZ());
         // keep them 1 block away
         moveOffset = moveOffset.subtract(moveOffset.normalize());
         mob.getNavigation()
-                .moveTo(mob.getX() + moveOffset.x, mob.getY() + moveOffset.y, mob.getZ() + moveOffset.z, speed);
+                .moveTo(mob.getX() + moveOffset.x, mob.getY() + moveOffset.y, mob.getZ() + moveOffset.z, 1);
     }
 
     private void directPull(LivingEntity mob, float speed) {
         Vec3 dir = targetPos.subtract(new Vec3(mob.xo, mob.yo, mob.zo)).normalize();
-        dir = dir.scale(speed * 0.1);
+        dir = dir.scale(speed);
         AABB aabb = mob.getBoundingBox();
         aabb.move(dir);
         if (level != null && level.noCollision(mob, aabb)) {
